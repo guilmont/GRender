@@ -34,7 +34,7 @@ int main(void)
 
 Application::Application(void)
 {
-	pout("Welcome to GChess!!");
+	pout("Welcome to my application!!");
 	pout("Current path:", std::filesystem::current_path());
 
 	initialize("GChess", 1200 * DPI_FACTOR, 800 * DPI_FACTOR);

@@ -59,6 +59,9 @@ private:
     bool existPopup = false;
     bool fileExistsPopup(void);
 
+
+private:
+    friend void winDrop_callback(GLFWwindow* , int, const char**); // so we can drop stuff only when dialog windows are openned
 };
 
 

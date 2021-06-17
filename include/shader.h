@@ -12,6 +12,8 @@ public:
     Shader(void);
     ~Shader(void);
 
+    bool loadShader(const std::string &label, const std::string& vtxPath, const std::string& frgPath);
+
     void useProgram(const std::string &name);
 
     void setInteger(const std::string &, int);

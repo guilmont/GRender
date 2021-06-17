@@ -44,7 +44,8 @@ void keyboard_callback(GLFWwindow *window, int key, int scancode, int action, in
 void winDrop_callback(GLFWwindow* window, int nDrops, const char** dropPath)
 {
     Dialog& diag = reinterpret_cast<Renderer*>(glfwGetWindowUserPointer(window))->dialog;
-    diag.drop = { true, fs::path{dropPath[0]} };
+    if (diag.active)
+        diag.drop = { true, fs::path{dropPath[0]} };
 }
 
 /*****************************************************************************/

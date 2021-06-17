@@ -38,6 +38,7 @@ public:
     Mouse mouse;
     Camera camera;
     Keyboard keyboard;
+    Shader shader;
     Dialog dialog;
 
 private:

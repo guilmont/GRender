@@ -1,6 +1,8 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <filesystem>
 #include <vector>
 #include <string>
