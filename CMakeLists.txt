@@ -24,8 +24,8 @@ add_subdirectory(vendor)
 
 # Create library
 add_library(GRenderer STATIC 
-	"include/core.h"
-	"include/events.h"       
+	"include/core.h"         "include/entryPoint.h"
+	"include/events.h"       "include/eventsWrapper.h"
 	"include/dialog.h"       "src/dialog.cpp"
 	"include/shader.h"       "src/shader.cpp"
 	"include/texture.h"      "src/texture.cpp"
@@ -33,7 +33,7 @@ add_library(GRenderer STATIC
 	"include/quad.h"         "src/quad.cpp"
 	"include/framebuffer.h"  "src/framebuffer.cpp"
 	"include/fonts.h"        "src/fonts.cpp"
-	"include/renderer.h"     "src/renderer.cpp"
+	"include/application.h"     "src/application.cpp"
 )
 
 set(DEPENDENCIES glm glad glfw imgui)

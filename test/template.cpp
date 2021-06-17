@@ -1,11 +1,11 @@
-#include "renderer.h"
+#include "grender.h"
 
 
-class Application : public Renderer
+class Sandbox : public GRender::Application
 {
 public:
-	Application(void);
-	~Application(void) = default;
+	Sandbox(void);
+	~Sandbox(void) = default;
 
 	void onUserUpdate(float deltaTime) override;
 	void ImGuiLayer(void) override;
@@ -18,41 +18,32 @@ private:
 
 #ifdef BUILD_IMPLOT
 	bool view_implotdemo = false;
-#endif // BUILD_IMPLOT
-
+#endif
 
 };
 
 
-int main(void)
-{
-	Application* app = new Application();
-	app->mainLoop();
-	delete app;
-
-	return EXIT_SUCCESS;
-}
+GRender::Application* GRender::createApplication(void) { return new Sandbox(); }
 
 
-
-Application::Application(void)
+Sandbox::Sandbox(void)
 {
 	pout("Welcome to my application!!");
 	pout("Current path:", std::filesystem::current_path());
 
-	initialize("GChess", 1200 * DPI_FACTOR, 800 * DPI_FACTOR);
+	initialize("Sandbox", 1200 * DPI_FACTOR, 800 * DPI_FACTOR);
 
 
 }
 
-void Application::onUserUpdate(float deltaTime)
+void Sandbox::onUserUpdate(float deltaTime)
 {
 	bool
-		ctrl = (keyboard[Key::LEFT_CONTROL] == Event::PRESS) || (keyboard[Key::RIGHT_CONTROL] == Event::PRESS),
-		H = keyboard['H'] == Event::PRESS,
-		D = keyboard['D'] == Event::PRESS,
-		O = keyboard['O'] == Event::PRESS,
-		S = keyboard['S'] == Event::PRESS;
+		ctrl = (keyboard[GKey::LEFT_CONTROL] == GEvent::PRESS) || (keyboard[GKey::RIGHT_CONTROL] == GEvent::PRESS),
+		H = keyboard['H'] == GEvent::PRESS,
+		D = keyboard['D'] == GEvent::PRESS,
+		O = keyboard['O'] == GEvent::PRESS,
+		S = keyboard['S'] == GEvent::PRESS;
 
 	if (ctrl & H)
 		view_specs = true;
@@ -61,7 +52,7 @@ void Application::onUserUpdate(float deltaTime)
 		view_imguidemo = true;
 
 	if (ctrl & O)
-		dialog.createDialog(DialogType::OPEN, "Open file...", { "txt", "json"}, nullptr,
+		dialog.createDialog(GDialog::OPEN, "Open file...", { "txt", "json"}, nullptr,
 			[](const std::string& path, void* ptr) -> void
 			{
 				pout("Selected path:", path);
@@ -69,7 +60,7 @@ void Application::onUserUpdate(float deltaTime)
 		
 
 	if (ctrl & S)
-		dialog.createDialog(DialogType::SAVE, "Save file...", { "txt", "json" }, nullptr,
+		dialog.createDialog(GDialog::SAVE, "Save file...", { "txt", "json" }, nullptr,
 			[](const std::string& path, void* ptr) -> void
 			{
 				pout("Selected path:", path);
@@ -77,7 +68,7 @@ void Application::onUserUpdate(float deltaTime)
 
 
 #ifdef BUILD_IMPLOT
-	bool P = keyboard['P'] == Event::PRESS;
+	bool P = keyboard['P'] == GEvent::PRESS;
 
 	if (ctrl & P)
 		view_implotdemo = true;
@@ -86,7 +77,7 @@ void Application::onUserUpdate(float deltaTime)
 
 }
 
-void Application::ImGuiLayer(void)
+void Sandbox::ImGuiLayer(void)
 {
 
 	dialog.showDialog();
@@ -124,12 +115,12 @@ void Application::ImGuiLayer(void)
 
 }
 
-void Application::ImGuiMenuLayer(void)
+void Sandbox::ImGuiMenuLayer(void)
 {
 	if (ImGui::BeginMenu("File"))
 	{
 		if (ImGui::MenuItem("Open..."))
-			dialog.createDialog(DialogType::OPEN, "Open file...", { "txt", "json" }, nullptr,
+			dialog.createDialog(GDialog::OPEN, "Open file...", { "txt", "json" }, nullptr,
 					[](const std::string& path, void* ptr) -> void
 					{
 						pout("Selected path:", path);
@@ -137,7 +128,7 @@ void Application::ImGuiMenuLayer(void)
 
 
 		if (ImGui::MenuItem("Save..."))
-			dialog.createDialog(DialogType::SAVE, "Save file...", { "txt", "json" }, nullptr,
+			dialog.createDialog(GDialog::SAVE, "Save file...", { "txt", "json" }, nullptr,
 				[](const std::string& path, void* ptr) -> void
 				{
 					pout("Selected path:", path);

@@ -1,11 +1,14 @@
 #pragma once
 
-extern Renderer* createApplication();
+
+extern GRender::Application* GRender::createApplication(void);
 
 
-int main(int , char**)
+int main(void)
 {
-	auto app = createApplication();
+	auto app = GRender::createApplication();
 	app->mainLoop();
 	delete app;
+
+	return 0;
 }

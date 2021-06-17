@@ -2,20 +2,25 @@
 
 #include "core.h"
 
-class  Texture
+namespace GRender
 {
-public:
-    Texture(uint32_t width, uint32_t height);
-    ~Texture(void);
 
-    void update(const float *data);
+    class  Texture
+    {
+    public:
+        Texture(uint32_t width, uint32_t height);
+        ~Texture(void);
 
-    void bind(uint32_t slot);
+        void update(const float* data);
 
-    inline uint32_t getWidth(uint32_t id) { return width; }
-    inline uint32_t getHeight(uint32_t id) { return height; }
-    inline uint32_t getBufferID(uint32_t id) { return texID; }
+        void bind(uint32_t slot);
 
-private:
-    uint32_t width, height, texID;
-};
+        inline uint32_t getWidth(uint32_t id) { return width; }
+        inline uint32_t getHeight(uint32_t id) { return height; }
+        inline uint32_t getBufferID(uint32_t id) { return texID; }
+
+    private:
+        uint32_t width, height, texID;
+    };
+
+}

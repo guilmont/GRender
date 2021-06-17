@@ -1,55 +1,56 @@
 #include "quad.h"
-#include "gl_assert.cpp"
 
-Quad::Quad(void)
+namespace GRender
 {
 
-    vIndex = {0, 1, 2, 0, 2, 3};
+    Quad::Quad(void)
+    {
 
-    vtxBuffer = {
-        {{-0.5f, -0.5f, 0.0}, {0.0f, 0.0f}},
-        {{+0.5f, -0.5f, 0.0}, {1.0f, 0.0f}},
-        {{+0.5f, +0.5f, 0.0}, {1.0f, 1.0f}},
-        {{-0.5f, +0.5f, 0.0}, {0.0f, 1.0f}},
-    };
+        vIndex = { 0, 1, 2, 0, 2, 3 };
 
-    gl_call(glad_glGenVertexArrays(1, &vao));
-    gl_call(glad_glBindVertexArray(vao));
+        vtxBuffer = {
+            {{-0.5f, -0.5f, 0.0}, {0.0f, 0.0f}},
+            {{+0.5f, -0.5f, 0.0}, {1.0f, 0.0f}},
+            {{+0.5f, +0.5f, 0.0}, {1.0f, 1.0f}},
+            {{-0.5f, +0.5f, 0.0}, {0.0f, 1.0f}},
+        };
 
-    // Copying buffer to gpu
-    gl_call(glad_glGenBuffers(1, &vertex_buffer));
-    gl_call(glad_glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer));
-    gl_call(glad_glBufferData(GL_ARRAY_BUFFER, vtxBuffer.size() * sizeof(Vertex),
-                              vtxBuffer.data(), GL_DYNAMIC_DRAW));
+        glad_glGenVertexArrays(1, &vao);
+        glad_glBindVertexArray(vao);
 
-    // layout for buffer
-    gl_call(glad_glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE,
-                                       sizeof(Vertex), nullptr));
-    gl_call(glad_glEnableVertexAttribArray(0));
+        // Copying buffer to gpu
+        glad_glGenBuffers(1, &vertex_buffer);
+        glad_glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+        glad_glBufferData(GL_ARRAY_BUFFER, vtxBuffer.size() * sizeof(Vertex), vtxBuffer.data(), GL_DYNAMIC_DRAW);
 
-    gl_call(glad_glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex),
-                                       (void *)(3 * sizeof(float))));
-    gl_call(glad_glEnableVertexAttribArray(1));
+        // layout for buffer
+        glad_glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), nullptr);
+        glad_glEnableVertexAttribArray(0);
 
-    // submiting index array
-    gl_call(glad_glGenBuffers(1, &index_buffer));
-    gl_call(glad_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer));
-    gl_call(glad_glBufferData(GL_ELEMENT_ARRAY_BUFFER, vIndex.size() * sizeof(uint32_t),
-                              vIndex.data(), GL_STATIC_DRAW));
+        glad_glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(3 * sizeof(float)));
+        glad_glEnableVertexAttribArray(1);
 
-} // constructor
+        // submiting index array
+        glad_glGenBuffers(1, &index_buffer);
+        glad_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
+        glad_glBufferData(GL_ELEMENT_ARRAY_BUFFER, vIndex.size() * sizeof(uint32_t), vIndex.data(), GL_STATIC_DRAW);
 
-Quad::~Quad(void)
-{
-    gl_call(glad_glDeleteBuffers(1, &index_buffer));
-    gl_call(glad_glDeleteBuffers(1, &vertex_buffer));
-    gl_call(glad_glDeleteVertexArrays(1, &vao));
-} // destructor
+    } 
 
-void Quad::draw(void)
-{
-    gl_call(glad_glBindVertexArray(vao));
-    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    gl_call(glad_glDrawElements(GL_TRIANGLES, int(vIndex.size()), GL_UNSIGNED_INT, 0));
-    gl_call(glad_glBindVertexArray(0));
-} // drawObject
+    Quad::~Quad(void)
+    {
+        glad_glDeleteBuffers(1, &index_buffer);
+        glad_glDeleteBuffers(1, &vertex_buffer);
+        glad_glDeleteVertexArrays(1, &vao);
+    } // destructor
+
+    void Quad::draw(void)
+    {
+        glad_glBindVertexArray(vao);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        glad_glDrawElements(GL_TRIANGLES, int(vIndex.size()), GL_UNSIGNED_INT, 0);
+        glad_glBindVertexArray(0);
+    } // drawObject
+
+
+}
