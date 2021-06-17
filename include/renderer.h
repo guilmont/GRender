@@ -10,9 +10,7 @@
 #include "events.h"
 #include "camera.h"
 #include "fonts.h"
-
-
-
+#include "dialog.h"
 
 struct Window
 {
@@ -24,22 +22,23 @@ struct Window
 class  Renderer
 {
 public:
-    Renderer(void) = default;
-    virtual ~Renderer(void);
+    GAPI Renderer(void) = default;
+    GAPI virtual ~Renderer(void);
 
-    void initialize(const std::string &name, uint32_t width, uint32_t height);
-    void closeApp(void) { glfwSetWindowShouldClose(window.ptr, 1); }
-    void mainLoop(void);
+    GAPI void initialize(const std::string &name, uint32_t width, uint32_t height);
+    GAPI void closeApp(void) { glfwSetWindowShouldClose(window.ptr, 1); }
+    GAPI void mainLoop(void);
 
-    virtual void onUserUpdate(float deltaT) = 0;
-    virtual void ImGuiLayer(void) {}
-    virtual void ImGuiMenuLayer(void) {}
+    GAPI virtual void onUserUpdate(float deltaT) = 0;
+    GAPI virtual void ImGuiLayer(void) {}
+    GAPI virtual void ImGuiMenuLayer(void) {}
 
     Window window;
     Fonts fonts;
     Mouse mouse;
     Camera camera;
     Keyboard keyboard;
+    Dialog dialog;
 
 private:
     float deltaTime = 0.1f;

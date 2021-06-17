@@ -1,9 +1,10 @@
 #pragma once
 
 #include <iostream>
+#include <filesystem>
 #include <vector>
 #include <string>
-
+#include <list>
 #include <unordered_map>
 
 // vendor
@@ -19,3 +20,30 @@
 #include <imgui_impl_opengl3.h>
 
 
+#ifdef BUILD_IMPLOT
+	#include <implot.h>
+#endif
+
+
+namespace fs = std::filesystem;
+
+///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
+
+#ifdef WIN32
+	#define GAPI __declspec(dllexport)
+#else
+	#define GAPI
+#endif
+
+
+/////////////////////////////
+
+static void pout(void) { std::cout << std::endl; }
+
+template <typename TP, typename ...Args>
+static void pout(TP var, Args &&...args)
+{
+	std::cout << var << " ";
+	pout(args...);
+}

@@ -48,7 +48,13 @@ Renderer::~Renderer(void)
 {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
-    ImGui::DestroyContext();
+
+#ifdef BUILD_IMPLOT
+    ImPlot::DestroyContext();
+#endif
+
+    ImGui::DestroyContext();  
+    
     glfwTerminate();
 } // destructor
 
@@ -59,13 +65,13 @@ void Renderer::initialize(const std::string &name, uint32_t width, uint32_t heig
 
     // Setup window
     glfwSetErrorCallback([](int error, const char *description) -> void {
-        std::cout << "ERROR (glfw): " << error << ", " << description << std::endl;
+        pout("ERROR (glfw): ", error, " :: ", description);
         exit(0);
     });
 
     if (!glfwInit())
     {
-        std::cerr << "ERROR (glfw): Couldn't start glfw!!!\n";
+        pout("ERROR (glfw): Couldn't start glfw!!!");
         exit(-1);
     }
 
@@ -77,7 +83,7 @@ void Renderer::initialize(const std::string &name, uint32_t width, uint32_t heig
     window.ptr = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
     if (window.ptr == NULL)
     {
-        std::cerr << "ERROR: Failed to create GLFW window!!\n";
+        pout("ERROR: Failed to create GLFW window!!");
         glfwTerminate();
         exit(-1);
     }
@@ -89,7 +95,7 @@ void Renderer::initialize(const std::string &name, uint32_t width, uint32_t heig
     // Initialize OPENGL loader
     if (gladLoadGL() == 0)
     {
-        std::cerr << "ERROR (glad): Failed to initialize OpenGL loader!!!\n";
+        pout("ERROR (glad): Failed to initialize OpenGL loader!!!");
         exit(-1);
     }
 
@@ -110,6 +116,11 @@ void Renderer::initialize(const std::string &name, uint32_t width, uint32_t heig
 
     // Setup Platform/Renderer bindings
     ImGui::CreateContext();
+
+#ifdef BUILD_IMPLOT
+    ImPlot::CreateContext();
+#endif
+
     ImGui::StyleColorsClassic();
 
     // Floating windows off main windows
@@ -118,14 +129,15 @@ void Renderer::initialize(const std::string &name, uint32_t width, uint32_t heig
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-    io.IniFilename = "../assets/layout.ini";
+    const std::string assetsPath(ASSETS_PATH);
+    io.IniFilename = LAYOUT_PATH;
 
     ImGui_ImplGlfw_InitForOpenGL(window.ptr, true);
     ImGui_ImplOpenGL3_Init("#version 410 core"); // Mac supports only up to 410
 
     // Setup fonts
-    fonts.loadFont("regular", "../assets/Open_Sans/OpenSans-Regular.ttf", 18.0 * DPI_FACTOR);
-    fonts.loadFont("bold", "../assets/Open_Sans/OpenSans-Bold.ttf", 18.0 * DPI_FACTOR);
+    fonts.loadFont("regular", assetsPath + "Open_Sans/OpenSans-Regular.ttf", 18.0 * DPI_FACTOR);
+    fonts.loadFont("bold", assetsPath + "Open_Sans/OpenSans-Bold.ttf", 18.0 * DPI_FACTOR);
     fonts.setDefault("regular");
 
 } // constructor
