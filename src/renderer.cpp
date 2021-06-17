@@ -41,6 +41,12 @@ void keyboard_callback(GLFWwindow *window, int key, int scancode, int action, in
     keyboard.set(key, action);
 } // keyboard_callback
 
+void winDrop_callback(GLFWwindow* window, int nDrops, const char** dropPath)
+{
+    Dialog& diag = reinterpret_cast<Renderer*>(glfwGetWindowUserPointer(window))->dialog;
+    diag.drop = { true, fs::path{dropPath[0]} };
+}
+
 /*****************************************************************************/
 /*****************************************************************************/
 
@@ -111,6 +117,7 @@ void Renderer::initialize(const std::string &name, uint32_t width, uint32_t heig
     glfwSetMouseButtonCallback(window.ptr, mouseButton_callback);
     glfwSetScrollCallback(window.ptr, mouseScroll_callback);
     glfwSetWindowSizeCallback(window.ptr, winResize_callback);
+    glfwSetDropCallback(window.ptr, winDrop_callback);
     ///////////////////////////////////////////////////////////////////////////
     // SETUP DEAR IMGRenderer/IMPLOT CONTEXT
 

@@ -48,4 +48,5 @@ private:
     friend void mouseScroll_callback(GLFWwindow *, double, double);
     friend void mouseButton_callback(GLFWwindow *, int, int, int);
     friend void keyboard_callback(GLFWwindow *, int, int, int, int);
+    friend void winDrop_callback(GLFWwindow*, int, const char**);
 };

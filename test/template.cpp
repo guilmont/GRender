@@ -46,17 +46,34 @@ void Application::onUserUpdate(float deltaTime)
 {
 	bool
 		ctrl = (keyboard[Key::LEFT_CONTROL] == Event::PRESS) || (keyboard[Key::RIGHT_CONTROL] == Event::PRESS),
-		A = keyboard['S'] == Event::PRESS,
-		D = keyboard['D'] == Event::PRESS;
+		H = keyboard['H'] == Event::PRESS,
+		D = keyboard['D'] == Event::PRESS,
+		O = keyboard['O'] == Event::PRESS,
+		S = keyboard['S'] == Event::PRESS;
 
-	if (ctrl & A)
+	if (ctrl & H)
 		view_specs = true;
 
 	if (ctrl & D)
 		view_imguidemo = true;
 
+	if (ctrl & O)
+		dialog.createDialog(DialogType::OPEN, "Open file...", { "txt", "json"}, nullptr,
+			[](const std::string& path, void* ptr) -> void
+			{
+				pout("Selected path:", path);
+			});
+		
+
+	if (ctrl & S)
+		dialog.createDialog(DialogType::SAVE, "Save file...", { "txt", "json" }, nullptr,
+			[](const std::string& path, void* ptr) -> void
+			{
+				pout("Selected path:", path);
+			});
+
+
 #ifdef BUILD_IMPLOT
-	
 	bool P = keyboard['P'] == Event::PRESS;
 
 	if (ctrl & P)
@@ -68,6 +85,9 @@ void Application::onUserUpdate(float deltaTime)
 
 void Application::ImGuiLayer(void)
 {
+
+	dialog.showDialog();
+
 	if (view_specs)
 	{
 		ImGui::Begin("Specs", &view_specs);
@@ -105,6 +125,22 @@ void Application::ImGuiMenuLayer(void)
 {
 	if (ImGui::BeginMenu("File"))
 	{
+		if (ImGui::MenuItem("Open..."))
+			dialog.createDialog(DialogType::OPEN, "Open file...", { "txt", "json" }, nullptr,
+					[](const std::string& path, void* ptr) -> void
+					{
+						pout("Selected path:", path);
+					});
+
+
+		if (ImGui::MenuItem("Save..."))
+			dialog.createDialog(DialogType::SAVE, "Save file...", { "txt", "json" }, nullptr,
+				[](const std::string& path, void* ptr) -> void
+				{
+					pout("Selected path:", path);
+				});
+
+
 		if (ImGui::MenuItem("Exit"))
 			closeApp();
 

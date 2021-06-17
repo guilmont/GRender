@@ -1,24 +1,5 @@
 #include "dialog.h"
 
-#ifdef WIN32
-static constexpr char slash = '\\';
-#else
-static constexpr char slash = '/';
-#endif
-
-int inputTextCallback(ImGuiInputTextCallbackData *data)
-{
-    Dialog *diag = (Dialog *)data->UserData;
-
-    if (diag->probable.size() > 0)
-    {
-        size_t pos = diag->probable.size() - data->BufTextLen;
-        std::string diff = diag->probable.substr(data->BufTextLen);
-        data->InsertChars(data->BufTextLen, diff.c_str());
-    }
-
-    return 0;
-}
 
 ///////////////////////////////////////////////////////////////////////////////
 // PUBLIC FUNCTIONS
@@ -26,35 +7,32 @@ int inputTextCallback(ImGuiInputTextCallbackData *data)
 Dialog::Dialog(void)
 {
 #ifdef WIN32
-    main_path = std::getenv("USERPROFILE");
+    mainPath = std::getenv("USERPROFILE");
 #else
-    main_path = std::getenv("HOME");
+    mainPath = std::getenv("HOME");
 #endif
 }
 
 Dialog::~Dialog(void) {}
 
-void Dialog::createDialog(uint32_t type, const std::string &title,
-                           const std::list<std::string> &ext,
-                           void *data, void (*callback)(const std::string &, void *))
+void Dialog::createDialog(DialogType type, const std::string &title, const std::list<std::string> &ext, void *data, void (*callback)(const std::string &, void *))
 {
     active = true;
-    this->title = std::move(title);
-    this->currentExt = ext.front();
-    this->lExtension = std::move(ext);
-    this->selected = "";
+    this->title = title;
+    this->lExtension = ext;
+    this->currentExt = "." + ext.front();
     this->filename = "";
 
     switch (type)
     {
-    case Dialog::OPEN:
+    case DialogType::OPEN:
         dialog_function = &Dialog::openDialog;
         break;
-    case Dialog::SAVE:
+    case DialogType::SAVE:
         dialog_function = &Dialog::saveDialog;
         break;
     default:
-        std::cerr << "ERROR: Unknown dialog type" << std::endl;
+        pout("ERROR: Unknown dialog type");
         exit(-1);
         break;
     }
@@ -69,19 +47,18 @@ void Dialog::showDialog(void)
     if (!active)
         return;
 
-    bool status = false;
+    ImGui::Begin(title.c_str(), &active);
+    bool status = (this->*dialog_function)();
+    ImGui::End();
 
     if (existPopup)
         status = fileExistsPopup();
-    else
-    {
-        ImGui::Begin(title.c_str(), &active);
-        status = (this->*dialog_function)();
-        ImGui::End();
-    }
 
     if (status)
-        callback(main_path.string(), callback_data);
+    {
+        active = false;
+        callback(filePath.string(), callback_data);
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -89,39 +66,44 @@ void Dialog::showDialog(void)
 
 bool Dialog::openDialog(void)
 {
-    bool status = false;
-
     ImGui::Text("Input path to file:");
 
     ImGui::SameLine();
     if (ImGui::Button("Back"))
-        main_path = main_path.parent_path();
+        mainPath = mainPath.parent_path();
 
     static char loc[512] = {0};
-    sprintf(loc, "%s", main_path.string().c_str());
+    sprintf(loc, "%s", mainPath.string().c_str());
 
     float width = ImGui::GetContentRegionAvailWidth();
 
     ImGui::PushItemWidth(width);
-    ImGui::InputText("##MainAdress", loc, 512,
-                     ImGuiInputTextFlags_CallbackCompletion, inputTextCallback, this);
+    if (ImGui::InputText("##MainAdress", loc, 512, ImGuiInputTextFlags_EnterReturnsTrue))
+    {
+        fs::path var(loc);
+        if (fs::is_directory(var))
+            mainPath = std::move(var);
 
+        else if (fs::is_regular_file(var))
+            mainPath = var.parent_path();
+    }
     ImGui::PopItemWidth();
 
-    bool toOpen = systemDisplay(loc);
+    bool status = systemDisplay();
 
+   
     ImGui::Text("Extensions:");
     ImGui::SameLine();
 
     ImGui::PushItemWidth(100);
-    if (ImGui::BeginCombo("##combo", currentExt.c_str()))
+    if (ImGui::BeginCombo("##combo", currentExt.c_str()+1))
     {
         for (const std::string &ext : lExtension)
         {
-            bool check = currentExt.compare(ext) == 0;
+            bool check = currentExt.compare("." + ext) == 0;
             if (ImGui::Selectable(ext.c_str(), &check))
             {
-                currentExt = ext;
+                currentExt = "." + ext;
                 ImGui::SetItemDefaultFocus();
             } // if-selected
         }
@@ -130,25 +112,9 @@ bool Dialog::openDialog(void)
     }
 
     ImGui::PopItemWidth();
-
-    ImGui::Spacing();
-    ImGui::Spacing();
-
-    ImGui::Separator();
-
-    ImGui::Spacing();
-
-    if (ImGui::Button("Open") | toOpen)
-    {
-        main_path += slash + selected;
-        if (fs::is_regular_file(main_path))
-        {
-            status = true;
-            active = false;
-        }
-    }
-
+   
     ImGui::SameLine();
+
     if (ImGui::Button("Close"))
         active = false;
 
@@ -164,66 +130,57 @@ bool Dialog::saveDialog(void)
 
     ImGui::SameLine();
     if (ImGui::Button("Back"))
-        main_path = main_path.parent_path();
+        mainPath = mainPath.parent_path();
 
     char buf[512] = {0};
-    sprintf(buf, "%s", main_path.string().c_str());
+    sprintf(buf, "%s", mainPath.string().c_str());
 
     float width = ImGui::GetContentRegionAvailWidth();
 
     ImGui::PushItemWidth(width);
-    ImGui::InputText("##MainAdress", buf, 512,
-                     ImGuiInputTextFlags_CallbackCompletion, inputTextCallback, this);
+    if (ImGui::InputText("##MainAdress", buf, 512, ImGuiInputTextFlags_EnterReturnsTrue))
+    {
+        fs::path var(buf);
+        if (fs::is_directory(var))
+            mainPath = std::move(var);
 
+        else if (fs::is_regular_file(var))
+        {
+            mainPath = var.parent_path();
+            filename = var.stem();
+        }
+    }
     ImGui::PopItemWidth();
 
-    if (systemDisplay(buf))
-    {
-        fs::path loc(selected);
-        filename = loc.stem().string();
-        currentExt = loc.extension().string();
-    }
 
-    ///////////////////////////////////////////////////////
+    if (systemDisplay())
+        filename = filePath.stem();
 
     ImGui::Text("Filename");
     ImGui::SameLine();
 
     memset(buf, 0, 512);
-    sprintf(buf, "%s", filename.c_str());
+    sprintf(buf, "%s", filename.string().c_str());
 
     ImGui::PushItemWidth(0.333f * width);
-    ImGui::InputText("##inp", buf, 512);
-
-    filename = std::string(buf);
-    size_t pos = filename.find(".");
-    if (pos != std::string::npos)
+    if (ImGui::InputText("##inp", buf, 512, ImGuiInputTextFlags_EnterReturnsTrue))
     {
-        std::string ext = filename.substr(pos);
-        filename = filename.substr(0, pos);
-
-        // Just a check to be sure that extension is correct
-        for (auto &xt : lExtension)
-            if (ext.compare(xt) == 0)
-            {
-                currentExt = xt;
-                break;
-            }
+        filename = fs::path(buf).stem();
+        filePath = mainPath / (filename.string() + currentExt);
+        status = true;
     }
-
-    ImGui::PopItemWidth();
 
     ImGui::SameLine();
 
     ImGui::PushItemWidth(100);
-    if (ImGui::BeginCombo("##combo", currentExt.c_str()))
+    if (ImGui::BeginCombo("##combo", currentExt.c_str()+1))
     {
         for (const std::string &ext : lExtension)
         {
-            bool check = currentExt.compare(ext) == 0;
+            bool check = currentExt.compare("." + ext) == 0;
             if (ImGui::Selectable(ext.c_str(), &check))
             {
-                currentExt = ext;
+                currentExt = "." + ext;
                 ImGui::SetItemDefaultFocus();
             } // if-selected
         }
@@ -233,164 +190,100 @@ bool Dialog::saveDialog(void)
 
     ImGui::PopItemWidth();
 
-    ImGui::Spacing();
-    ImGui::Spacing();
+    ImGui::SameLine();
 
-    ImGui::Separator();
-
-    ///////////////////////////////////////////////////////
-    ImGui::Spacing();
-
-    if (ImGui::Button("Save") && filename.size() > 0)
+    if (ImGui::Button("Save"))
     {
-        // NEED to perform some checking
-        main_path = fs::path(main_path.string() += slash + filename + currentExt);
-        if (fs::is_regular_file(main_path))
-            existPopup = true;
-        else
-        {
-            status = true;
-            active = false;
-        }
+        filePath = mainPath / (filename.string() + currentExt);
+        status = true;
     }
 
     ImGui::SameLine();
+
     if (ImGui::Button("Close"))
         active = false;
+
+
+    // Let's check if file already exists
+    if (status)
+        existPopup = fs::is_regular_file(filePath);
+
 
     return status;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-bool Dialog::systemDisplay(std::string url)
+bool Dialog::systemDisplay(void)
 {
-    std::string diff = "";
-    ImGui::PushStyleColor(ImGuiCol_ChildBg, {0.02f, 0.02f, 0.02f, 1.0f});
+    bool status = false;
 
-    if (!fs::exists(url))
-    {
-    }
-
-    else if (std::filesystem::is_directory(url))
-        main_path = fs::path(url);
-
-    else if (std::filesystem::is_regular_file(url))
-    {
-        main_path = fs::path(url).parent_path();
-
-        fs::path loc = fs::path(url).filename();
-        for (const std::string &ext : lExtension)
-            if (loc.string().find(ext) != std::string::npos)
-            {
-                selected = loc.string();
-                currentExt = loc.extension().string();
-                break;
-            }
-    }
-    else
-    {
-        fs::path loc(url);
-        main_path = loc.parent_path();
-        diff = loc.filename().string();
-    }
-
-    ///////////////////////////////////////////////////
-    // Displaying folders and files
-
-    bool toOpen = false;
     float width = ImGui::GetContentRegionAvailWidth();
-    ImGui::BeginChild("child_2", {width, 256 * DPI_FACTOR}, true);
+    
+    ImGui::BeginChild("child_2", {width, 300 * DPI_FACTOR}, true);
 
-    probable = "";
-    for (const auto &entry : fs::directory_iterator(main_path))
+       
+    for (auto entry : fs::directory_iterator(mainPath, fs::directory_options::skip_permission_denied))
     {
-
-        const fs::path &loc = entry.path();
-
-        if (loc.string().find(diff) == std::string::npos)
+        const fs::path& path = entry.path();
+        const std::string& filename = path.filename().string();
+        
+        // hidden files
+        if (filename[0] == '.')
             continue;
-
-        bool isDir = false, isFile = false;
+        
+        bool isDirectory = false, isFile = false;
         try
         {
-            isDir = fs::is_directory(loc);
-            isFile = fs::is_regular_file(loc);
+            isDirectory = fs::is_directory(path);
+            isFile = fs::is_regular_file(path);
         }
         catch (...)
         {
         }
 
-        if (isDir)
+        if (isDirectory)
         {
-            const std::string &folder = loc.filename().string();
-            if (folder[0] == '.') // hidden folder
-                continue;
+            if (ImGui::Selectable(filename.c_str(), true))
+                mainPath /= filename;
+            
+            ImGui::Spacing();
 
-            if (probable.size() == 0)
-                probable = loc.string();
+        }
 
-            bool check = selected.compare(folder) == 0;
-            if (check)
-            {
-                ImGui::PushStyleColor(ImGuiCol_Header, {0.6f, 0.1f, 0.1f, 1.0f});
-                ImGui::PushStyleColor(ImGuiCol_HeaderActive, {0.6f, 0.1f, 0.1f, 1.0f});
-                ImGui::PushStyleColor(ImGuiCol_HeaderHovered, {0.7f, 0.2f, 0.2f, 1.0f});
-            }
+        if (isFile && path.extension().compare(currentExt) == 0)
+        {
+            ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 0.2f, 0.7f, 0.2f, 1.0f });
+            status = ImGui::Selectable(filename.c_str(), false);
+            
+            if (status)
+                filePath = mainPath / filename;
 
-            if (ImGui::Selectable(folder.c_str(), true,
-                                  ImGuiSelectableFlags_AllowDoubleClick))
-            {
-                selected = folder;
-
-                if (ImGui::IsMouseDoubleClicked(0))
-                    main_path = loc;
-            }
-
-            if (check)
-                ImGui::PopStyleColor(3);
+            ImGui::PopStyleColor();
 
             ImGui::Spacing();
         }
 
-        else if (isFile)
-        {
-            const std::string &arq = loc.filename().string();
-            if ((arq[0] == '.') || (arq.find(currentExt) == std::string::npos))
-                continue;
+    }
 
-            bool check = selected.compare(arq) == 0;
-            if (check)
-            {
-                ImGui::PushStyleColor(ImGuiCol_Header, {0.1f, 0.6f, 0.1f, 1.0f});
-                ImGui::PushStyleColor(ImGuiCol_HeaderActive, {0.1f, 0.6f, 0.1f, 1.0f});
-                ImGui::PushStyleColor(ImGuiCol_HeaderHovered, {0.2f, 0.7f, 0.2f, 1.0f});
-            }
-
-            if (ImGui::Selectable(arq.c_str(), check,
-                                  ImGuiSelectableFlags_AllowDoubleClick))
-            {
-                selected = arq;
-                if (ImGui::IsMouseDoubleClicked(0))
-                    toOpen = true;
-            }
-
-            if (check)
-                ImGui::PopStyleColor(3);
-        }
-
-    } // loop-directory
 
     ImGui::EndChild();
-
+   
     ImGui::Spacing();
     ImGui::Spacing();
-    ImGui::Spacing();
 
-    ImGui::PopStyleColor();
+    if (drop.handle)
+    {
+        if (fs::is_directory(drop.path))
+            mainPath = drop.path;
 
-    return toOpen;
+        else if (fs::is_regular_file(drop.path))
+            mainPath = drop.path.parent_path();
 
+        drop.handle = false;
+    }
+
+    return status;
 } // systemDisplay
 
 bool Dialog::fileExistsPopup(void)
@@ -400,7 +293,7 @@ bool Dialog::fileExistsPopup(void)
 
     if (ImGui::BeginPopupModal("File exists"))
     {
-        const std::string &name = main_path.filename().string();
+        const std::string &name = mainPath.filename().string();
         ImGui::Text("'%s' already exists. Replace?", name.c_str());
 
         if (ImGui::Button("Yes"))
@@ -414,7 +307,6 @@ bool Dialog::fileExistsPopup(void)
 
         if (ImGui::Button("No"))
         {
-            main_path = main_path.parent_path();
             existPopup = false;
             ImGui::CloseCurrentPopup();
         }

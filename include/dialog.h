@@ -2,34 +2,46 @@
 
 #include "core.h"
 
+enum class DialogType : uint8_t
+{
+    OPEN,
+    SAVE,
+};
+
 class Dialog
 {
 public:
     GAPI Dialog(void);
     GAPI ~Dialog(void);
 
-    GAPI void createDialog(uint32_t type, const std::string &title,
+
+    GAPI void createDialog(DialogType type, const std::string &title,
                       const std::list<std::string> &ext,
                       void *data = nullptr,
                       void (*callback)(const std::string &, void *) = nullptr);
+
+
+
     GAPI void showDialog(void);
 
     // RETRIEVE DATA
-    GAPI std::string getPath(void) const { return main_path.string(); }
+    GAPI const fs::path& getPath(void) const { return filePath; }
 
-    enum : uint32_t
+    // Used to drop files
+    struct
     {
-        OPEN,
-        SAVE,
-    };
+        bool handle = false;
+        fs::path path;
+    } drop;
+
 
 private:
     bool active = false;
     std::string title;
 
-    fs::path main_path;
-
-    std::string currentExt, selected, probable, filename;
+    fs::path mainPath, filePath, filename;
+    
+    std::string currentExt;
     std::list<std::string> lExtension;
 
     bool (Dialog::*dialog_function)(void);
@@ -42,10 +54,11 @@ private:
     bool openDialog(void);
     bool saveDialog(void);
 
-    bool systemDisplay(std::string url);
+    bool systemDisplay(void);
 
     bool existPopup = false;
     bool fileExistsPopup(void);
 
-    friend int inputTextCallback(ImGuiInputTextCallbackData *);
 };
+
+
