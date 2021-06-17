@@ -107,7 +107,7 @@ void Shader::useProgram(const std::string &name)
 {
     program_used = vProgram[name];
     glUseProgram(program_used);
-} // useProgram
+} 
 
 
 void Shader::setInteger(const std::string &name, int val)
@@ -115,44 +115,44 @@ void Shader::setInteger(const std::string &name, int val)
     int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
     glad_glUniform1i(loc, val);
 
-} // setUniform1i
+} 
 
 void Shader::setFloat(const std::string &name, float val)
 {
     int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
     glad_glUniform1f(loc, val);
 
-} // setUniform1i
+}
 
 void Shader::setVec2f(const std::string &name, const float *v)
 {
     int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
     glad_glUniform2f(loc, v[0], v[1]);
-} // setUnifom3f
+}
 
 void Shader::setVec3f(const std::string &name, const float *v)
 {
     int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
     glad_glUniform3f(loc, v[0], v[1], v[2]);
-} // setUnifom3f
+}
 
 void Shader::setVec4f(const std::string &name, const float *v)
 {
     int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
     glad_glUniform4f(loc, v[0], v[1], v[2], v[3]);
-} // setUnifom3f
+}
 
 void Shader::setMatrix3f(const std::string &name, const float *mat)
 {
     int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
     glad_glUniformMatrix3fv(loc, 1, GL_FALSE, mat);
-} //setUniformMatrix4f
+}
 
 void Shader::setMatrix4f(const std::string &name, const float *mat)
 {
     int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
     glad_glUniformMatrix4fv(loc, 1, GL_FALSE, mat);
-} //setUniformMatrix4f
+} 
 
 void Shader::setIntArray(const std::string &name, const int *ptr, int32_t N)
 {

@@ -22,16 +22,16 @@ struct Window
 class  Renderer
 {
 public:
-    GAPI Renderer(void) = default;
-    GAPI virtual ~Renderer(void);
+    Renderer(void) = default;
+    virtual ~Renderer(void);
 
-    GAPI void initialize(const std::string &name, uint32_t width, uint32_t height);
-    GAPI void closeApp(void) { glfwSetWindowShouldClose(window.ptr, 1); }
-    GAPI void mainLoop(void);
+    void initialize(const std::string &name, uint32_t width, uint32_t height);
+    void closeApp(void) { glfwSetWindowShouldClose(window.ptr, 1); }
+    void mainLoop(void);
 
-    GAPI virtual void onUserUpdate(float deltaT) = 0;
-    GAPI virtual void ImGuiLayer(void) {}
-    GAPI virtual void ImGuiMenuLayer(void) {}
+    virtual void onUserUpdate(float deltaT) = 0;
+    virtual void ImGuiLayer(void) {}
+    virtual void ImGuiMenuLayer(void) {}
 
     Window window;
     Fonts fonts;
@@ -51,3 +51,4 @@ private:
     friend void keyboard_callback(GLFWwindow *, int, int, int, int);
     friend void winDrop_callback(GLFWwindow*, int, const char**);
 };
+

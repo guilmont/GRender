@@ -26,11 +26,14 @@ private:
 
 int main(void)
 {
-	Application app;
-	app.mainLoop();
+	Application* app = new Application();
+	app->mainLoop();
+	delete app;
 
 	return EXIT_SUCCESS;
 }
+
+
 
 Application::Application(void)
 {

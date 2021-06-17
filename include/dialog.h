@@ -11,21 +11,21 @@ enum class DialogType : uint8_t
 class Dialog
 {
 public:
-    GAPI Dialog(void);
-    GAPI ~Dialog(void);
+    Dialog(void);
+    ~Dialog(void);
 
 
-    GAPI void createDialog(DialogType type, const std::string &title,
+    void createDialog(DialogType type, const std::string &title,
                       const std::list<std::string> &ext,
                       void *data = nullptr,
                       void (*callback)(const std::string &, void *) = nullptr);
 
 
 
-    GAPI void showDialog(void);
+    void showDialog(void);
 
     // RETRIEVE DATA
-    GAPI const fs::path& getPath(void) const { return filePath; }
+    const fs::path& getPath(void) const { return filePath; }
 
     // Used to drop files
     struct

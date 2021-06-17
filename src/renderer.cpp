@@ -177,14 +177,14 @@ void Renderer::mainLoop(void)
         ImGui::NewFrame();
 
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
-        window_flags |= ImGuiWindowFlags_MenuBar;
-        window_flags |= ImGuiWindowFlags_NoDocking;
-        window_flags |= ImGuiWindowFlags_NoTitleBar;
-        window_flags |= ImGuiWindowFlags_NoCollapse;
-        window_flags |= ImGuiWindowFlags_NoResize;
-        window_flags |= ImGuiWindowFlags_NoMove;
-        window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
-        window_flags |= ImGuiWindowFlags_NoNavFocus;
+         window_flags |= ImGuiWindowFlags_MenuBar;
+         window_flags |= ImGuiWindowFlags_NoDocking;
+         window_flags |= ImGuiWindowFlags_NoTitleBar;
+         window_flags |= ImGuiWindowFlags_NoCollapse;
+         window_flags |= ImGuiWindowFlags_NoResize;
+         window_flags |= ImGuiWindowFlags_NoMove;
+         window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus;
+         window_flags |= ImGuiWindowFlags_NoNavFocus;
 
         ImGuiViewport *viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(viewport->WorkPos);
@@ -192,6 +192,7 @@ void Renderer::mainLoop(void)
         ImGui::SetNextWindowViewport(viewport->ID);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
         ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+        
 
         static bool p_open = true;
         ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
@@ -201,7 +202,7 @@ void Renderer::mainLoop(void)
         ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
         ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f));
 
-        if (ImGui::BeginMenuBar())
+         if (ImGui::BeginMenuBar())
         {
             ImGuiMenuLayer();
             ImGui::EndMenuBar();
