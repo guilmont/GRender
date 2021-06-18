@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10.0)
-project(GRenderer)
+project(GRender)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -8,7 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(BUILD_IMPLOT "Build plotting utilities" ON)
 option(DPI_FACTOR "Controls size of interface for high density monitors" OFF)
-option(BUILD_TEST "Build template test for GRenderer" ON)
+option(BUILD_TEST "Build template test for GRender" OFF)
 
 
 # Setup runtime output
@@ -23,7 +23,7 @@ set(LAYOUT_PATH ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/layout.ini)
 add_subdirectory(vendor)
 
 # Create library
-add_library(GRenderer STATIC 
+add_library(GRender STATIC 
 	"include/core.h"         "include/entryPoint.h"
 	"include/events.h"       "include/eventsWrapper.h"
 	"include/dialog.h"       "src/dialog.cpp"
@@ -37,8 +37,8 @@ add_library(GRenderer STATIC
 )
 
 set(DEPENDENCIES glm glad glfw imgui)
-target_include_directories(GRenderer PUBLIC "include")
-target_compile_definitions(GRenderer PRIVATE 
+target_include_directories(GRender PUBLIC "include")
+target_compile_definitions(GRender PRIVATE 
 	ASSETS_PATH="${ASSETS_PATH}"
 	LAYOUT_PATH="${LAYOUT_PATH}"
 )
@@ -46,22 +46,22 @@ target_compile_definitions(GRenderer PRIVATE
 #############################
 
 if (BUILD_IMPLOT)
-	target_compile_definitions(GRenderer PUBLIC BUILD_IMPLOT)
+	target_compile_definitions(GRender PUBLIC BUILD_IMPLOT)
 	set(DEPENDENCIES ${DEPENDENCIES} implot)
 endif()
 
 #############################
 
 if (DPI_FACTOR)
-	target_compile_definitions(GRenderer PUBLIC DPI_FACTOR=2)
+	target_compile_definitions(GRender PUBLIC DPI_FACTOR=2)
 else()
-	target_compile_definitions(GRenderer PUBLIC DPI_FACTOR=1)
+	target_compile_definitions(GRender PUBLIC DPI_FACTOR=1)
 endif()
 
 #############################
 
-target_precompile_headers(GRenderer PUBLIC "include/core.h")
-target_link_libraries(GRenderer PUBLIC ${DEPENDENCIES})
+target_precompile_headers(GRender PUBLIC "include/core.h")
+target_link_libraries(GRender PUBLIC ${DEPENDENCIES})
 
 
 # Copying assets
