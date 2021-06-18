@@ -30,7 +30,7 @@ namespace GRender {
 
         void initialize(const std::string& name, uint32_t width, uint32_t height);
         void closeApp(void) { glfwSetWindowShouldClose(window.ptr, 1); }
-        void mainLoop(void);
+        void run(void);
 
         virtual void onUserUpdate(float deltaT) = 0;
         virtual void ImGuiLayer(void) {}
@@ -54,7 +54,5 @@ namespace GRender {
         friend void keyboard_callback(GLFWwindow*, int, int, int, int);
         friend void winDrop_callback(GLFWwindow*, int, const char**);
     };
-
-    Application* createApplication(void);
 
 }

@@ -151,7 +151,7 @@ namespace GRender
 
     } // constructor
 
-    void Application::mainLoop(void)
+    void Application::run(void)
     {
         glfwSetTime(0);
         double t0 = glfwGetTime();

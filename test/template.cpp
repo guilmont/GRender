@@ -1,5 +1,4 @@
-#include "grender.h"
-
+#include "GRender.h"
 
 class Sandbox : public GRender::Application
 {
@@ -19,12 +18,19 @@ private:
 #ifdef BUILD_IMPLOT
 	bool view_implotdemo = false;
 #endif
-
 };
 
+int main()
+{
+	Sandbox *app = new Sandbox();
+	app->run();
+	delete app;
 
-GRender::Application* GRender::createApplication(void) { return new Sandbox(); }
+	return EXIT_SUCCESS;
+}
 
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
 Sandbox::Sandbox(void)
 {
@@ -32,8 +38,6 @@ Sandbox::Sandbox(void)
 	gr_pout("Current path:", std::filesystem::current_path());
 
 	initialize("Sandbox", 1200 * DPI_FACTOR, 800 * DPI_FACTOR);
-
-
 }
 
 void Sandbox::onUserUpdate(float deltaTime)
@@ -52,20 +56,18 @@ void Sandbox::onUserUpdate(float deltaTime)
 		view_imguidemo = true;
 
 	if (ctrl & O)
-		dialog.createDialog(GDialog::OPEN, "Open file...", { "txt", "json"}, nullptr,
-			[](const std::string& path, void* ptr) -> void
-			{
-				gr_pout("Selected path:", path);
-			});
-		
+		dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, nullptr,
+							[](const std::string &path, void *ptr) -> void
+							{
+								gr_pout("Selected path:", path);
+							});
 
 	if (ctrl & S)
-		dialog.createDialog(GDialog::SAVE, "Save file...", { "txt", "json" }, nullptr,
-			[](const std::string& path, void* ptr) -> void
-			{
-				gr_pout("Selected path:", path);
-			});
-
+		dialog.createDialog(GDialog::SAVE, "Save file...", {"txt", "json"}, nullptr,
+							[](const std::string &path, void *ptr) -> void
+							{
+								gr_pout("Selected path:", path);
+							});
 
 #ifdef BUILD_IMPLOT
 	bool P = keyboard['P'] == GEvent::PRESS;
@@ -73,8 +75,7 @@ void Sandbox::onUserUpdate(float deltaTime)
 	if (ctrl & P)
 		view_implotdemo = true;
 
-#endif 
-
+#endif
 }
 
 void Sandbox::ImGuiLayer(void)
@@ -86,7 +87,7 @@ void Sandbox::ImGuiLayer(void)
 	{
 		ImGui::Begin("Specs", &view_specs);
 
-		char buf[128] = { 0 };
+		char buf[128] = {0};
 		sprintf(buf, "FPS: %.0f", ImGui::GetIO().Framerate);
 		ImGui::Text(buf);
 
@@ -112,7 +113,6 @@ void Sandbox::ImGuiLayer(void)
 	if (view_implotdemo)
 		ImPlot::ShowDemoWindow(&view_implotdemo);
 #endif
-
 }
 
 void Sandbox::ImGuiMenuLayer(void)
@@ -120,27 +120,24 @@ void Sandbox::ImGuiMenuLayer(void)
 	if (ImGui::BeginMenu("File"))
 	{
 		if (ImGui::MenuItem("Open..."))
-			dialog.createDialog(GDialog::OPEN, "Open file...", { "txt", "json" }, nullptr,
-					[](const std::string& path, void* ptr) -> void
-					{
-						gr_pout("Selected path:", path);
-					});
-
+			dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, nullptr,
+								[](const std::string &path, void *ptr) -> void
+								{
+									gr_pout("Selected path:", path);
+								});
 
 		if (ImGui::MenuItem("Save..."))
-			dialog.createDialog(GDialog::SAVE, "Save file...", { "txt", "json" }, nullptr,
-				[](const std::string& path, void* ptr) -> void
-				{
-					gr_pout("Selected path:", path);
-				});
-
+			dialog.createDialog(GDialog::SAVE, "Save file...", {"txt", "json"}, nullptr,
+								[](const std::string &path, void *ptr) -> void
+								{
+									gr_pout("Selected path:", path);
+								});
 
 		if (ImGui::MenuItem("Exit"))
 			closeApp();
 
 		ImGui::EndMenu();
 	} // file-menu
-
 
 	if (ImGui::BeginMenu("About"))
 	{
@@ -157,5 +154,4 @@ void Sandbox::ImGuiMenuLayer(void)
 
 		ImGui::EndMenu();
 	} // file-menu
-
 }
