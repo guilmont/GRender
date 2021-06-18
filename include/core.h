@@ -33,11 +33,11 @@ namespace fs = std::filesystem;
 ///////////////////////////////////////////////////////////
 
 
-static void pout(void) { std::cout << std::endl; }
+static void gr_pout(void) { std::cout << std::endl; }
 
 template <typename TP, typename ...Args>
-static void pout(TP var, Args &&...args)
+static void gr_pout(TP var, Args &&...args)
 {
 	std::cout << var << " ";
-	pout(args...);
+	gr_pout(args...);
 }

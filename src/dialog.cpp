@@ -31,7 +31,7 @@ namespace GRender
             dialog_function = &Dialog::saveDialog;
             break;
         default:
-            pout("ERROR: Unknown dialog type");
+            gr_pout("ERROR: Unknown dialog type");
             exit(-1);
             break;
         }

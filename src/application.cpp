@@ -72,13 +72,13 @@ namespace GRender
 
         // Setup window
         glfwSetErrorCallback([](int error, const char* description) -> void {
-            pout("ERROR (glfw): ", error, " :: ", description);
+            gr_pout("ERROR (glfw): ", error, " :: ", description);
             exit(0);
             });
 
         if (!glfwInit())
         {
-            pout("ERROR (glfw): Couldn't start glfw!!!");
+            gr_pout("ERROR (glfw): Couldn't start glfw!!!");
             exit(-1);
         }
 
@@ -90,7 +90,7 @@ namespace GRender
         window.ptr = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
         if (window.ptr == NULL)
         {
-            pout("ERROR: Failed to create GLFW window!!");
+            gr_pout("ERROR: Failed to create GLFW window!!");
             glfwTerminate();
             exit(-1);
         }
@@ -102,7 +102,7 @@ namespace GRender
         // Initialize OPENGL loader
         if (gladLoadGL() == 0)
         {
-            pout("ERROR (glad): Failed to initialize OpenGL loader!!!");
+            gr_pout("ERROR (glad): Failed to initialize OpenGL loader!!!");
             exit(-1);
         }
 

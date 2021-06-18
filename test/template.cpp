@@ -28,8 +28,8 @@ GRender::Application* GRender::createApplication(void) { return new Sandbox(); }
 
 Sandbox::Sandbox(void)
 {
-	pout("Welcome to my application!!");
-	pout("Current path:", std::filesystem::current_path());
+	gr_pout("Welcome to my application!!");
+	gr_pout("Current path:", std::filesystem::current_path());
 
 	initialize("Sandbox", 1200 * DPI_FACTOR, 800 * DPI_FACTOR);
 
@@ -55,7 +55,7 @@ void Sandbox::onUserUpdate(float deltaTime)
 		dialog.createDialog(GDialog::OPEN, "Open file...", { "txt", "json"}, nullptr,
 			[](const std::string& path, void* ptr) -> void
 			{
-				pout("Selected path:", path);
+				gr_pout("Selected path:", path);
 			});
 		
 
@@ -63,7 +63,7 @@ void Sandbox::onUserUpdate(float deltaTime)
 		dialog.createDialog(GDialog::SAVE, "Save file...", { "txt", "json" }, nullptr,
 			[](const std::string& path, void* ptr) -> void
 			{
-				pout("Selected path:", path);
+				gr_pout("Selected path:", path);
 			});
 
 
@@ -123,7 +123,7 @@ void Sandbox::ImGuiMenuLayer(void)
 			dialog.createDialog(GDialog::OPEN, "Open file...", { "txt", "json" }, nullptr,
 					[](const std::string& path, void* ptr) -> void
 					{
-						pout("Selected path:", path);
+						gr_pout("Selected path:", path);
 					});
 
 
@@ -131,7 +131,7 @@ void Sandbox::ImGuiMenuLayer(void)
 			dialog.createDialog(GDialog::SAVE, "Save file...", { "txt", "json" }, nullptr,
 				[](const std::string& path, void* ptr) -> void
 				{
-					pout("Selected path:", path);
+					gr_pout("Selected path:", path);
 				});
 
 
