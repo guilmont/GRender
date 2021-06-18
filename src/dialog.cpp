@@ -253,10 +253,11 @@ namespace GRender
             if (isFile && path.extension().compare(currentExt) == 0)
             {
                 ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 0.2f, 0.7f, 0.2f, 1.0f });
-                status = ImGui::Selectable(filename.c_str(), false);
-
-                if (status)
+                if (ImGui::Selectable(filename.c_str(), false))
+                {
                     filePath = mainPath / filename;
+                    status = true;
+                }
 
                 ImGui::PopStyleColor();
 
