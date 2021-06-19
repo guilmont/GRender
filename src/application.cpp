@@ -53,6 +53,8 @@ namespace GRender
 
     Application::~Application(void)
     {
+        shader.deletePrograms();
+
         ImGui_ImplOpenGL3_Shutdown();
         ImGui_ImplGlfw_Shutdown();
 
