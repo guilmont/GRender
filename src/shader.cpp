@@ -85,10 +85,7 @@ namespace GRender
     ///////////////////////////////////////////////////////////////////////////////
     ///////////////////////////////////////////////////////////////////////////////
 
-    Shader::Shader(void) {}
-
-
-    Shader::~Shader(void)
+    void Shader::deletePrograms(void)
     {
         for (auto& it : vProgram)
             glad_glDeleteProgram(it.second);

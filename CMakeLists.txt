@@ -24,7 +24,7 @@ add_subdirectory(vendor)
 
 # Create library
 add_library(GRender STATIC 
-	"include/core.h"         "include/entryPoint.h"
+	"include/core.h"
 	"include/events.h"       "include/eventsWrapper.h"
 	"include/dialog.h"       "src/dialog.cpp"
 	"include/shader.h"       "src/shader.cpp"

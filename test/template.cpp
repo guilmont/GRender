@@ -119,14 +119,14 @@ void Sandbox::ImGuiMenuLayer(void)
 {
 	if (ImGui::BeginMenu("File"))
 	{
-		if (ImGui::MenuItem("Open..."))
+		if (ImGui::MenuItem("Open...", "Ctrl+O"))
 			dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, nullptr,
 								[](const std::string &path, void *ptr) -> void
 								{
 									gr_pout("Selected path:", path);
 								});
 
-		if (ImGui::MenuItem("Save..."))
+		if (ImGui::MenuItem("Save...", "Ctrl+S"))
 			dialog.createDialog(GDialog::SAVE, "Save file...", {"txt", "json"}, nullptr,
 								[](const std::string &path, void *ptr) -> void
 								{
@@ -141,14 +141,14 @@ void Sandbox::ImGuiMenuLayer(void)
 
 	if (ImGui::BeginMenu("About"))
 	{
-		if (ImGui::MenuItem("Specs"))
+		if (ImGui::MenuItem("Specs", "Ctrl+H"))
 			view_specs = true;
 
-		if (ImGui::MenuItem("ImGui Demo"))
+		if (ImGui::MenuItem("ImGui Demo", "Ctrl+D"))
 			view_imguidemo = true;
 
 #ifdef BUILD_IMPLOT
-		if (ImGui::MenuItem("ImPlot Demo"))
+		if (ImGui::MenuItem("ImPlot Demo", "Ctrl+P"))
 			view_implotdemo = true;
 #endif
 

@@ -8,8 +8,10 @@ namespace GRender
     class  Shader
     {
     public:
-        Shader(void);
-        ~Shader(void);
+        Shader(void) = default;
+        ~Shader(void) = default;
+
+        void deletePrograms(void);  // So we can delete all programs before glfw terminates
 
         bool loadShader(const std::string& label, const std::string& vtxPath, const std::string& frgPath);
 
