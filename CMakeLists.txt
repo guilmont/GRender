@@ -35,10 +35,9 @@ add_library(GRender STATIC
 
 set(DEPENDENCIES glm glad glfw imgui)
 target_include_directories(GRender PUBLIC "include")
-target_compile_definitions(GRender PRIVATE 
-	ASSETS_PATH="${ASSETS_PATH}"
-	LAYOUT_PATH="${LAYOUT_PATH}"
-)
+
+file(COPY "assets/Open_Sans" DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets)
+install(DIRECTORY "assets/Open_Sans" DESTINATION assets)
 
 #############################
 
