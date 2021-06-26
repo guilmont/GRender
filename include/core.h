@@ -32,17 +32,6 @@ namespace fs = std::filesystem;
 ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
 
-#ifdef WIN32
-	#ifdef GBUILD_DLL
-		#define __declspec(dllexport)
-	#else	
-		#define __declspec(dllimport)
-	#endif
-#else
-	#define 
-#endif
-
-
 static void gr_pout(void) { std::cout << std::endl; }
 
 template <typename TP, typename ...Args>
