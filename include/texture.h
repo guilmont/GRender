@@ -36,6 +36,8 @@ namespace GRender
         
         void bind(const std::string& label, uint32_t slot) const;
         
+        void erase(const std::string &label);
+
         Specification getSpecification(const std::string& label) const;
 
     private:

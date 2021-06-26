@@ -116,6 +116,14 @@ namespace GRender
 
     } // bind
 
+    void Texture::erase(const std::string &label)
+    {
+        auto it = textures.find(label);
+        assert(it != textures.end());
+        glad_glDeleteTextures(1, &(it->second.texID));
+        textures.erase(it);
+    }
+
     Texture::Specification Texture::getSpecification(const std::string& label) const
     {
         auto it = textures.find(label);
