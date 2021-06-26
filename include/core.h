@@ -32,6 +32,16 @@ namespace fs = std::filesystem;
 ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
 
+#ifdef WIN32
+	#ifdef GBUILD_DLL
+		#define __declspec(dllexport)
+	#else	
+		#define __declspec(dllimport)
+	#endif
+#else
+	#define 
+#endif
+
 
 static void gr_pout(void) { std::cout << std::endl; }
 
@@ -41,3 +51,34 @@ static void gr_pout(TP var, Args &&...args)
 	std::cout << var << " ";
 	gr_pout(args...);
 }
+
+///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
+
+
+#ifdef _DEBUG
+static void glErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
+{
+
+	//if (severity < GL_DEBUG_SEVERITY_LOW)
+	//	return;
+
+	switch (severity)
+	{
+	case GL_DEBUG_SEVERITY_LOW:
+		gr_pout("GL_DEBUG_SEVERITY_LOW ::", type, " => ", message);
+		break;
+	case GL_DEBUG_SEVERITY_MEDIUM:
+		gr_pout("GL_DEBUG_SEVERITY_MEDIUM ::", type, " => ", message);
+		break;
+	case GL_DEBUG_SEVERITY_HIGH:
+		gr_pout("GL_DEBUG_SEVERITY_HIGH ::", type, " => ", message);
+		break;
+	case GL_DEBUG_TYPE_ERROR:
+		gr_pout("GL_DEBUG_TYPE_ERROR ::", type, " => ", message);
+		break;
+
+	}
+}
+#endif
+

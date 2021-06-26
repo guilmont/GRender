@@ -11,26 +11,24 @@ enum class GDialog: const uint8_t
 
 namespace GRender
 {
-
-   
     class Dialog
     {
     public:
-        Dialog(void);
+       Dialog(void);
         ~Dialog(void);
 
 
-        void createDialog(GDialog type, const std::string& title,
+       void createDialog(GDialog type, const std::string& title,
             const std::list<std::string>& ext,
             void* data = nullptr,
             void (*callback)(const std::string&, void*) = nullptr);
 
 
 
-        void showDialog(void);
+       void showDialog(void);
 
         // RETRIEVE DATA
-        const fs::path& getPath(void) const { return filePath; }
+       const fs::path& getPath(void) const { return filePath; }
 
         // Used to drop files
         struct

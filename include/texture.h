@@ -8,19 +8,39 @@ namespace GRender
     class  Texture
     {
     public:
-        Texture(uint32_t width, uint32_t height);
-        ~Texture(void);
+        enum class Type : uint8_t
+        {
+            RGBA = 0,
+            FLOAT = 1
+        };
 
-        void update(const float* data);
+        struct Specification
+        {
+            Type type;
+            uint32_t width, height, texID;
+        };
 
-        void bind(uint32_t slot);
+    public:
 
-        inline uint32_t getWidth(uint32_t id) { return width; }
-        inline uint32_t getHeight(uint32_t id) { return height; }
-        inline uint32_t getBufferID(uint32_t id) { return texID; }
+        Texture(void) = default;
+        ~Texture(void) = default;
+
+        void terminate(void);
+        
+        void createRGBA(const std::string& label,  uint32_t width, uint32_t height, const uint32_t* data = nullptr);
+        void createRGBA(const std::string& label, const fs::path& path);
+        void updateRGBA(const std::string& label, const uint32_t* data);
+        
+        void createFloat(const std::string& label, uint32_t width, uint32_t height, const float* data = nullptr);
+        void updateFloat(const std::string& label, const float* data);
+        
+        void bind(const std::string& label, uint32_t slot) const;
+        
+        Specification getSpecification(const std::string& label) const;
 
     private:
-        uint32_t width, height, texID;
+        std::unordered_map<std::string, Specification> textures;
+
     };
 
 }

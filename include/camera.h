@@ -19,7 +19,7 @@ namespace GRender
 
     public:
         Camera(void) = default;
-        ~Camera(void) = default;
+         ~Camera(void) = default;
         glm::vec3 position = { 0.0f, 0.0f, 0.8f };
 
         void reset(void) { position = { 0.0f, 0.0f, 0.8f }; }

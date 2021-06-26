@@ -1,14 +1,15 @@
 cmake_minimum_required(VERSION 3.10.0)
 project(GRender)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 
-option(BUILD_IMPLOT "Build plotting utilities" ON)
+option(BUILD_IMPLOT "Build plotting utilities" OFF)
 option(DPI_FACTOR "Controls size of interface for high density monitors" OFF)
-option(BUILD_TEST "Build template test for GRender" OFF)
+option(BUILD_TEST "Build template test for GRender" ON)
+
 
 
 # Setup runtime output
@@ -33,11 +34,11 @@ add_library(GRender STATIC
 	"include/application.h"     "src/application.cpp"
 )
 
-set(DEPENDENCIES glm glad glfw imgui)
+set(DEPENDENCIES glm glad glfw imgui stb_image)
 target_include_directories(GRender PUBLIC "include")
 
-file(COPY "assets/Open_Sans" DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets)
-install(DIRECTORY "assets/Open_Sans" DESTINATION assets)
+target_compile_definitions(GRender PRIVATE _CRT_SECURE_NO_WARNINGS)
+
 
 #############################
 
@@ -59,8 +60,9 @@ endif()
 target_precompile_headers(GRender PUBLIC "include/core.h")
 target_link_libraries(GRender PUBLIC ${DEPENDENCIES})
 
+file(COPY "assets/Open_Sans" DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets)
+install(DIRECTORY "assets/Open_Sans" DESTINATION assets)
 
-# Copying assets
 
 ###########################################################
 ## TEMPLATE TEST ##########################################

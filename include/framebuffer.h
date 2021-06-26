@@ -14,12 +14,12 @@ namespace GRender
         void bind(void);
         void unbind(void);
 
-        inline uint32_t getID(void) { return textureID; }
+        uint32_t getID(void) { return textureID; }
 
         void setPosition(float x, float y) { position = { x, y }; }
         const glm::vec2& getPosition(void) const { return position; }
 
-        inline glm::vec2 getSize(void) const { return size; }
+        glm::vec2 getSize(void) const { return size; }
 
     private:
         uint32_t bufferID = 0, textureID = 0;

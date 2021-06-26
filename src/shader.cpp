@@ -35,14 +35,18 @@ namespace GRender
         int sourceLength = int(strlen(shaderSource));
         glShaderSource(shader, 1, &shaderSource, &sourceLength);
 
-        std::string error = "Error: Shader compilation failed => ";
+        std::string type = shaderType == GL_VERTEX_SHADER ? "GL_VERTEX_SHADER" : "GL_FRAGMENT_SHADER";
+        std::string error = "Error: Shader compilation failed :: " + type + " = > ";
 
         glCompileShader(shader);
 
         if (CheckShaderError(shader, GL_COMPILE_STATUS, false, error))
             return shader;
         else
+        {
+            gr_pout(shaderSource);
             return -1;
+        }
 
     } // CreateShader
 
@@ -96,7 +100,7 @@ namespace GRender
     {
         int32_t code = genShader(vtxPath, frgPath);
 
-        if (code < 0) return false;
+        assert(code > 0);
 
         vProgram[label] = code;
         return true;
@@ -105,7 +109,11 @@ namespace GRender
 
     void Shader::useProgram(const std::string& name)
     {
-        program_used = vProgram[name];
+        auto it = vProgram.find(name);
+
+        assert(it != vProgram.end());
+
+        program_used = it->second;
         glUseProgram(program_used);
     }
 

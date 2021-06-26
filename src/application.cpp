@@ -53,6 +53,7 @@ namespace GRender
 
     Application::~Application(void)
     {
+        texture.terminate();
         shader.deletePrograms();
 
         ImGui_ImplOpenGL3_Shutdown();
@@ -85,7 +86,7 @@ namespace GRender
         }
 
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         // Generating resizable window
@@ -108,11 +109,18 @@ namespace GRender
             exit(-1);
         }
 
+
+        // Turning on error events only in debug mode
+#ifdef _DEBUG
+        glad_glEnable(GL_DEBUG_OUTPUT);
+        glad_glDebugMessageCallback(glErrorCallback, nullptr);
+#endif
+
         // Setup viewport -> opengl is going transform final coordinates into this range
         glad_glViewport(0, 0, width, height);
 
-        // ///////////////////////////////////////////////////////////////////////////
-        // // HANDLING EVENTS
+        ///////////////////////////////////////////////////////////////////////////
+        // HANDLING EVENTS
         glfwSetWindowUserPointer(window.ptr, this);
         glfwSetWindowPosCallback(window.ptr, winPos_callback);
         glfwSetKeyCallback(window.ptr, keyboard_callback);
@@ -121,6 +129,7 @@ namespace GRender
         glfwSetScrollCallback(window.ptr, mouseScroll_callback);
         glfwSetWindowSizeCallback(window.ptr, winResize_callback);
         glfwSetDropCallback(window.ptr, winDrop_callback);
+
 
         ///////////////////////////////////////////////////////////////////////////
         // SETUP DEAR IMGApplication/IMPLOT CONTEXT
@@ -150,7 +159,7 @@ namespace GRender
         fonts.loadFont("bold", "assets/Open_Sans/OpenSans-Bold.ttf", 18.0 * DPI_FACTOR);
         fonts.setDefault("regular");
 
-    } // constructor
+    } 
 
     void Application::run(void)
     {

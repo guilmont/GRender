@@ -1,5 +1,7 @@
 #include "GRender.h"
 
+constexpr uint32_t maxQuads = 5000;
+
 class Sandbox : public GRender::Application
 {
 public:
@@ -18,6 +20,12 @@ private:
 #ifdef BUILD_IMPLOT
 	bool view_implotdemo = false;
 #endif
+
+	std::unique_ptr<GRender::Framebuffer> fbuffer = nullptr;
+	std::unique_ptr<GRender::Quad> quad = nullptr;
+
+	float angle = 0.0f;
+	std::array<glm::vec3, maxQuads> vecPos;
 };
 
 int main()
@@ -37,7 +45,23 @@ Sandbox::Sandbox(void)
 	gr_pout("Welcome to my application!!");
 	gr_pout("Current path:", std::filesystem::current_path());
 
-	initialize("Sandbox", 1200 * DPI_FACTOR, 800 * DPI_FACTOR);
+	uint32_t width = 1200 * DPI_FACTOR, height = 800 * DPI_FACTOR;
+	initialize("Sandbox", width, height);
+
+	// Setup shader path
+	shader.loadShader("quadShader",
+					  "../test/assets/quadShader.vtx.glsl",
+					  "../test/assets/quadShader.frag.glsl");
+
+	fbuffer = std::make_unique<GRender::Framebuffer>(width, height);
+	quad = std::make_unique<GRender::Quad>(maxQuads);
+
+	uint32_t white[] = {0xffffffff};
+	texture.createRGBA("default", 1, 1, white);
+	texture.createRGBA("wall", "../test/assets/jessica.jpg");
+
+	for (auto &quad : vecPos)
+		quad = {0.0f, 0.0f, 0.0f};
 }
 
 void Sandbox::onUserUpdate(float deltaTime)
@@ -58,16 +82,12 @@ void Sandbox::onUserUpdate(float deltaTime)
 	if (ctrl & O)
 		dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, nullptr,
 							[](const std::string &path, void *ptr) -> void
-							{
-								gr_pout("Selected path:", path);
-							});
+							{ gr_pout("Selected path:", path); });
 
 	if (ctrl & S)
 		dialog.createDialog(GDialog::SAVE, "Save file...", {"txt", "json"}, nullptr,
 							[](const std::string &path, void *ptr) -> void
-							{
-								gr_pout("Selected path:", path);
-							});
+							{ gr_pout("Selected path:", path); });
 
 #ifdef BUILD_IMPLOT
 	bool P = keyboard['P'] == GEvent::PRESS;
@@ -76,6 +96,42 @@ void Sandbox::onUserUpdate(float deltaTime)
 		view_implotdemo = true;
 
 #endif
+
+	///////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////
+
+	auto random = [](float a = 0.0f, float b = 1.0f) -> float
+	{ return a + (b - a) * float(rand()) / float(RAND_MAX); };
+
+	for (auto &pos : vecPos)
+	{
+		pos.x += random(-0.01f, 0.01f);
+		pos.y += random(-0.01f, 0.01f);
+
+		glm::vec2 size = {random(0.05f, 0.1f), random(0.05f, 0.1f)};
+		glm::vec4 cor = {random(), random(), random(), 1.0f};
+
+		quad->draw(pos, size, 0.0f, 1.0f);
+	}
+
+	fbuffer->bind();
+
+	glad_glClear(GL_COLOR_BUFFER_BIT);
+	glad_glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
+
+	shader.useProgram("quadShader");
+	shader.setMatrix4f("u_viewProjection", glm::value_ptr(camera.getViewMatrix()));
+
+	texture.bind("default", 0);
+	texture.bind("wall", 1);
+
+	int32_t tex[2] = {0, 1};
+
+	shader.setIntArray("u_texture", tex, 2);
+
+	quad->submit();
+
+	fbuffer->unbind();
 }
 
 void Sandbox::ImGuiLayer(void)
@@ -88,6 +144,9 @@ void Sandbox::ImGuiLayer(void)
 		ImGui::Begin("Specs", &view_specs);
 
 		char buf[128] = {0};
+		sprintf(buf, "FT: %.3f ms", 1000.0f * ImGui::GetIO().DeltaTime);
+		ImGui::Text(buf);
+
 		sprintf(buf, "FPS: %.0f", ImGui::GetIO().Framerate);
 		ImGui::Text(buf);
 
@@ -113,6 +172,28 @@ void Sandbox::ImGuiLayer(void)
 	if (view_implotdemo)
 		ImPlot::ShowDemoWindow(&view_implotdemo);
 #endif
+
+	//////////////////////////////////////////////////////////////////////////////
+	/// Updating viewport
+
+	ImGui::Begin("Viewport", NULL, ImGuiWindowFlags_NoTitleBar);
+
+	// Check if it needs to resize
+	ImVec2 port = ImGui::GetContentRegionAvail();
+	ImGui::Image((void *)(uintptr_t)fbuffer->getID(), port, {0.0f, 1.0f}, {1.0f, 0.0f});
+
+	glm::vec2 view = fbuffer->getSize();
+	if (port.x != view.x || port.y != view.y)
+	{
+		fbuffer = std::make_unique<GRender::Framebuffer>(uint32_t(port.x), uint32_t(port.y));
+		camera.setAspectRatio(port.x / port.y);
+	}
+
+	// Checking if anchoring position changed
+	ImVec2 pos = ImGui::GetItemRectMin();
+	fbuffer->setPosition(pos.x - window.position.x, pos.y - window.position.y);
+
+	ImGui::End();
 }
 
 void Sandbox::ImGuiMenuLayer(void)

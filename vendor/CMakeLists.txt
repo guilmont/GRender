@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION 3.10)
 
 
 ###########################################################
+## STB_IMAGE ##############################################
+
+add_library(stb_image INTERFACE)
+target_include_directories(stb_image INTERFACE "stb_image")
+
+###########################################################
 ## GLM ####################################################
 
 add_library(glm INTERFACE)
@@ -13,7 +19,6 @@ target_include_directories(glm INTERFACE "glm")
 add_library(glad STATIC "glad/src/glad.c")   
 target_link_libraries(glad PUBLIC ${CMAKE_DL_LIBS})
 target_include_directories(glad PUBLIC "glad/include")
-
 
 ###########################################################
 ## GLFW ###################################################

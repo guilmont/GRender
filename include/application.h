@@ -43,6 +43,7 @@ namespace GRender {
         Keyboard keyboard;
         Shader shader;
         Dialog dialog;
+        Texture texture;
 
     private:
         float deltaTime = 0.1f;
