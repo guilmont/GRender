@@ -25,7 +25,7 @@ namespace GRender
         Texture(void) = default;
         ~Texture(void) = default;
 
-        void terminate(void);
+        void reset(void);
         
         void createRGBA(const std::string& label,  uint32_t width, uint32_t height, const uint32_t* data = nullptr);
         void createRGBA(const std::string& label, const fs::path& path);

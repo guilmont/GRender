@@ -53,7 +53,7 @@ namespace GRender
 
     Application::~Application(void)
     {
-        texture.terminate();
+        texture.reset();
         shader.deletePrograms();
 
         ImGui_ImplOpenGL3_Shutdown();

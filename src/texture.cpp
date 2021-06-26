@@ -6,7 +6,7 @@
 namespace GRender
 {
 
-    void Texture::terminate(void)
+    void Texture::reset(void)
     {
         for (auto& [label, specs] : textures)
             glad_glDeleteTextures(1, &specs.texID);
