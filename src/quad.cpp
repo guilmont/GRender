@@ -49,9 +49,14 @@ namespace GRender
 
     Quad::~Quad(void)
     {
-        glad_glDeleteBuffers(1, &index_buffer);
-        glad_glDeleteBuffers(1, &vertex_buffer);
-        glad_glDeleteVertexArrays(1, &vao);
+        if (vao> 0)
+        {
+            glad_glDeleteBuffers(1, &index_buffer);
+            glad_glDeleteBuffers(1, &vertex_buffer);
+            glad_glDeleteVertexArrays(1, &vao);
+            
+            index_buffer = vertex_buffer = vao = 0;
+        }
     }
 
     void Quad::draw(const glm::vec3 &position, const glm::vec2 &size, float angle, const glm::vec4 &color, float texID, const glm::vec2 &coord0, const glm::vec2 &coord1)
@@ -82,6 +87,11 @@ namespace GRender
     void Quad::draw(const glm::vec3 &position, const glm::vec2 &size, float angle, float texID, const glm::vec2 &coord0, const glm::vec2 &coord1)
     {
         draw(position, size, angle, glm::vec4{1.0f, 1.0f, 1.0f, 1.0f}, texID, coord0, coord1);
+    }
+
+    void Quad::draw(const glm::vec3& position, const glm::vec2& size, float angle, const glm::vec4& color)
+    {
+        draw(position, size, angle, color, 0.0f, { 0.0f, 0.0f }, { 1.0f, 1.0f });
     }
 
     void Quad::submit(void)

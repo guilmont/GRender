@@ -8,7 +8,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(BUILD_IMPLOT "Build plotting utilities" OFF)
 option(DPI_FACTOR "Controls size of interface for high density monitors" OFF)
-option(BUILD_TEST "Build template test for GRender" ON)
+option(BUILD_TEST "Build template test for GRender" OFF)
 
 
 

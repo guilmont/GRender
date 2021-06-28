@@ -72,6 +72,7 @@ namespace GRender
     {
         window.title = name;
         window.size = { width, height };
+        window.position = { 0.1f * width, 0.1f * height };
 
         // Setup window
         glfwSetErrorCallback([](int error, const char* description) -> void {
@@ -120,7 +121,9 @@ namespace GRender
         glad_glViewport(0, 0, width, height);
 
         ///////////////////////////////////////////////////////////////////////////
-        // HANDLING EVENTS
+        // HANDLING WINDOW PROPERTIES
+        glfwSetWindowPos(window.ptr, static_cast<int>(window.position.x), static_cast<int>(window.position.y));
+
         glfwSetWindowUserPointer(window.ptr, this);
         glfwSetWindowPosCallback(window.ptr, winPos_callback);
         glfwSetKeyCallback(window.ptr, keyboard_callback);
