@@ -32,42 +32,46 @@ namespace fs = std::filesystem;
 ///////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////
 
-static void gr_pout(void) { std::cout << std::endl; }
 
-template <typename TP, typename ...Args>
-static void gr_pout(TP var, Args &&...args)
+namespace GRender
 {
-	std::cout << var << " ";
-	gr_pout(args...);
-}
+	static void pout(void) { std::cout << std::endl; }
 
-///////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////
+	template <typename TP, typename ...Args>
+	static void pout(TP var, Args &&...args)
+	{
+		std::cout << var << " ";
+		pout(args...);
+	}
+
+	///////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////
 
 
 #ifdef _DEBUG
-static void glErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
-{
-
-	//if (severity < GL_DEBUG_SEVERITY_LOW)
-	//	return;
-
-	switch (severity)
+	static void glErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 	{
-	case GL_DEBUG_SEVERITY_LOW:
-		gr_pout("GL_DEBUG_SEVERITY_LOW ::", type, " => ", message);
-		break;
-	case GL_DEBUG_SEVERITY_MEDIUM:
-		gr_pout("GL_DEBUG_SEVERITY_MEDIUM ::", type, " => ", message);
-		break;
-	case GL_DEBUG_SEVERITY_HIGH:
-		gr_pout("GL_DEBUG_SEVERITY_HIGH ::", type, " => ", message);
-		break;
-	case GL_DEBUG_TYPE_ERROR:
-		gr_pout("GL_DEBUG_TYPE_ERROR ::", type, " => ", message);
-		break;
 
+		//if (severity < GL_DEBUG_SEVERITY_LOW)
+		//	return;
+
+		switch (severity)
+		{
+		case GL_DEBUG_SEVERITY_LOW:
+			pout("GL_DEBUG_SEVERITY_LOW ::", type, " => ", message);
+			break;
+		case GL_DEBUG_SEVERITY_MEDIUM:
+			pout("GL_DEBUG_SEVERITY_MEDIUM ::", type, " => ", message);
+			break;
+		case GL_DEBUG_SEVERITY_HIGH:
+			pout("GL_DEBUG_SEVERITY_HIGH ::", type, " => ", message);
+			break;
+		case GL_DEBUG_TYPE_ERROR:
+			pout("GL_DEBUG_TYPE_ERROR ::", type, " => ", message);
+			break;
+
+		}
 	}
-}
 #endif
 
+}

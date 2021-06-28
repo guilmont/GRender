@@ -76,13 +76,13 @@ namespace GRender
 
         // Setup window
         glfwSetErrorCallback([](int error, const char* description) -> void {
-            gr_pout("ERROR (glfw): ", error, " :: ", description);
+            pout("ERROR (glfw): ", error, " :: ", description);
             exit(0);
             });
 
         if (!glfwInit())
         {
-            gr_pout("ERROR (glfw): Couldn't start glfw!!!");
+            pout("ERROR (glfw): Couldn't start glfw!!!");
             exit(-1);
         }
 
@@ -94,7 +94,7 @@ namespace GRender
         window.ptr = glfwCreateWindow(static_cast<int>(window.size.x), static_cast<int>(window.size.y), name.c_str(), NULL, NULL);
         if (window.ptr == NULL)
         {
-            gr_pout("ERROR: Failed to create GLFW window!!");
+            pout("ERROR: Failed to create GLFW window!!");
             glfwTerminate();
             exit(-1);
         }
@@ -106,7 +106,7 @@ namespace GRender
         // Initialize OPENGL loader
         if (gladLoadGL() == 0)
         {
-            gr_pout("ERROR (glad): Failed to initialize OpenGL loader!!!");
+            pout("ERROR (glad): Failed to initialize OpenGL loader!!!");
             exit(-1);
         }
 
@@ -224,6 +224,10 @@ namespace GRender
 
             // Here goes the implementation for user interface
             ImGui::PushStyleColor(ImGuiCol_WindowBg, { 0.0, 0.0, 0.0, 1.0 }); // solid background
+            
+            // displaying dialog if active
+            dialog.showDialog();
+
             ImGuiLayer();
             ImGui::PopStyleColor();
 

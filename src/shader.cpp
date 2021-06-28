@@ -16,7 +16,7 @@ namespace GRender
             if (isProgram) glad_glGetProgramInfoLog(shader, sizeof(error), NULL, error);
             else           glad_glGetShaderInfoLog(shader, sizeof(error), NULL, error);
 
-            gr_pout(msg, error);
+            pout(msg, error);
         } // if-not-success
 
         return success;
@@ -28,7 +28,7 @@ namespace GRender
         int32_t shader = glad_glCreateShader(shaderType);
         if (shader == 0)
         {
-            gr_pout("Failed to create shader!");
+            pout("Failed to create shader!");
             return -1;
         }
 
@@ -44,7 +44,7 @@ namespace GRender
             return shader;
         else
         {
-            gr_pout(shaderSource);
+            pout(shaderSource);
             return -1;
         }
 

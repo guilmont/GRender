@@ -21,7 +21,7 @@ namespace GRender
         // Testing if it worked properly
         if (glad_glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
         {
-           gr_pout("ERROR: Framebuffer is incomplete!!");
+           pout("ERROR: Framebuffer is incomplete!!");
             exit(-1);
         }
 
