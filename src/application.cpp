@@ -71,8 +71,8 @@ namespace GRender
     void Application::initialize(const std::string& name, uint32_t width, uint32_t height)
     {
         window.title = name;
-        window.size = { width, height };
-        window.position = { 0.1f * width, 0.1f * height };
+        window.size = { width * DPI_FACTOR, height * DPI_FACTOR};
+        window.position = 0.1f * window.size;
 
         // Setup window
         glfwSetErrorCallback([](int error, const char* description) -> void {
@@ -91,7 +91,7 @@ namespace GRender
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         // Generating resizable window
-        window.ptr = glfwCreateWindow(width, height, name.c_str(), NULL, NULL);
+        window.ptr = glfwCreateWindow(static_cast<int>(window.size.x), static_cast<int>(window.size.y), name.c_str(), NULL, NULL);
         if (window.ptr == NULL)
         {
             gr_pout("ERROR: Failed to create GLFW window!!");
@@ -118,7 +118,7 @@ namespace GRender
 #endif
 
         // Setup viewport -> opengl is going transform final coordinates into this range
-        glad_glViewport(0, 0, width, height);
+        glad_glViewport(0, 0, static_cast<int>(window.size.x), static_cast<int>(window.size.y));
 
         ///////////////////////////////////////////////////////////////////////////
         // HANDLING WINDOW PROPERTIES
