@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 
-option(BUILD_IMPLOT "Build plotting utilities" OFF)
+option(BUILD_IMPLOT "Build plotting utilities" ON)
 option(DPI_FACTOR "Controls size of interface for high density monitors" OFF)
 option(BUILD_TEST "Build template test for GRender" OFF)
 

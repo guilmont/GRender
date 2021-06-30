@@ -162,12 +162,8 @@ namespace GRender
         sprintf(buf, "%s", filename.string().c_str());
 
         ImGui::PushItemWidth(0.333f * width);
-        if (ImGui::InputText("##inp", buf, 512, ImGuiInputTextFlags_EnterReturnsTrue))
-        {
-            filename = fs::path(buf).stem();
-            filePath = mainPath / (filename.string() + currentExt);
-            status = true;
-        }
+        ImGui::InputText("##inp", buf, 512, ImGuiInputTextFlags_EnterReturnsTrue);
+        filename = fs::path(buf).stem();
 
         ImGui::SameLine();
 
@@ -188,17 +184,16 @@ namespace GRender
         }
 
         ImGui::PopItemWidth();
-
         ImGui::SameLine();
-
-        if (ImGui::Button("Save"))
+        
+        bool check = ImGui::GetIO().KeysDown[GLFW_KEY_ENTER] && filename.string().size() > 0;
+        if (ImGui::Button("Save") || check)
         {
             filePath = mainPath / (filename.string() + currentExt);
             status = true;
         }
 
         ImGui::SameLine();
-
         if (ImGui::Button("Close"))
             active = false;
 
