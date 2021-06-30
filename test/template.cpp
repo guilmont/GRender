@@ -42,8 +42,8 @@ int main()
 
 Sandbox::Sandbox(void)
 {
-	gr_pout("Welcome to my application!!");
-	gr_pout("Current path:", std::filesystem::current_path());
+	GRender::pout("Welcome to my application!!");
+	GRender::pout("Current path:", std::filesystem::current_path());
 
 	uint32_t width = 1200 * DPI_FACTOR, height = 800 * DPI_FACTOR;
 	initialize("Sandbox", width, height);
@@ -82,12 +82,12 @@ void Sandbox::onUserUpdate(float deltaTime)
 	if (ctrl & O)
 		dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, nullptr,
 							[](const std::string &path, void *ptr) -> void
-							{ gr_pout("Selected path:", path); });
+							{ GRender::pout("Selected path:", path); });
 
 	if (ctrl & S)
 		dialog.createDialog(GDialog::SAVE, "Save file...", {"txt", "json"}, nullptr,
 							[](const std::string &path, void *ptr) -> void
-							{ gr_pout("Selected path:", path); });
+							{ GRender::pout("Selected path:", path); });
 
 #ifdef BUILD_IMPLOT
 	bool P = keyboard['P'] == GEvent::PRESS;
@@ -136,8 +136,6 @@ void Sandbox::onUserUpdate(float deltaTime)
 
 void Sandbox::ImGuiLayer(void)
 {
-
-	dialog.showDialog();
 
 	if (view_specs)
 	{
@@ -204,14 +202,14 @@ void Sandbox::ImGuiMenuLayer(void)
 			dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, nullptr,
 								[](const std::string &path, void *ptr) -> void
 								{
-									gr_pout("Selected path:", path);
+									GRender::pout("Selected path:", path);
 								});
 
 		if (ImGui::MenuItem("Save...", "Ctrl+S"))
 			dialog.createDialog(GDialog::SAVE, "Save file...", {"txt", "json"}, nullptr,
 								[](const std::string &path, void *ptr) -> void
 								{
-									gr_pout("Selected path:", path);
+									GRender::pout("Selected path:", path);
 								});
 
 		if (ImGui::MenuItem("Exit"))
