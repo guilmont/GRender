@@ -87,7 +87,13 @@ namespace GRender
         }
 
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+
+#ifdef __APPLE__  // yeah, apple sucks
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
+#else
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+#endif
+
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
         // Generating resizable window

@@ -80,7 +80,7 @@ namespace GRender
         for (uint32_t k = 0; k < 4; k++)
         {
             glm::vec4 vec = scale * pos[k];
-            vtxBuffer[counter++] = {.pos = {vec.x, vec.y, vec.z}, .color = color, .texCoord = tCoord[k], .texID = texID};
+            vtxBuffer[counter++] = {{vec.x, vec.y, vec.z}, color, tCoord[k], texID};
         }
     }
 

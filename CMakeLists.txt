@@ -1,15 +1,15 @@
 cmake_minimum_required(VERSION 3.10.0)
 project(GRender)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 
 option(BUILD_IMPLOT "Build plotting utilities" ON)
+option(GRENDER_PRECOMPILE_HEADERS "Create precompiled headers" OFF)
 option(DPI_FACTOR "Controls size of interface for high density monitors" OFF)
-option(BUILD_TEST "Build template test for GRender" OFF)
-
+option(GRENDER_TEMPLATE "Build template test for GRender" OFF)
 
 
 # Setup runtime output
@@ -57,7 +57,12 @@ endif()
 
 #############################
 
-target_precompile_headers(GRender PUBLIC "include/core.h")
+if (GRENDER_PRECOMPILE_HEADERS)
+	target_precompile_headers(GRender PUBLIC "include/core.h")
+endif()
+
+
+
 target_link_libraries(GRender PUBLIC ${DEPENDENCIES})
 
 file(COPY "assets/Open_Sans" DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets)
@@ -67,6 +72,6 @@ install(DIRECTORY "assets/Open_Sans" DESTINATION assets)
 ###########################################################
 ## TEMPLATE TEST ##########################################
 
-if (BUILD_TEST)
+if (GRENDER_TEMPLATE)
 	add_subdirectory(test)
 endif()

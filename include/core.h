@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+#include <array>
 #include <vector>
 #include <string>
 #include <list>
@@ -41,37 +42,40 @@ namespace GRender
 	static void pout(TP var, Args &&...args)
 	{
 		std::cout << var << " ";
-		pout(args...);
+		pout(std::forward<Args>(args)...);
 	}
 
 	///////////////////////////////////////////////////////////
 	///////////////////////////////////////////////////////////
 
 
-#ifdef _DEBUG
-	static void glErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
-	{
 
-		//if (severity < GL_DEBUG_SEVERITY_LOW)
-		//	return;
-
-		switch (severity)
+#ifndef __APPLE__
+	#ifdef _DEBUG
+		static void glErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void* userParam)
 		{
-		case GL_DEBUG_SEVERITY_LOW:
-			pout("GL_DEBUG_SEVERITY_LOW ::", type, " => ", message);
-			break;
-		case GL_DEBUG_SEVERITY_MEDIUM:
-			pout("GL_DEBUG_SEVERITY_MEDIUM ::", type, " => ", message);
-			break;
-		case GL_DEBUG_SEVERITY_HIGH:
-			pout("GL_DEBUG_SEVERITY_HIGH ::", type, " => ", message);
-			break;
-		case GL_DEBUG_TYPE_ERROR:
-			pout("GL_DEBUG_TYPE_ERROR ::", type, " => ", message);
-			break;
 
+			//if (severity < GL_DEBUG_SEVERITY_LOW)
+			//	return;
+
+			switch (severity)
+			{
+			case GL_DEBUG_SEVERITY_LOW:
+				pout("GL_DEBUG_SEVERITY_LOW ::", type, " => ", message);
+				break;
+			case GL_DEBUG_SEVERITY_MEDIUM:
+				pout("GL_DEBUG_SEVERITY_MEDIUM ::", type, " => ", message);
+				break;
+			case GL_DEBUG_SEVERITY_HIGH:
+				pout("GL_DEBUG_SEVERITY_HIGH ::", type, " => ", message);
+				break;
+			case GL_DEBUG_TYPE_ERROR:
+				pout("GL_DEBUG_TYPE_ERROR ::", type, " => ", message);
+				break;
+
+			}
 		}
-	}
+	#endif
 #endif
 
 }
