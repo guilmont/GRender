@@ -13,13 +13,13 @@ include(GNUInstallDirs)  # Some install path utilities
 option(GRENDER_IMPLOT "Build plotting utilities" ON)
 option(GRENDER_PRECOMPILE_HEADERS "Create precompiled headers" OFF)
 option(GRENDER_DPI_FACTOR "Controls size of interface for high density monitors" OFF)
-option(GRENDER_TEMPLATE "Build template test for ${PROJECT_NAME}" OFF)
+option(GRENDER_TEMPLATE "Build template test for ${PROJECT_NAME}" ON)
 
 
 # Setup runtime output
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_<Config> ${CMAKE_SOURCE_DIR}/bin/<Config>)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_<Config> ${CMAKE_SOURCE_DIR}/bin/<Config>)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_<Config> ${CMAKE_SOURCE_DIR}/bin/<Config>)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 # Setup vendors
 add_subdirectory(vendor)

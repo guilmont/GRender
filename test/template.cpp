@@ -50,15 +50,15 @@ Sandbox::Sandbox(void)
 
 	// Setup shader path
 	shader.loadShader("quadShader",
-					  "../test/assets/quadShader.vtx.glsl",
-					  "../test/assets/quadShader.frag.glsl");
+					  "../assets/quadShader.vtx.glsl",
+					  "../assets/quadShader.frag.glsl");
 
 	fbuffer = std::make_unique<GRender::Framebuffer>(width, height);
 	quad = std::make_unique<GRender::Quad>(maxQuads);
 
 	uint32_t white[] = {0xffffffff};
 	texture.createRGBA("default", 1, 1, white);
-	texture.createRGBA("wall", "../test/assets/jessica.jpg");
+	texture.createRGBA("wall", "../assets/jessica.jpg");
 
 	for (auto &quad : vecPos)
 		quad = {0.0f, 0.0f, 0.0f};
@@ -139,6 +139,8 @@ void Sandbox::ImGuiLayer(void)
 
 	if (view_specs)
 	{
+		ImGui::SetNextWindowSize({512 * DPI_FACTOR, 300 * DPI_FACTOR});
+
 		ImGui::Begin("Specs", &view_specs);
 
 		char buf[128] = {0};
@@ -173,6 +175,9 @@ void Sandbox::ImGuiLayer(void)
 
 	//////////////////////////////////////////////////////////////////////////////
 	/// Updating viewport
+
+	glm::vec2 size = 0.75f * window.size;
+	ImGui::SetNextWindowSize({size.x, size.y});
 
 	ImGui::Begin("Viewport", NULL, ImGuiWindowFlags_NoTitleBar);
 
