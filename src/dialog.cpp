@@ -212,10 +212,7 @@ namespace GRender
     {
         bool status = false;
 
-        float width = ImGui::GetContentRegionAvailWidth();
-
-        ImGui::BeginChild("child_2", { width, 300 * DPI_FACTOR }, true);
-
+        ImGui::BeginChild("child_2", { 690 * DPI_FACTOR, 300 * DPI_FACTOR }, true);
 
         for (auto entry : fs::directory_iterator(mainPath, fs::directory_options::skip_permission_denied))
         {

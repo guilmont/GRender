@@ -53,7 +53,7 @@ target_compile_definitions(imgui PRIVATE IMGUI_IMPL_OPENGL_LOADER_GLAD)
 ###########################################################
 ## IMPLOT #################################################
 
-if (BUILD_IMPLOT)
+if (GRENDER_IMPLOT)
     add_library(implot 
         STATIC 
             "implot/implot.cpp"

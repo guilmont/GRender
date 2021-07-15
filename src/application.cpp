@@ -158,14 +158,15 @@ namespace GRender
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-        io.IniFilename = "assets/layout.ini";
+        io.IniFilename = "../assets/layout.ini";
+        //io.IniFilename = NULL;
 
         ImGui_ImplGlfw_InitForOpenGL(window.ptr, true);
         ImGui_ImplOpenGL3_Init("#version 410 core"); // Mac supports only up to 410
 
         // Setup fonts
-        fonts.loadFont("regular", "assets/Open_Sans/OpenSans-Regular.ttf", 18.0 * DPI_FACTOR);
-        fonts.loadFont("bold", "assets/Open_Sans/OpenSans-Bold.ttf", 18.0 * DPI_FACTOR);
+        fonts.loadFont("regular", "../assets/Open_Sans/OpenSans-Regular.ttf", 18.0 * DPI_FACTOR);
+        fonts.loadFont("bold", "../assets/Open_Sans/OpenSans-Bold.ttf", 18.0 * DPI_FACTOR);
         fonts.setDefault("regular");
 
     } 

@@ -1,27 +1,31 @@
 cmake_minimum_required(VERSION 3.10.0)
 project(GRender)
 
+# TODO: Make of this a proper library
+
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+include(GNUInstallDirs)  # Some install path utilities
 
-option(BUILD_IMPLOT "Build plotting utilities" ON)
+option(GRENDER_IMPLOT "Build plotting utilities" ON)
 option(GRENDER_PRECOMPILE_HEADERS "Create precompiled headers" OFF)
-option(DPI_FACTOR "Controls size of interface for high density monitors" OFF)
-option(GRENDER_TEMPLATE "Build template test for GRender" OFF)
+option(GRENDER_DPI_FACTOR "Controls size of interface for high density monitors" OFF)
+option(GRENDER_TEMPLATE "Build template test for ${PROJECT_NAME}" OFF)
 
 
 # Setup runtime output
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_<Config> ${CMAKE_SOURCE_DIR}/bin/<Config>)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_<Config> ${CMAKE_SOURCE_DIR}/bin/<Config>)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_<Config> ${CMAKE_SOURCE_DIR}/bin/<Config>)
 
 # Setup vendors
 add_subdirectory(vendor)
 
 # Create library
-add_library(GRender STATIC 
+add_library(${PROJECT_NAME} STATIC 
 	"include/core.h"
 	"include/events.h"       "include/eventsWrapper.h"
 	"include/dialog.h"       "src/dialog.cpp"
@@ -31,42 +35,44 @@ add_library(GRender STATIC
 	"include/quad.h"         "src/quad.cpp"
 	"include/framebuffer.h"  "src/framebuffer.cpp"
 	"include/fonts.h"        "src/fonts.cpp"
-	"include/application.h"     "src/application.cpp"
+	"include/application.h"  "src/application.cpp"
 )
 
 set(DEPENDENCIES glm glad glfw imgui stb_image)
-target_include_directories(GRender PUBLIC "include")
+target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
-target_compile_definitions(GRender PRIVATE _CRT_SECURE_NO_WARNINGS)
+target_compile_definitions(${PROJECT_NAME} PRIVATE _CRT_SECURE_NO_WARNINGS)  # To avoid some sprintf warnings
 
 
 #############################
 
-if (BUILD_IMPLOT)
-	target_compile_definitions(GRender PUBLIC BUILD_IMPLOT)
+if (GRENDER_IMPLOT)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC BUILD_IMPLOT)
 	set(DEPENDENCIES ${DEPENDENCIES} implot)
 endif()
 
 #############################
 
-if (DPI_FACTOR)
-	target_compile_definitions(GRender PUBLIC DPI_FACTOR=2)
+if (GRENDER_DPI_FACTOR)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC DPI_FACTOR=2)
 else()
-	target_compile_definitions(GRender PUBLIC DPI_FACTOR=1)
+	target_compile_definitions(${PROJECT_NAME} PUBLIC DPI_FACTOR=1)
 endif()
 
 #############################
 
 if (GRENDER_PRECOMPILE_HEADERS)
-	target_precompile_headers(GRender PUBLIC "include/core.h")
+	target_precompile_headers(${PROJECT_NAME} PUBLIC "include/core.h")
 endif()
 
+target_link_libraries(${PROJECT_NAME} PUBLIC ${DEPENDENCIES})
 
+file(COPY "assets" DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
 
-target_link_libraries(GRender PUBLIC ${DEPENDENCIES})
-
-file(COPY "assets/Open_Sans" DESTINATION ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets)
-install(DIRECTORY "assets/Open_Sans" DESTINATION assets)
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/assets" 
+	CONFIGURATIONS Release	
+		DESTINATION ${CMAKE_INSTALL_PREFIX}
+)
 
 
 ###########################################################
