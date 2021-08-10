@@ -11,6 +11,7 @@
 #include "camera.h"
 #include "fonts.h"
 #include "dialog.h"
+#include "mailbox.h"
 
 
 namespace GRender {
@@ -47,6 +48,8 @@ namespace GRender {
         Shader shader;
         Dialog dialog;
         Texture texture;
+        Mailbox mailbox;
+
 
     private:
         float deltaTime = 0.1f;             // This value is going to be uploaded by main loop

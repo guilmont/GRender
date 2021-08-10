@@ -239,6 +239,7 @@ namespace GRender
             
             // displaying dialog if active
             dialog.showDialog();
+            mailbox.showMessages();
 
             ImGuiLayer();
             ImGui::PopStyleColor();

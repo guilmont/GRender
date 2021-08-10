@@ -24,6 +24,7 @@ add_library(${PROJECT_NAME} STATIC
 	"include/framebuffer.h"  "src/framebuffer.cpp"
 	"include/fonts.h"        "src/fonts.cpp"
 	"include/application.h"  "src/application.cpp"
+	"include/mailbox.h"      "src/mailbox.cpp"
 )
 
 set(DEPENDENCIES glm glad glfw imgui stb_image)

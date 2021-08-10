@@ -86,9 +86,11 @@ void Sandbox::onUserUpdate(float deltaTime)
 		view_imguidemo = true;
 
 	if (ctrl & O)
-		dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, nullptr,
-							[](const std::string &path, void *ptr) -> void
-							{ GRender::pout("Selected path:", path); });
+		dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, &mailbox,
+							[](const std::string &path, void *ptr) -> void{
+								GRender::pout("Selected path:", path); 
+								reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Selected file: " + path);
+							});
 
 	if (ctrl & S)
 		dialog.createDialog(GDialog::SAVE, "Save file...", {"txt", "json"}, nullptr,
@@ -210,10 +212,10 @@ void Sandbox::ImGuiMenuLayer(void)
 	if (ImGui::BeginMenu("File"))
 	{
 		if (ImGui::MenuItem("Open...", "Ctrl+O"))
-			dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, nullptr,
-								[](const std::string &path, void *ptr) -> void
-								{
+			dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, &mailbox,
+								[](const std::string &path, void *ptr) -> void {
 									GRender::pout("Selected path:", path);
+									reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Selected file: " + path);
 								});
 
 		if (ImGui::MenuItem("Save...", "Ctrl+S"))
@@ -241,6 +243,9 @@ void Sandbox::ImGuiMenuLayer(void)
 		if (ImGui::MenuItem("ImPlot Demo", "Ctrl+P"))
 			view_implotdemo = true;
 #endif
+
+		if (ImGui::MenuItem("View mailbox"))
+			mailbox.setActive();
 
 		ImGui::EndMenu();
 	} // file-menu

@@ -8,6 +8,7 @@
 #include <string>
 #include <list>
 #include <unordered_map>
+#include <functional>
 
 #include <filesystem>
 namespace fs = std::filesystem;
