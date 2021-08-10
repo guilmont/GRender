@@ -13,7 +13,7 @@ project(Application)
 # Including Grender library
 add_subdirectory(GRender)
 
-option(GRENDER_BUILD_TEMPLATE "Builds template" ON)
+option(GRENDER_BUILD_TEMPLATE "Builds template" OFF)
 
 if (GRENDER_BUILD_TEMPLATE)
     add_subdirectory(Template)
