@@ -1,0 +1,12 @@
+[submodule "GRender/vendor/glm"]
+	path = GRender/vendor/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "GRender/vendor/imgui"]
+	path = GRender/vendor/imgui
+	url = https://github.com/ocornut/imgui.git
+[submodule "GRender/vendor/glfw"]
+	path = GRender/vendor/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "GRender/vendor/implot"]
+	path = GRender/vendor/implot
+	url = https://github.com/epezent/implot.git
