@@ -170,8 +170,8 @@ namespace GRender
         fs::path assets(ASSETS);
 
         // Setup fonts
-        fonts.loadFont("regular", assets / "Open_Sans/OpenSans-Regular.ttf", 18.0 * DPI_FACTOR);
-        fonts.loadFont("bold", assets / "Open_Sans/OpenSans-Bold.ttf", 18.0 * DPI_FACTOR);
+        fonts.loadFont("regular", (assets / "Open_Sans/OpenSans-Regular.ttf").string(), 18.0 * DPI_FACTOR);
+        fonts.loadFont("bold", (assets / "Open_Sans/OpenSans-Bold.ttf").string(), 18.0 * DPI_FACTOR);
         fonts.setDefault("regular");
 
     } 
