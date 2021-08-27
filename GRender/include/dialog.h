@@ -21,7 +21,7 @@ namespace GRender
        void createDialog(GDialog type, const std::string& title,
             const std::list<std::string>& ext,
             void* data = nullptr,
-            void (*callback)(const std::string&, void*) = nullptr);
+            void (*callback)(const fs::path&, void*) = nullptr);
 
 
 
@@ -51,7 +51,7 @@ namespace GRender
 
         // callback
         void* callback_data = nullptr;
-        void (*callback)(const std::string&, void*) = nullptr;
+        void (*callback)(const fs::path&, void*) = nullptr;
 
         // DISPLAY DIALOGS
         bool openDialog(void);

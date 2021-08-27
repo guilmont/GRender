@@ -14,7 +14,7 @@ namespace GRender
 
     Dialog::~Dialog(void) {}
 
-    void Dialog::createDialog(GDialog type, const std::string& title, const std::list<std::string>& ext, void* data, void (*callback)(const std::string&, void*))
+    void Dialog::createDialog(GDialog type, const std::string& title, const std::list<std::string>& ext, void* data, void (*callback)(const fs::path&, void*))
     {
         active = true;
         this->title = title;
