@@ -6,7 +6,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 project(Template)
 
-add_executable(${PROJECT_NAME} template.cpp)
+add_executable(${PROJECT_NAME} template.cpp circle.cpp circle.h)
 target_link_libraries(${PROJECT_NAME} PRIVATE GRender)
 target_compile_definitions(${PROJECT_NAME} PRIVATE 
 	_CRT_SECURE_NO_WARNINGS                    # To avoid some sprintf warnings

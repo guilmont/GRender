@@ -1,6 +1,7 @@
 #include "GRender.h"
+#include "circle.h"
 
-constexpr uint32_t maxQuads = 500;
+constexpr uint32_t maxQuads = 5;
 
 class Sandbox : public GRender::Application
 {
@@ -23,9 +24,10 @@ private:
 
 	std::unique_ptr<GRender::Framebuffer> fbuffer = nullptr;
 	std::unique_ptr<GRender::Quad> quad = nullptr;
+	std::unique_ptr<Circle> circle = nullptr;
 
-	float angle = 0.0f;
 	std::array<glm::vec3, maxQuads> vecPos;
+	float thickness = 1.0f;
 };
 
 int main(int argc, char *argv[])
@@ -59,8 +61,14 @@ Sandbox::Sandbox(void)
 					  assets / "quadShader.vtx.glsl",
 					  assets / "quadShader.frag.glsl");
 
+	shader.loadShader("circleShader",
+					  assets / "circleShader.vtx.glsl",
+					  assets / "circleShader.frag.glsl");
+
+	
 	fbuffer = std::make_unique<GRender::Framebuffer>(width, height);
 	quad = std::make_unique<GRender::Quad>(maxQuads);
+	circle = std::make_unique<Circle>(maxQuads, 30);
 
 	uint32_t white[] = {0xffffffff};
 	texture.createRGBA("default", 1, 1, white);
@@ -68,6 +76,7 @@ Sandbox::Sandbox(void)
 
 	for (auto &quad : vecPos)
 		quad = {0.0f, 0.0f, 0.0f};
+
 }
 
 void Sandbox::onUserUpdate(float deltaTime)
@@ -87,14 +96,14 @@ void Sandbox::onUserUpdate(float deltaTime)
 
 	if (ctrl & O)
 		dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, &mailbox,
-							[](const std::string &path, void *ptr) -> void{
+							[](const fs::path &path, void *ptr) -> void{
 								GRender::pout("Selected path:", path); 
-								reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Selected file: " + path);
+								reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Selected file: " + path.string());
 							});
 
 	if (ctrl & S)
 		dialog.createDialog(GDialog::SAVE, "Save file...", {"txt", "json"}, nullptr,
-							[](const std::string &path, void *ptr) -> void
+							[](const fs::path &path, void *ptr) -> void
 							{ GRender::pout("Selected path:", path); });
 
 #ifdef BUILD_IMPLOT
@@ -120,6 +129,7 @@ void Sandbox::onUserUpdate(float deltaTime)
 		glm::vec4 cor = {random(), random(), random(), 1.0f};
 
 		quad->draw(pos, size, 0.0f, 1.0f);
+		circle->draw(pos, size.x, {1.0f, 0.5f, 0.1f, 1.0f});
 	}
 
 	fbuffer->bind();
@@ -127,6 +137,8 @@ void Sandbox::onUserUpdate(float deltaTime)
 	glad_glClear(GL_COLOR_BUFFER_BIT);
 	glad_glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
 
+
+	// Drawing quads
 	shader.useProgram("quadShader");
 	shader.setMatrix4f("u_viewProjection", glm::value_ptr(camera.getViewMatrix()));
 
@@ -134,10 +146,16 @@ void Sandbox::onUserUpdate(float deltaTime)
 	texture.bind("wall", 1);
 
 	int32_t tex[2] = {0, 1};
-
 	shader.setIntArray("u_texture", tex, 2);
 
 	quad->submit();
+
+
+	// Drawing circles
+	shader.useProgram("circleShader");
+	shader.setMatrix4f("u_viewProjection", glm::value_ptr(camera.getViewMatrix()));
+	circle->submit(thickness);
+
 
 	fbuffer->unbind();
 }
@@ -181,6 +199,11 @@ void Sandbox::ImGuiLayer(void)
 		ImPlot::ShowDemoWindow(&view_implotdemo);
 #endif
 
+	ImGui::Begin("Box");
+	ImGui::DragFloat("Thickness", &thickness, 1.0f, 1.0f, 10.0f);
+
+	ImGui::End();
+
 	//////////////////////////////////////////////////////////////////////////////
 	/// Updating viewport
 
@@ -213,17 +236,14 @@ void Sandbox::ImGuiMenuLayer(void)
 	{
 		if (ImGui::MenuItem("Open...", "Ctrl+O"))
 			dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, &mailbox,
-								[](const std::string &path, void *ptr) -> void {
+								[](const fs::path &path, void *ptr) -> void {
 									GRender::pout("Selected path:", path);
-									reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Selected file: " + path);
+									reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Selected file: " + path.string());
 								});
 
 		if (ImGui::MenuItem("Save...", "Ctrl+S"))
 			dialog.createDialog(GDialog::SAVE, "Save file...", {"txt", "json"}, nullptr,
-								[](const std::string &path, void *ptr) -> void
-								{
-									GRender::pout("Selected path:", path);
-								});
+								[](const fs::path &path, void *ptr) -> void { GRender::pout("Selected path:", path); });
 
 		if (ImGui::MenuItem("Exit"))
 			closeApp();

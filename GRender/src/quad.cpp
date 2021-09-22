@@ -98,6 +98,9 @@ namespace GRender
     {
         // Binding buffers
         glad_glBindVertexArray(vao);
+        glad_glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer);
+        glad_glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer);
+
 
         // Let's send our data to the GPU
         glad_glBufferSubData(GL_ARRAY_BUFFER, 0, counter * sizeof(Vertex), vtxBuffer.data());

@@ -103,6 +103,19 @@ namespace GRender
 
     bool Shader::loadShader(const std::string &label, const fs::path &vtxPath, const fs::path &frgPath)
     {
+        if (!fs::exists(vtxPath))
+        {
+            pout("ERROR: Shader not found! => ", vtxPath.string());
+            exit(-1);
+        }
+
+        if (!fs::exists(frgPath))
+        {
+            pout("ERROR: Shader not found! => ", frgPath.string());
+            exit(-1);
+        }
+
+
         int32_t code = genShader(vtxPath.string(), frgPath.string());
 
         assert(code > 0);
