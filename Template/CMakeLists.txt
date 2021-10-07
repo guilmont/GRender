@@ -4,9 +4,14 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(ASSETS_DIR "assets/Template")
+
+#######################################
 project(Template)
 
-add_executable(${PROJECT_NAME} template.cpp circle.cpp circle.h)
+add_executable(${PROJECT_NAME} 
+	"template.cpp"   "polymer.cpp"   "polymer.h")
+
 target_link_libraries(${PROJECT_NAME} PRIVATE GRender)
 target_compile_definitions(${PROJECT_NAME} PRIVATE 
 	_CRT_SECURE_NO_WARNINGS                    # To avoid some sprintf warnings

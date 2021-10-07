@@ -1,7 +1,7 @@
 #include "GRender.h"
-#include "circle.h"
+#include "polymer.h"
 
-constexpr uint32_t maxQuads = 5;
+#include <random>
 
 class Sandbox : public GRender::Application
 {
@@ -16,30 +16,30 @@ public:
 private:
 	bool
 		view_specs = false,
-		view_imguidemo = false;
+		view_imguidemo = false,
+		viewport_hover = false;
 
 #ifdef BUILD_IMPLOT
 	bool view_implotdemo = false;
 #endif
 
 	std::unique_ptr<GRender::Framebuffer> fbuffer = nullptr;
-	std::unique_ptr<GRender::Quad> quad = nullptr;
-	std::unique_ptr<Circle> circle = nullptr;
+	std::unique_ptr<Polymer> poly = nullptr;
 
-	std::array<glm::vec3, maxQuads> vecPos;
-	float thickness = 1.0f;
+	void generatePolymer(uint32_t numBeads, float kuhn);
+
+	glm::vec3 bgColor = { 0.3f, 0.3f, 0.3f };
+
 };
 
 int main(int argc, char *argv[])
 {
 
-	if (argc > 1)
-		GRender::pout(argv[1]);
+	Sandbox app;  
 
+	// Initialize argv input here
 
-	Sandbox *app = new Sandbox();
-	app->run();
-	delete app;
+	app.run(); // Runs main loop
 
 	return EXIT_SUCCESS;
 }
@@ -47,42 +47,69 @@ int main(int argc, char *argv[])
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
+
+
 Sandbox::Sandbox(void)
 {
 	fs::current_path(INSTALL_PATH); // We set the execution path so we don't need to worry about relative paths
 
-	uint32_t width = 1200, height = 800;
-	initialize("Sandbox", width, height);
-
 	fs::path assets(ASSETS);
 
-	// Setup shader path
-	shader.loadShader("quadShader",
-					  assets / "quadShader.vtx.glsl",
-					  assets / "quadShader.frag.glsl");
+	uint32_t width = 1200, height = 800;
+	initialize("Sandbox", width, height, assets / "layout.ini");
+	
+	shader.loadShader("polyBlobs",
+					  assets / "polyBlobs.vtx.glsl",
+					  assets / "polyShader.frag.glsl");
 
-	shader.loadShader("circleShader",
-					  assets / "circleShader.vtx.glsl",
-					  assets / "circleShader.frag.glsl");
 
+	shader.loadShader("polyConnections",
+					  assets / "polyConnections.vtx.glsl",
+					  assets / "polyShader.frag.glsl");
 	
 	fbuffer = std::make_unique<GRender::Framebuffer>(width, height);
-	quad = std::make_unique<GRender::Quad>(maxQuads);
-	circle = std::make_unique<Circle>(maxQuads, 30);
 
-	uint32_t white[] = {0xffffffff};
-	texture.createRGBA("default", 1, 1, white);
-	texture.createRGBA("wall", assets / "jessica.jpg");
+	glEnable(GL_DEPTH_TEST);
 
-	for (auto &quad : vecPos)
-		quad = {0.0f, 0.0f, 0.0f};
+	generatePolymer(1024, 1.0f);
 
+}
+
+
+void Sandbox::generatePolymer(uint32_t numBeads, float kuhn)
+{
+	uint32_t resolution = 50;
+
+	std::default_random_engine ran(123456);
+	std::normal_distribution<float> normal(0.0f, kuhn / sqrt(3.0f));
+
+	glm::vec3 com = { 0.0f, 0.0f, 0.0f };
+	std::vector<glm::vec3> vpos(numBeads);
+
+	vpos.at(0) = { 0.0f, 0.0f, 0.0f };
+	for (uint64_t k = 1; k < numBeads; k++)
+	{
+		vpos.at(k).x = vpos.at(k - 1).x + normal(ran);
+		vpos.at(k).y = vpos.at(k - 1).y + normal(ran);
+		vpos.at(k).z = vpos.at(k - 1).z + normal(ran);
+		com += vpos.at(k);
+	}
+
+	com /= float(numBeads);
+	for (glm::vec3& p : vpos)
+		p -= com;
+
+	poly = std::make_unique<Polymer>(numBeads, resolution);
+	poly->kuhn = kuhn;
+	
+	poly->update(vpos);
 }
 
 void Sandbox::onUserUpdate(float deltaTime)
 {
 	bool
 		ctrl = (keyboard[GKey::LEFT_CONTROL] == GEvent::PRESS) || (keyboard[GKey::RIGHT_CONTROL] == GEvent::PRESS),
+		shift = (keyboard[GKey::LEFT_SHIFT] == GEvent::PRESS) || (keyboard[GKey::RIGHT_SHIFT] == GEvent::PRESS),
 		H = keyboard['H'] == GEvent::PRESS,
 		D = keyboard['D'] == GEvent::PRESS,
 		O = keyboard['O'] == GEvent::PRESS,
@@ -107,55 +134,57 @@ void Sandbox::onUserUpdate(float deltaTime)
 							{ GRender::pout("Selected path:", path); });
 
 #ifdef BUILD_IMPLOT
-	bool P = keyboard['P'] == GEvent::PRESS;
-
-	if (ctrl & P)
+	if (ctrl && (keyboard['P'] == GEvent::PRESS))
 		view_implotdemo = true;
-
 #endif
 
 	///////////////////////////////////////////////////////////////////////////
-	///////////////////////////////////////////////////////////////////////////
-
-	auto random = [](float a = 0.0f, float b = 1.0f) -> float
-	{ return a + (b - a) * float(rand()) / float(RAND_MAX); };
-
-	for (auto &pos : vecPos)
+	// Camera
+	if (viewport_hover)
 	{
-		pos.x += random(-0.01f, 0.01f);
-		pos.y += random(-0.01f, 0.01f);
+		if ((keyboard['W'] == GEvent::PRESS) || (mouse.wheel.y > 0.0f))
+			camera.moveFront(deltaTime);
+		
+		if ((keyboard['S'] == GEvent::PRESS) || (mouse.wheel.y < 0.0f))
+			camera.moveBack(deltaTime);
 
-		glm::vec2 size = {random(0.05f, 0.1f), random(0.05f, 0.1f)};
-		glm::vec4 cor = {random(), random(), random(), 1.0f};
+		if (keyboard['D'] == GEvent::PRESS)
+			camera.moveRight(deltaTime);
 
-		quad->draw(pos, size, 0.0f, 1.0f);
-		circle->draw(pos, size.x, {1.0f, 0.5f, 0.1f, 1.0f});
+		if (keyboard['A'] == GEvent::PRESS)
+			camera.moveLeft(deltaTime);
+
+		if (keyboard['E'] == GEvent::PRESS)
+			camera.moveUp(deltaTime);
+
+		if (keyboard['Q'] == GEvent::PRESS)
+			camera.moveDown(deltaTime);
+
+
+		if (mouse[GMouse::MIDDLE] == GEvent::RELEASE)
+			camera.reset();
+
+		if ((mouse[GMouse::LEFT] == GEvent::PRESS) || (mouse[GMouse::LEFT] == GEvent::REPEAT))
+			camera.lookAround(mouse.offset, deltaTime);
 	}
 
+	///////////////////////////////////////////////////////////////////////////
+
 	fbuffer->bind();
+	
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearColor(bgColor.r, bgColor.g, bgColor.b, 1.0f);
 
-	glad_glClear(GL_COLOR_BUFFER_BIT);
-	glad_glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
-
-
-	// Drawing quads
-	shader.useProgram("quadShader");
-	shader.setMatrix4f("u_viewProjection", glm::value_ptr(camera.getViewMatrix()));
-
-	texture.bind("default", 0);
-	texture.bind("wall", 1);
-
-	int32_t tex[2] = {0, 1};
-	shader.setIntArray("u_texture", tex, 2);
-
-	quad->submit();
-
-
-	// Drawing circles
-	shader.useProgram("circleShader");
-	shader.setMatrix4f("u_viewProjection", glm::value_ptr(camera.getViewMatrix()));
-	circle->submit(thickness);
-
+	// Drawing polymer
+	shader.useProgram("polyConnections");
+	shader.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
+	shader.setFloat("u_radius", 0.25f*poly->kuhn);
+	poly->submitConnections();
+	
+	shader.useProgram("polyBlobs");
+	shader.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
+	shader.setFloat("u_radius", 0.5f*poly->kuhn);
+	poly->submitBlobs();
 
 	fbuffer->unbind();
 }
@@ -191,6 +220,9 @@ void Sandbox::ImGuiLayer(void)
 		ImGui::End();
 	}
 
+	if (camera.viewControls)
+		camera.controls();
+
 	if (view_imguidemo)
 		ImGui::ShowDemoWindow(&view_imguidemo);
 
@@ -199,10 +231,32 @@ void Sandbox::ImGuiLayer(void)
 		ImPlot::ShowDemoWindow(&view_implotdemo);
 #endif
 
-	ImGui::Begin("Box");
-	ImGui::DragFloat("Thickness", &thickness, 1.0f, 1.0f, 10.0f);
+	//////////////////////////////////////////////////////////////////////////////
+	// Polymer control
+
+	ImGui::Begin("Polymer");
+
+	int32_t numBeads = int32_t(poly->numBeads);
+	float kuhn = poly->kuhn;
+
+	if (ImGui::DragInt("numBeads", &numBeads, 1.0f, 1, 8192))
+		generatePolymer(numBeads, kuhn);
+
+	ImGui::DragFloat("radius", &(poly->kuhn), 0.1f, 0.1f, 5.0f, "%.2f");
+
+	if (ImGui::ColorEdit3("Spheres", glm::value_ptr(poly->sphereColor)))
+		poly->updateSphereColor();
+
+	if (ImGui::ColorEdit3("Connections", glm::value_ptr(poly->cylinderColor)))
+		poly->updateCylinderColor();
+
+	if (ImGui::ColorEdit3("Background", glm::value_ptr(bgColor)))
+		poly->updateCylinderColor();
+
 
 	ImGui::End();
+
+	
 
 	//////////////////////////////////////////////////////////////////////////////
 	/// Updating viewport
@@ -211,6 +265,7 @@ void Sandbox::ImGuiLayer(void)
 	ImGui::SetNextWindowSize({size.x, size.y});
 
 	ImGui::Begin("Viewport", NULL, ImGuiWindowFlags_NoTitleBar);
+	viewport_hover = ImGui::IsWindowHovered();
 
 	// Check if it needs to resize
 	ImVec2 port = ImGui::GetContentRegionAvail();
@@ -266,6 +321,9 @@ void Sandbox::ImGuiMenuLayer(void)
 
 		if (ImGui::MenuItem("View mailbox"))
 			mailbox.setActive();
+
+		if (ImGui::MenuItem("Camera controls"))
+			camera.viewControls = true;
 
 		ImGui::EndMenu();
 	} // file-menu

@@ -68,7 +68,7 @@ namespace GRender
         glfwTerminate();
     } // destructor
 
-    void Application::initialize(const std::string& name, uint32_t width, uint32_t height, const char *layout)
+    void Application::initialize(const std::string& name, uint32_t width, uint32_t height, const fs::path& layout)
     {
 
         window.title = name;
@@ -153,12 +153,17 @@ namespace GRender
 
         ImGui::StyleColorsClassic();
 
+
         // Floating windows off main windows
         ImGuiIO& io = ImGui::GetIO();
         io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
         io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-        io.IniFilename = layout;
+
+        // Setup path to layout
+        layoutINI = layout.string();
+        io.IniFilename = layoutINI.c_str();
+        
 
         // Rescaling all sizes to account for HIDPI screens
         ImGuiStyle &style = ImGui::GetStyle();

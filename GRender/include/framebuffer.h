@@ -22,7 +22,7 @@ namespace GRender
         glm::vec2 getSize(void) const { return size; }
 
     private:
-        uint32_t bufferID = 0, textureID = 0;
+        uint32_t bufferID = 0, textureID = 0, depthID = 0;
         glm::vec2 size = { 1.0f, 1.0f }, position = { 0.0f, 0.0f };
 
     };

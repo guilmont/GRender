@@ -8,17 +8,19 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
-set(ASSETS_DIR "assets/Template")
+option(GRENDER_BUILD_TEMPLATE "Builds template" ON)
+
 
 set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR} CACHE PATH "Location to install application")
 
 
 project(Application)
 
-# Including Grender library
-add_subdirectory(GRender)
+if (GRENDER_BUILD_TEMPLATE)
+    set(ASSETS_DIR "assets/Template")
+endif()
 
-option(GRENDER_BUILD_TEMPLATE "Builds template" OFF)
+add_subdirectory(GRender)
 
 if (GRENDER_BUILD_TEMPLATE)
     add_subdirectory(Template)

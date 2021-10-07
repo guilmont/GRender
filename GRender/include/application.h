@@ -30,7 +30,7 @@ namespace GRender {
         virtual ~Application(void);
 
         // Flow control
-        void initialize(const std::string& name, uint32_t width, uint32_t height, const char *layout = NULL);
+        void initialize(const std::string& name, uint32_t width, uint32_t height, const fs::path& layout);
         void closeApp(void) { glfwSetWindowShouldClose(window.ptr, 1); }
         void run(void);
 
@@ -54,6 +54,8 @@ namespace GRender {
     private:
         float deltaTime = 0.1f;             // This value is going to be uploaded by main loop
         
+        std::string layoutINI;
+
         // Callback functions to control flow
         friend void winResize_callback(GLFWwindow*, int, int);
         friend void winPos_callback(GLFWwindow*, int, int);

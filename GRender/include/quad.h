@@ -4,7 +4,6 @@
 
 namespace GRender
 {
-
     class Quad
     {
 
@@ -13,8 +12,8 @@ namespace GRender
         ~Quad(void);
 
         void draw(const glm::vec3& position, const glm::vec2& size, float angle, const glm::vec4& color, float texID, const glm::vec2& coord0 = { 0.0f, 0.0f }, const glm::vec2& coord1 = { 1.0f, 1.0f });
-        void draw(const glm::vec3 &position, const glm::vec2 &size, float angle, float texID, const glm::vec2 &coord0 = {0.0f, 0.0f}, const glm::vec2 &coord1 = {1.0f, 1.0f});
-        void draw(const glm::vec3 &position, const glm::vec2 &size, float angle, const glm::vec4 &color);
+        void draw(const glm::vec3& position, const glm::vec2& size, float angle, float texID, const glm::vec2& coord0 = { 0.0f, 0.0f }, const glm::vec2& coord1 = { 1.0f, 1.0f });
+        void draw(const glm::vec3& position, const glm::vec2& size, float angle, const glm::vec4& color);
 
         void submit(void);
 
@@ -41,5 +40,4 @@ namespace GRender
         std::vector<Vertex> vtxBuffer;
 
     }; // class-object
-
 }
