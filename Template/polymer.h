@@ -25,7 +25,6 @@ public:
 
     void updateSphereColor(void);
     void updateCylinderColor(void);
-    void updateCylinderColor(const glm::vec3& color);
 
 private:
     
