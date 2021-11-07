@@ -34,6 +34,9 @@ namespace fs = std::filesystem;
 
 namespace GRender
 {
+	static float DPI_FACTOR = 1;  // Used to rescale sizes for HIDPI screens
+
+
 	static void pout(void) { std::cout << std::endl; }
 
 	template <typename TP, typename... Args>

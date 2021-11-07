@@ -13,10 +13,7 @@ add_executable(${PROJECT_NAME}
 	"template.cpp"   "polymer.cpp"   "polymer.h")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE GRender)
-target_compile_definitions(${PROJECT_NAME} PRIVATE 
-	_CRT_SECURE_NO_WARNINGS                    # To avoid some sprintf warnings
-	INSTALL_PATH="${CMAKE_INSTALL_PREFIX}"
-	ASSETS="${ASSETS_DIR}"
+target_compile_definitions(${PROJECT_NAME} PRIVATE ASSETS="${ASSETS_DIR}"
 )
 
 file(COPY ${PROJECT_SOURCE_DIR}/assets/ DESTINATION ${CMAKE_SOURCE_DIR}/${ASSETS_DIR})

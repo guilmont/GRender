@@ -5,6 +5,8 @@ namespace GRender
 
     void Fonts::setDefault(const std::string& name) { ImGui::GetIO().FontDefault = mFonts[name]; }
 
+    void Fonts::swap(const std::string& name1, const std::string& name2) { std::swap(mFonts[name1], mFonts[name2]); }
+
     void Fonts::loadFont(const std::string& fontname, const std::string& path, float size) { mFonts[fontname] = ImGui::GetIO().Fonts->AddFontFromFileTTF(path.c_str(), size); }
 
     void Fonts::text(const std::string& txt, const std::string& fontname)

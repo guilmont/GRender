@@ -1,27 +1,25 @@
-cmake_minimum_required(VERSION 3.20)
+cmake_minimum_required(VERSION 3.10)
+
+# This CMakeLists.txt will only setup the template in relation to GRender
+# For other purpoes, add directly the subdirectory GRender
 
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
-option(GRENDER_BUILD_TEMPLATE "Builds template" ON)
+# A trick so the program can always find its assets
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/bin")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/bin")
 
+set(ASSETS_DIR "../assets")  # GRender need to know this path. Written in relation to bin
+add_subdirectory("GRender")
 
-set(CMAKE_INSTALL_PREFIX ${CMAKE_SOURCE_DIR} CACHE PATH "Location to install application")
+project(Template)
 
+add_executable(${PROJECT_NAME} 
+	"Template/template.cpp"   "Template/polymer.cpp"   "Template/polymer.h")
 
-project(Application)
+target_link_libraries(${PROJECT_NAME} PRIVATE GRender)
+target_compile_definitions(${PROJECT_NAME} PRIVATE ASSETS="${ASSETS_DIR}")
 
-if (GRENDER_BUILD_TEMPLATE)
-    set(ASSETS_DIR "assets/Template")
-endif()
-
-add_subdirectory(GRender)
-
-if (GRENDER_BUILD_TEMPLATE)
-    add_subdirectory(Template)
-endif()

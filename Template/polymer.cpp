@@ -65,7 +65,7 @@ void Polymer::createSphere(uint32_t divisions)
             if (k == 0)
                 vec[k * divisions + l] = 0;
             else if (k+1 == divisions)
-                vec[k * divisions + l] = sphere.vtxBuffer.size() - 1;
+                vec[k * divisions + l] = uint32_t(sphere.vtxBuffer.size() - 1);
             else
                 vec[k*divisions + l] = (k-1) * divisions + l + 1;
         }
@@ -234,7 +234,7 @@ void Polymer::submitBlobs(void)
     glBindBuffer(GL_ARRAY_BUFFER, sphere.vtx);
     glBindBuffer(GL_ARRAY_BUFFER, sphere.com);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, sphere.idx);    
-    glDrawElementsInstanced(GL_TRIANGLES, 3 * sphere.idxBuffer.size(), GL_UNSIGNED_INT, nullptr, numBeads);
+    glDrawElementsInstanced(GL_TRIANGLES, 3 * sphere.idxBuffer.size(), GL_UNSIGNED_INT, nullptr, int32_t(numBeads));
 }
 
 
@@ -246,7 +246,7 @@ void Polymer::submitConnections(void)
     glBindBuffer(GL_ARRAY_BUFFER, cylinder.dir);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, cylinder.idx);
-    glDrawElementsInstanced(GL_TRIANGLES, 3 * cylinder.idxBuffer.size(), GL_UNSIGNED_INT, nullptr, numBeads-1);
+    glDrawElementsInstanced(GL_TRIANGLES, 3 * cylinder.idxBuffer.size(), GL_UNSIGNED_INT, nullptr, int32_t(numBeads-1));
 }
 
 void Polymer::updateSphereColor(void)

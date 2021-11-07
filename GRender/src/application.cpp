@@ -164,22 +164,31 @@ namespace GRender
         layoutINI = layout.string();
         io.IniFilename = layoutINI.c_str();
         
-
-        // Rescaling all sizes to account for HIDPI screens
-        ImGuiStyle &style = ImGui::GetStyle();
-        style.ScaleAllSizes(DPI_FACTOR);
-
         ImGui_ImplGlfw_InitForOpenGL(window.ptr, true);
         ImGui_ImplOpenGL3_Init("#version 410 core"); // Mac supports only up to 410
 
-        fs::path assets(ASSETS);
-
         // Setup fonts
-        fonts.loadFont("regular", (assets / "Open_Sans/OpenSans-Regular.ttf").string(), 18.0 * DPI_FACTOR);
-        fonts.loadFont("bold", (assets / "Open_Sans/OpenSans-Bold.ttf").string(), 18.0 * DPI_FACTOR);
+        float fontSize = 18.0f;
+        fonts.loadFont("regular", (fs::path(ASSETS) / "Open_Sans/OpenSans-Regular.ttf").string(), fontSize);
+        fonts.loadFont("bold", (fs::path(ASSETS) / "Open_Sans/OpenSans-Bold.ttf").string(), fontSize);
+
+        fonts.loadFont("regular2", (fs::path(ASSETS) / "Open_Sans/OpenSans-Regular.ttf").string(), 2.0f * fontSize);
+        fonts.loadFont("bold2", (fs::path(ASSETS) / "Open_Sans/OpenSans-Bold.ttf").string(), 2.0f * fontSize);
+
         fonts.setDefault("regular");
 
     } 
+
+    void Application::scaleSizes(void)
+    {
+        // Rescaling all sizes to account for HIDPI screens
+        ImGuiStyle& style = ImGui::GetStyle();
+        style.ScaleAllSizes(DPI_FACTOR);
+      
+        fonts.swap("regular", "regular2");
+        fonts.swap("bold", "bold2");
+        fonts.setDefault("regular");
+    }
 
     void Application::run(void)
     {

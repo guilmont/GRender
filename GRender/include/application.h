@@ -50,10 +50,12 @@ namespace GRender {
         Texture texture;
         Mailbox mailbox;
 
+    protected:
+        void scaleSizes(void); // Used to rescales sizes for HIDPI screens
 
     private:
-        float deltaTime = 0.1f;             // This value is going to be uploaded by main loop
-        
+        float deltaTime = 0.1f;   // This value is going to be uploaded by main loop
+
         std::string layoutINI;
 
         // Callback functions to control flow

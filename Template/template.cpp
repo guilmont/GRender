@@ -34,12 +34,14 @@ private:
 
 int main(int argc, char *argv[])
 {
+	// Setup program to use executable path as reference
+	fs::path exe(argv[0]);
+	fs::current_path(exe.parent_path());
 
 	Sandbox app;  
+	// Initialize argv input here if needed
 
-	// Initialize argv input here
-
-	app.run(); // Runs main loop
+	app.run();
 
 	return EXIT_SUCCESS;
 }
@@ -51,8 +53,6 @@ int main(int argc, char *argv[])
 
 Sandbox::Sandbox(void)
 {
-	fs::current_path(INSTALL_PATH); // We set the execution path so we don't need to worry about relative paths
-
 	fs::path assets(ASSETS);
 
 	uint32_t width = 1200, height = 800;
@@ -194,29 +194,13 @@ void Sandbox::ImGuiLayer(void)
 
 	if (view_specs)
 	{
-		ImGui::SetNextWindowSize({512 * DPI_FACTOR, 300 * DPI_FACTOR});
-
 		ImGui::Begin("Specs", &view_specs);
-
-		char buf[128] = {0};
-		sprintf(buf, "FT: %.3f ms", 1000.0 * double(ImGui::GetIO().DeltaTime));
-		ImGui::Text(buf);
-
-		sprintf(buf, "FPS: %.0f", ImGui::GetIO().Framerate);
-		ImGui::Text(buf);
-
-		sprintf(buf, "Vendor: %s", glad_glGetString(GL_VENDOR));
-		ImGui::Text(buf);
-
-		sprintf(buf, "Graphics card: %s", glad_glGetString(GL_RENDERER));
-		ImGui::Text(buf);
-
-		sprintf(buf, "OpenGL version: %s", glad_glGetString(GL_VERSION));
-		ImGui::Text(buf);
-
-		sprintf(buf, "GLSL version: %s", glad_glGetString(GL_SHADING_LANGUAGE_VERSION));
-		ImGui::Text(buf);
-
+		ImGui::Text("FT: %.3f ms", 1000.0 * double(ImGui::GetIO().DeltaTime));
+		ImGui::Text("FPS: %.0f", ImGui::GetIO().Framerate);
+		ImGui::Text("Vendor: %s", glad_glGetString(GL_VENDOR));
+		ImGui::Text("Graphics card: %s", glad_glGetString(GL_RENDERER));
+		ImGui::Text("OpenGL version: %s", glad_glGetString(GL_VERSION));
+		ImGui::Text("GLSL version: %s", glad_glGetString(GL_SHADING_LANGUAGE_VERSION));
 		ImGui::End();
 	}
 
@@ -306,6 +290,31 @@ void Sandbox::ImGuiMenuLayer(void)
 		ImGui::EndMenu();
 	} // file-menu
 
+	if (ImGui::BeginMenu("Edit"))
+	{
+		if (GRender::DPI_FACTOR == 1)
+		{
+			if (ImGui::MenuItem("Set HIDPI"))
+			{
+				GRender::DPI_FACTOR = 2.0f;
+				scaleSizes();
+			}
+		}
+		else
+		{
+			if (ImGui::MenuItem("* Set HIDPI"))
+			{
+				GRender::DPI_FACTOR = 1.0f;
+				scaleSizes();
+			}
+		}
+
+		if (ImGui::MenuItem("Camera controls"))
+			camera.viewControls = true;
+
+		ImGui::EndMenu();
+	}
+
 	if (ImGui::BeginMenu("About"))
 	{
 		if (ImGui::MenuItem("Specs", "Ctrl+H"))
@@ -322,9 +331,7 @@ void Sandbox::ImGuiMenuLayer(void)
 		if (ImGui::MenuItem("View mailbox"))
 			mailbox.setActive();
 
-		if (ImGui::MenuItem("Camera controls"))
-			camera.viewControls = true;
-
+		
 		ImGui::EndMenu();
 	} // file-menu
 }
