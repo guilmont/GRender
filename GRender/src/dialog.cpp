@@ -215,9 +215,9 @@ namespace GRender
     {
         bool status = false;
 
-        float width = ImGui::GetContentRegionAvailWidth() * DPI_FACTOR;
+        const ImVec2& avail = ImGui::GetContentRegionAvail();
 
-        ImGui::BeginChild("child_2", { width, 0.44f * width }, true);
+        ImGui::BeginChild("child_2", { avail.x, 0.87f * avail.y }, true);
 
         for (auto entry : fs::directory_iterator(mainPath, fs::directory_options::skip_permission_denied))
         {
