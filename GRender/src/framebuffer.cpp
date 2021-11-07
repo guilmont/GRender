@@ -38,6 +38,32 @@ namespace GRender
 
     } // constructor
 
+    Framebuffer::Framebuffer(Framebuffer&& buf) noexcept : size(buf.size)
+    {
+        bufferID = buf.bufferID;
+        textureID = buf.textureID;
+        depthID = buf.depthID;
+
+        buf.bufferID = buf.textureID = buf.depthID = 0;
+    }
+
+    Framebuffer& Framebuffer::operator=(Framebuffer&& buf) noexcept
+    {
+        if (this == &buf)
+            return *this;
+
+        size = buf.size;
+        position = buf.position;
+
+        bufferID = buf.bufferID;
+        textureID = buf.textureID;
+        depthID = buf.depthID;
+
+        buf.bufferID = buf.textureID = buf.depthID = 0;
+     
+        return *this;
+    }
+
     Framebuffer::~Framebuffer(void)
     {
         glDeleteTextures(1, &depthID);

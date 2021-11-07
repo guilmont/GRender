@@ -43,11 +43,8 @@ namespace GRender {
         Window window;
         Fonts fonts;
         Mouse mouse;
-        Camera camera;
         Keyboard keyboard;
-        Shader shader;
         Dialog dialog;
-        Texture texture;
         Mailbox mailbox;
 
     protected:

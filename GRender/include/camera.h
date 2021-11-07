@@ -13,13 +13,11 @@ namespace GRender
 
         glm::mat4 getViewMatrix(void);
         void reset(void);
-
         
         void setAspectRatio(float value) { aspect = value; }
 
         void moveFront(float elapsed);
         void moveBack(float elapsed);
-
         void moveUp(float elapsed);
         void moveDown(float elapsed);
         void moveLeft(float elapsed);
@@ -30,11 +28,11 @@ namespace GRender
         bool viewControls = true;
         void controls(void);
 
-        const glm::vec3& getFront() { return front; }
-        const glm::vec3& getPosition() { return position; }
         float& getYaw() { return yaw; }
         float& getPitch() { return pitch;  }
 
+        glm::vec3& getPosition() { return position; }
+        glm::vec3& getFront() { return front; }
 
     private:
         float
