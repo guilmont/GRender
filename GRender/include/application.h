@@ -48,8 +48,7 @@ namespace GRender {
         Dialog dialog;
         Mailbox mailbox;
 
-    protected:
-        void scaleSizes(void); // Used to rescales sizes for HIDPI screens
+        void scaleSizes(float scale); // Used to rescales sizes for HIDPI screens
 
     private:
         float deltaTime = 0.1f;   // This value is going to be uploaded by main loop

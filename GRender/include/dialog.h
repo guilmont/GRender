@@ -42,6 +42,8 @@ namespace GRender
         bool active = false;
         std::string title;
 
+        glm::vec2 size = {720.0f, 450.0f };
+
         fs::path mainPath, filePath, filename;
 
         std::string currentExt;

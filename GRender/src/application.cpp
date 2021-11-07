@@ -177,12 +177,17 @@ namespace GRender
 
     } 
 
-    void Application::scaleSizes(void)
+    void Application::scaleSizes(float scale)
     {
         // Rescaling all sizes to account for HIDPI screens
         ImGuiStyle& style = ImGui::GetStyle();
-        style.ScaleAllSizes(DPI_FACTOR);
-      
+
+        if (scale == 1 && DPI_FACTOR == 2)
+            style.ScaleAllSizes(0.5f);
+        else
+            style.ScaleAllSizes(2.0f);
+
+        DPI_FACTOR = scale;
         fonts.swap("regular", "regular2");
         fonts.swap("bold", "bold2");
         fonts.setDefault("regular");

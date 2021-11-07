@@ -46,7 +46,10 @@ namespace GRender
         if (!active)
             return;
 
+
         ImGui::Begin(title.c_str(), &active);
+        ImGui::SetWindowSize({ DPI_FACTOR * size.x, DPI_FACTOR * size.y });
+
         bool status = (this->*dialog_function)();
         ImGui::End();
 
@@ -212,7 +215,9 @@ namespace GRender
     {
         bool status = false;
 
-        ImGui::BeginChild("child_2", { 690 * DPI_FACTOR, 300 * DPI_FACTOR }, true);
+        float width = ImGui::GetContentRegionAvailWidth() * DPI_FACTOR;
+
+        ImGui::BeginChild("child_2", { width, 0.44f * width }, true);
 
         for (auto entry : fs::directory_iterator(mainPath, fs::directory_options::skip_permission_denied))
         {

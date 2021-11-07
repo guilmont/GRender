@@ -180,10 +180,11 @@ namespace GRender
         ImGui::SetNextWindowSize({700 * DPI_FACTOR, 400 * DPI_FACTOR }, ImGuiCond_FirstUseEver);
 
         ImGui::Begin("Mailbox", &active);
+        ImGui::SetWindowSize({ DPI_FACTOR * 720.0f, DPI_FACTOR * 405.0f });
 
         ImGui::PushStyleColor(ImGuiCol_ChildBg, { 0.02f, 0.02f, 0.02f, 1.0f });
 
-        ImVec2 size = { 0.95f * ImGui::GetWindowWidth(), 0.8f * ImGui::GetWindowHeight() };
+        ImVec2 size = { 0.98f * ImGui::GetWindowWidth(), 0.8f * ImGui::GetWindowHeight() };
         ImGui::BeginChild("mail_child", size, true, ImGuiWindowFlags_HorizontalScrollbar);
 
         for (Message* msg : messages)
