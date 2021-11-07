@@ -19,6 +19,7 @@ add_library(${PROJECT_NAME} STATIC
 	"include/shader.h"       "src/shader.cpp"
 	"include/texture.h"      "src/texture.cpp"
 	"include/camera.h"       "src/camera.cpp"
+	"include/camera2D.h"     "src/camera2D.cpp"
 	"include/quad.h"         "src/quad.cpp"
 	"include/framebuffer.h"  "src/framebuffer.cpp"
 	"include/fonts.h"        "src/fonts.cpp"
