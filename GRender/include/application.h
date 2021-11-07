@@ -9,6 +9,7 @@
 #include "texture.h"
 #include "events.h"
 #include "camera.h"
+#include "camera2D.h"
 #include "fonts.h"
 #include "dialog.h"
 #include "mailbox.h"
