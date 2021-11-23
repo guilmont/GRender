@@ -2,9 +2,10 @@
 
 #include "core.h"
 
-enum class GDialog: const uint8_t
+enum class GDialog : const uint8_t
 {
     OPEN,
+    OPEN_DIRECTORY,
     SAVE,
 };
 
@@ -14,21 +15,19 @@ namespace GRender
     class Dialog
     {
     public:
-       Dialog(void);
+        Dialog(void);
         ~Dialog(void);
 
 
-       void createDialog(GDialog type, const std::string& title,
+        void createDialog(GDialog type, const std::string& title,
             const std::list<std::string>& ext,
             void* data = nullptr,
             void (*callback)(const fs::path&, void*) = nullptr);
 
-
-
-       void showDialog(void);
+        void showDialog(void);
 
         // RETRIEVE DATA
-       const fs::path& getPath(void) const { return filePath; }
+        const fs::path& getPath(void) const { return filePath; }
 
         // Used to drop files
         struct
@@ -40,9 +39,11 @@ namespace GRender
 
     private:
         bool active = false;
+        GDialog myType;
+
         std::string title;
 
-        glm::vec2 size = {720.0f, 450.0f };
+        glm::vec2 size = { 720.0f, 450.0f };
 
         fs::path mainPath, filePath, filename;
 
@@ -57,6 +58,7 @@ namespace GRender
 
         // DISPLAY DIALOGS
         bool openDialog(void);
+        bool openDirectory(void);
         bool saveDialog(void);
 
         bool systemDisplay(void);
