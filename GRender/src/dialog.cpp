@@ -338,7 +338,7 @@ namespace GRender
 
         if (ImGui::BeginPopupModal("File exists"))
         {
-            const std::string& name = mainPath.filename().string();
+            const std::string& name = filePath.filename().string();
             ImGui::Text("'%s' already exists. Replace?", name.c_str());
 
             if (ImGui::Button("Yes"))
