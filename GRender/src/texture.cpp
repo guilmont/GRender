@@ -68,6 +68,8 @@ namespace GRender
 
     void Texture::createFloat(const std::string& label, uint32_t width, uint32_t height, const float* data)
     {
+        assert(textures.find(label) == textures.end());
+
         Specification specs;
         specs.type = Type::FLOAT;
         specs.width = width;

@@ -34,7 +34,7 @@ namespace GRender
 
         uint32_t
             counter = 0, // Current number of quads
-            maxVertices; // Maximum number of quads
+            maxVertices = 0; // Maximum number of quads
 
         std::vector<uint32_t> vIndex;
         std::vector<Vertex> vtxBuffer;
