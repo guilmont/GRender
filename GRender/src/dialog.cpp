@@ -77,7 +77,7 @@ namespace GRender
         static char loc[512] = { 0 };
         sprintf(loc, "%s", mainPath.string().c_str());
 
-        float width = ImGui::GetContentRegionAvailWidth();
+        float width = ImGui::GetContentRegionAvail().x;
 
         ImGui::PushItemWidth(width);
         if (ImGui::InputText("##MainAdress", loc, 512, ImGuiInputTextFlags_EnterReturnsTrue))
@@ -137,7 +137,7 @@ namespace GRender
         char buf[512] = { 0 };
         sprintf(buf, "%s", mainPath.string().c_str());
 
-        float width = ImGui::GetContentRegionAvailWidth();
+        float width = ImGui::GetContentRegionAvail().x;
 
         ImGui::PushItemWidth(width);
         if (ImGui::InputText("##MainAdress", buf, 512, ImGuiInputTextFlags_EnterReturnsTrue))
@@ -215,7 +215,7 @@ namespace GRender
     {
         bool status = false;
 
-        float width = ImGui::GetContentRegionAvailWidth() * DPI_FACTOR;
+        float width = ImGui::GetContentRegionAvail().x * DPI_FACTOR;
 
         ImGui::BeginChild("child_2", { width, 0.44f * width }, true);
 

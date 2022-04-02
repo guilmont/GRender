@@ -80,7 +80,7 @@ namespace GRender
 
         ImGui::Text("%s :: Time: %s", content.c_str(), time2String(zero, current).c_str());
 
-        float width = 0.8f * ImGui::GetContentRegionAvailWidth();
+        float width = 0.8f * ImGui::GetContentRegionAvail().x;
         ImGui::ProgressBar(progress, { width, 0 }); // 0 goes for automatic height
 
         if (!is_read)

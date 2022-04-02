@@ -3,14 +3,15 @@ cmake_minimum_required(VERSION 3.10)
 # This CMakeLists.txt will only setup the template in relation to GRender
 # For other purpoes, add directly the subdirectory GRender
 
-
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
 
 # A trick so the program can always find its assets
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/bin")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/bin")
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
+
 
 set(ASSETS_DIR "../assets")  # GRender need to know this path. Written in relation to bin
 add_subdirectory("GRender")

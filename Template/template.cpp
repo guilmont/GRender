@@ -295,20 +295,14 @@ void Sandbox::ImGuiMenuLayer(void)
 
 	if (ImGui::BeginMenu("Edit"))
 	{
-		if (GRender::DPI_FACTOR == 1)
-		{
-			if (ImGui::MenuItem("Set HIDPI"))
-			{
-				GRender::DPI_FACTOR = 2.0f;
-				scaleSizes();
+		if (GRender::DPI_FACTOR == 1) {
+			if (ImGui::MenuItem("Set HIDPI")) {
+				scaleSizes(2.0f);
 			}
-		}
-		else
-		{
-			if (ImGui::MenuItem("* Set HIDPI"))
-			{
-				GRender::DPI_FACTOR = 1.0f;
-				scaleSizes();
+		} 
+		else {
+			if (ImGui::MenuItem("* Set HIDPI")) {
+				scaleSizes(1.0f);
 			}
 		}
 

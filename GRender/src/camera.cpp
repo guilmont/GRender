@@ -50,7 +50,7 @@ namespace GRender
 		ImGui::Text("Yaw: %.2f", yaw);
 
         ImGui::Spacing();
-        float wid = ImGui::GetContentRegionAvailWidth();
+        float wid = ImGui::GetContentRegionAvail().x;
 
 
         ImGui::Text("Speed:        ");
