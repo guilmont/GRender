@@ -26,7 +26,7 @@ private:
 
 	GRender::Camera camera;
 	GRender::Shader shader;
-	GRender::Framebuffer fbuffer;
+	std::unique_ptr<GRender::Framebuffer> fbuffer;
 
 	std::unique_ptr<Polymer> poly = nullptr;
 
@@ -71,7 +71,7 @@ Sandbox::Sandbox(void)
 					  assets / "polyConnections.vtx.glsl",
 					  assets / "polyShader.frag.glsl");
 	
-	fbuffer = GRender::Framebuffer(width, height);
+	fbuffer = std::make_unique<GRender::Framebuffer>(width, height);
 
 	glEnable(GL_DEPTH_TEST);
 	generatePolymer(1024, 1.0f);
@@ -169,7 +169,7 @@ void Sandbox::onUserUpdate(float deltaTime)
 
 	///////////////////////////////////////////////////////////////////////////
 
-	fbuffer.bind();
+	fbuffer->bind();
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(bgColor.r, bgColor.g, bgColor.b, 1.0f);
@@ -185,7 +185,7 @@ void Sandbox::onUserUpdate(float deltaTime)
 	shader.setFloat("u_radius", 0.5f*poly->kuhn);
 	poly->submitBlobs();
 
-	fbuffer.unbind();
+	fbuffer->unbind();
 }
 
 void Sandbox::ImGuiLayer(void)
@@ -252,18 +252,18 @@ void Sandbox::ImGuiLayer(void)
 
 	// Check if it needs to resize
 	ImVec2 port = ImGui::GetContentRegionAvail();
-	ImGui::Image((void *)(uintptr_t)fbuffer.getID(), port, {0.0f, 1.0f}, {1.0f, 0.0f});
+	ImGui::Image((void *)(uintptr_t)fbuffer->getID(), port, {0.0f, 1.0f}, {1.0f, 0.0f});
 
-	glm::vec2 view = fbuffer.getSize();
+	glm::vec2 view = fbuffer->getSize();
 	if (port.x != view.x || port.y != view.y)
 	{
-		fbuffer = GRender::Framebuffer(uint32_t(port.x), uint32_t(port.y));
+		fbuffer = std::make_unique<GRender::Framebuffer>(uint32_t(port.x), uint32_t(port.y));
 		camera.setAspectRatio(port.x / port.y);
 	}
 
 	// Checking if anchoring position changed
 	ImVec2 pos = ImGui::GetItemRectMin();
-	fbuffer.setPosition(pos.x - window.position.x, pos.y - window.position.y);
+	fbuffer->setPosition(pos.x - window.position.x, pos.y - window.position.y);
 
 	ImGui::End();
 }

@@ -8,12 +8,7 @@ namespace GRender
     class  Framebuffer
     {
     public:
-        Framebuffer(void) = default;
         Framebuffer(uint32_t width, uint32_t height);
-        Framebuffer(Framebuffer&& buf) noexcept;
-
-        Framebuffer& operator=(Framebuffer&& buf) noexcept;
-
         ~Framebuffer(void);
 
         void bind(void);

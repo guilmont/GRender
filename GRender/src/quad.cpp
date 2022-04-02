@@ -5,7 +5,6 @@ namespace GRender
 
     Quad::Quad(uint32_t numQuads) : maxVertices(4 * numQuads)
     {
-
         glad_glGenVertexArrays(1, &vao);
         glad_glBindVertexArray(vao);
 
@@ -61,6 +60,7 @@ namespace GRender
 
     void Quad::draw(const glm::vec3 &position, const glm::vec2 &size, float angle, const glm::vec4 &color, float texID, const glm::vec2 &coord0, const glm::vec2 &coord1)
     {
+        assert(maxVertices > 0); //  In case Quad class was not initialized
         assert(counter < maxVertices); // To make sure that we didn't exceed the maximum size
 
         glm::vec4 pos[] = {{-0.5f, -0.5f, 0.0f, 1.0f},

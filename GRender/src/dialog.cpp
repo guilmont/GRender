@@ -17,15 +17,21 @@ namespace GRender
     void Dialog::createDialog(GDialog type, const std::string& title, const std::list<std::string>& ext, void* data, void (*callback)(const fs::path&, void*))
     {
         active = true;
+        myType = type;
         this->title = title;
         this->lExtension = ext;
-        this->currentExt = "." + ext.front();
         this->filename = "";
+
+        if (!ext.empty())
+            this->currentExt = "." + ext.front();
 
         switch (type)
         {
         case GDialog::OPEN:
             dialog_function = &Dialog::openDialog;
+            break;
+        case GDialog::OPEN_DIRECTORY:
+            dialog_function = &Dialog::openDirectory;
             break;
         case GDialog::SAVE:
             dialog_function = &Dialog::saveDialog;
@@ -59,7 +65,10 @@ namespace GRender
         if (status)
         {
             active = false;
-            callback(filePath.string(), callback_data);
+            if (myType == GDialog::OPEN_DIRECTORY)
+                callback(mainPath, callback_data);
+            else
+                callback(filePath, callback_data);
         }
     }
 
@@ -122,7 +131,46 @@ namespace GRender
 
         return status;
 
-    } // openDialog
+    }
+
+    bool Dialog::openDirectory(void)
+    {
+        ImGui::Text("Input path:");
+
+        ImGui::SameLine();
+        if (ImGui::Button("Back"))
+            mainPath = mainPath.parent_path();
+
+        static char loc[1024] = { 0 };
+        sprintf(loc, "%s", mainPath.string().c_str());
+
+        float width = ImGui::GetContentRegionAvail().x;
+
+        ImGui::PushItemWidth(width);
+        if (ImGui::InputText("##MainAdress", loc, 512, ImGuiInputTextFlags_EnterReturnsTrue))
+        {
+            fs::path var(loc);
+            if (fs::is_directory(var))
+                mainPath = std::move(var);
+
+            else if (fs::is_regular_file(var))
+                mainPath = var.parent_path();
+        }
+        ImGui::PopItemWidth();
+
+        bool status = systemDisplay();
+
+        if (ImGui::Button("Open"))
+        {
+            active = false;
+            status = true;
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Close"))
+            active = false;
+
+        return status;
+    }
 
     bool Dialog::saveDialog(void)
     {
@@ -217,7 +265,7 @@ namespace GRender
 
         float width = ImGui::GetContentRegionAvail().x * DPI_FACTOR;
 
-        ImGui::BeginChild("child_2", { width, 0.44f * width }, true);
+        ImGui::BeginChild("child_2", { width, 0.87f * width }, true);
 
         for (auto entry : fs::directory_iterator(mainPath, fs::directory_options::skip_permission_denied))
         {
@@ -290,7 +338,7 @@ namespace GRender
 
         if (ImGui::BeginPopupModal("File exists"))
         {
-            const std::string& name = mainPath.filename().string();
+            const std::string& name = filePath.filename().string();
             ImGui::Text("'%s' already exists. Replace?", name.c_str());
 
             if (ImGui::Button("Yes"))
