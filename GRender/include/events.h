@@ -1,78 +1,51 @@
 #pragma once
 
-#include "core.h"
+#include <glm/glm.hpp>
 #include "eventsWrapper.h"
 
-namespace GRender
-{
+namespace GRender {
 
-    class  Event
-    {
-    public:
-        Event(void) = default;
-        virtual ~Event(void) = default;
+struct Mouse {
+    Mouse() = default;
+    ~Mouse() = default;
 
-        void set(const int32_t ev, int32_t action) { event[ev] = action; }
+    float wheel() const;
+    glm::vec2 position() const;
+    glm::vec2 delta() const;
+        
+    bool isPressed(MouseButton btn) const;
+    bool isReleased(MouseButton btn) const;
 
-        int32_t operator[](const int32_t ev)
-        {
-            if (event.find(ev) == event.end())
-                return -1;
-            else
-                return event[ev];
-        }
+    bool isClicked(MouseButton btn) const;
+    bool isDoubleClicked(MouseButton btn) const;
+};
 
-        virtual void clear(void) = 0;
-      
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 
-    protected:
-        std::unordered_map<int32_t, int32_t> event;
-    };
+class Keyboard {
+public:
+    Keyboard() = default;
+    ~Keyboard() = default;
 
-    ///////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////
+    // Keys
+    bool isDown(Key key) const;
+    bool isPressed(Key key) const;
+    bool isReleased(Key key) const;
 
-    struct  Mouse : public Event
-    {
-        glm::vec2 wheel = { 0.0f, 0.0f };
-        glm::vec2 position = { 0.0f, 0.0f };
-        glm::vec2 offset = { 0.0f, 0.0f };
+    // Letters
+    bool isDown(char key) const;
+    bool isPressed(char key) const;
+    bool isReleased(char key) const;
 
-        void clear(void) override
-        {
-            offset = wheel = { 0.0f, 0.0f };
+    // Numbers
+    bool isDown(int32_t key) const;
+    bool isPressed(int32_t key) const;
+    bool isReleased(int32_t key) const;
 
-            std::vector<int32_t> tags;
-            for (auto& [tag, value] : event)
-                if (value == GEvent::PRESS)
-                    tags.push_back(tag);
+private:
+    ImGuiKey convertLetter(char key) const;
+    ImGuiKey convertNumber(int32_t key) const;
+};
 
-            event.clear();
-            for (int32_t& tag : tags)
-                event[tag] = GEvent::PRESS;
-        }
-
-       
-    };
-
-    ///////////////////////////////////////////////////////////////////////////////
-    ///////////////////////////////////////////////////////////////////////////////
-
-    struct  Keyboard : public Event
-    {
-
-        void clear(void) override
-        {
-
-            std::vector<int32_t> tags;
-            for (auto& [tag, value] : event)
-                if (value == GEvent::PRESS || value == GEvent::REPEAT)
-                    tags.push_back(tag);
-
-            event.clear();
-            for (int32_t& tag : tags)
-                event[tag] = GEvent::PRESS;
-        }
-    };
-
-}
+} // namespace GRender

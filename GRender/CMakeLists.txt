@@ -14,17 +14,17 @@ add_subdirectory(vendor)
 # Create library
 add_library(${PROJECT_NAME} STATIC 
 	"include/core.h"
-	"include/events.h"       "include/eventsWrapper.h"
-	"include/dialog.h"       "src/dialog.cpp"
-	"include/shader.h"       "src/shader.cpp"
-	"include/texture.h"      "src/texture.cpp"
-	"include/camera.h"       "src/camera.cpp"
-	"include/camera2D.h"     "src/camera2D.cpp"
-	"include/quad.h"         "src/quad.cpp"
-	"include/framebuffer.h"  "src/framebuffer.cpp"
-	"include/fonts.h"        "src/fonts.cpp"
-	"include/application.h"  "src/application.cpp"
-	"include/mailbox.h"      "src/mailbox.cpp"
+	"include/eventsWrapper.h"  "include/events.h"         "src/events.cpp"
+	"include/dialog.h"         "src/dialog.cpp"
+	"include/shader.h"         "src/shader.cpp"
+	"include/texture.h"        "src/texture.cpp"
+	"include/camera.h"         "src/camera.cpp"
+	"include/camera2D.h"       "src/camera2D.cpp"
+	"include/quad.h"           "src/quad.cpp"
+	"include/framebuffer.h"    "src/framebuffer.cpp"
+	"include/fonts.h"          "src/fonts.cpp"
+	"include/application.h"    "src/application.cpp"
+	"include/mailbox.h"        "src/mailbox.cpp"
 )
 
 file(COPY ${PROJECT_SOURCE_DIR}/assets/ DESTINATION "${CMAKE_SOURCE_DIR}/${ASSETS_DIR}")

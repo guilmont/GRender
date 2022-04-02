@@ -15,32 +15,6 @@ namespace GRender
         win.position = { xpos, ypos };
     }
 
-    void mousePos_callback(GLFWwindow* window, double xpos, double ypos)
-    {
-        Mouse& mouse = reinterpret_cast<Application*>(glfwGetWindowUserPointer(window))->mouse;
-        mouse.offset = { xpos - mouse.position.x, ypos - mouse.position.y };
-        mouse.position = { xpos, ypos };
-    } //mousePos_callback
-
-    void mouseButton_callback(GLFWwindow* window, int button, int action, int mods)
-    {
-        Mouse& mouse = reinterpret_cast<Application*>(glfwGetWindowUserPointer(window))->mouse;
-        mouse.set(button, action);
-    } // mouseButton_callback
-
-    void mouseScroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-    {
-        Mouse& mouse = reinterpret_cast<Application*>(glfwGetWindowUserPointer(window))->mouse;
-        mouse.wheel = { float(xoffset), float(yoffset) };
-
-    } // mouseScroll_callback
-
-    void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-    {
-        Keyboard& keyboard = reinterpret_cast<Application*>(glfwGetWindowUserPointer(window))->keyboard;
-        keyboard.set(key, action);
-    } // keyboard_callback
-
     void winDrop_callback(GLFWwindow* window, int nDrops, const char** dropPath)
     {
         Dialog& diag = reinterpret_cast<Application*>(glfwGetWindowUserPointer(window))->dialog;
@@ -48,6 +22,7 @@ namespace GRender
             diag.drop = { true, fs::path{dropPath[0]} };
     }
 
+    
     /*****************************************************************************/
     /*****************************************************************************/
 
@@ -131,11 +106,6 @@ namespace GRender
 
         glfwSetWindowUserPointer(window.ptr, this);
         glfwSetWindowPosCallback(window.ptr, winPos_callback);
-        glfwSetKeyCallback(window.ptr, keyboard_callback);
-        glfwSetCursorPosCallback(window.ptr, mousePos_callback);
-        glfwSetMouseButtonCallback(window.ptr, mouseButton_callback);
-        glfwSetScrollCallback(window.ptr, mouseScroll_callback);
-        glfwSetWindowSizeCallback(window.ptr, winResize_callback);
         glfwSetDropCallback(window.ptr, winDrop_callback);
 
 
@@ -201,23 +171,16 @@ namespace GRender
         // resetProgram(data);
         while (!glfwWindowShouldClose(window.ptr))
         {
-            // reset events
-            keyboard.clear();
-            mouse.clear();
-
             // Get new events
             glfwPollEvents();
-
-            // Updating application
-            onUserUpdate(deltaTime);
-
-            ///////////////////////////////////////////////////
-            // IMGUI /////////////////////////////////////////
 
             // Setup a new frame for imgui
             ImGui_ImplOpenGL3_NewFrame();
             ImGui_ImplGlfw_NewFrame();
             ImGui::NewFrame();
+
+            // Updating application
+            onUserUpdate(deltaTime);
 
             ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
             window_flags |= ImGuiWindowFlags_MenuBar;

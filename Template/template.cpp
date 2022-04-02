@@ -111,33 +111,29 @@ void Sandbox::generatePolymer(uint32_t numBeads, float kuhn)
 void Sandbox::onUserUpdate(float deltaTime)
 {
 	bool
-		ctrl = (keyboard[GKey::LEFT_CONTROL] == GEvent::PRESS) || (keyboard[GKey::RIGHT_CONTROL] == GEvent::PRESS),
-		shift = (keyboard[GKey::LEFT_SHIFT] == GEvent::PRESS) || (keyboard[GKey::RIGHT_SHIFT] == GEvent::PRESS),
-		H = keyboard['H'] == GEvent::PRESS,
-		D = keyboard['D'] == GEvent::PRESS,
-		O = keyboard['O'] == GEvent::PRESS,
-		S = keyboard['S'] == GEvent::PRESS;
+		ctrl = keyboard.isDown(GRender::Key::LEFT_CONTROL) || keyboard.isDown(GRender::Key::RIGHT_CONTROL),
+		shift = keyboard.isDown(GRender::Key::LEFT_SHIFT) || keyboard.isDown(GRender::Key::RIGHT_SHIFT);
 
-	if (ctrl & H)
+	if (ctrl && keyboard.isPressed('H'))
 		view_specs = true;
 
-	if (ctrl & D)
+	if (ctrl && keyboard.isPressed('D'))
 		view_imguidemo = true;
 
-	if (ctrl & O)
+	if (ctrl && keyboard.isPressed('O'))
 		dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, &mailbox,
 							[](const fs::path &path, void *ptr) -> void{
 								GRender::pout("Selected path:", path); 
 								reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Selected file: " + path.string());
 							});
 
-	if (ctrl & S)
+	if (ctrl && keyboard.isPressed('S'))
 		dialog.createDialog(GDialog::SAVE, "Save file...", {"txt", "json"}, nullptr,
 							[](const fs::path &path, void *ptr) -> void
 							{ GRender::pout("Selected path:", path); });
 
 #ifdef BUILD_IMPLOT
-	if (ctrl && (keyboard['P'] == GEvent::PRESS))
+	if (ctrl && keyboard.isPressed('P'))
 		view_implotdemo = true;
 #endif
 
@@ -145,30 +141,30 @@ void Sandbox::onUserUpdate(float deltaTime)
 	// Camera
 	if (viewport_hover)
 	{
-		if ((keyboard['W'] == GEvent::PRESS) || (mouse.wheel.y > 0.0f))
+		if ((keyboard.isDown('W')) || (mouse.wheel() > 0.0f))
 			camera.moveFront(deltaTime);
 		
-		if ((keyboard['S'] == GEvent::PRESS) || (mouse.wheel.y < 0.0f))
+		if ((keyboard.isDown('S')) || (mouse.wheel() < 0.0f))
 			camera.moveBack(deltaTime);
 
-		if (keyboard['D'] == GEvent::PRESS)
+		if (keyboard.isDown('D'))
 			camera.moveRight(deltaTime);
 
-		if (keyboard['A'] == GEvent::PRESS)
+		if (keyboard.isDown('A'))
 			camera.moveLeft(deltaTime);
 
-		if (keyboard['E'] == GEvent::PRESS)
+		if (keyboard.isDown('E'))
 			camera.moveUp(deltaTime);
 
-		if (keyboard['Q'] == GEvent::PRESS)
+		if (keyboard.isDown('Q'))
 			camera.moveDown(deltaTime);
 
 
-		if (mouse[GMouse::MIDDLE] == GEvent::RELEASE)
+		if (mouse.isClicked(GRender::MouseButton::MIDDLE))
 			camera.reset();
 
-		if ((mouse[GMouse::LEFT] == GEvent::PRESS) || (mouse[GMouse::LEFT] == GEvent::REPEAT))
-			camera.lookAround(mouse.offset, deltaTime);
+		if (mouse.isPressed(GRender::MouseButton::LEFT))
+			camera.lookAround(mouse.delta(), deltaTime);
 	}
 
 	///////////////////////////////////////////////////////////////////////////
