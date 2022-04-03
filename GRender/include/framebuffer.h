@@ -25,7 +25,7 @@ public:
     uint32_t getID(void) { return textureID; }
 
     void setPosition(float x, float y) { position = { x, y }; }
-    const glm::vec2& getPosition(void) const { return position; }
+    const glm::uvec2& getPosition(void) const { return position; }
 
     glm::uvec2 getSize(void) const { return size; }
 

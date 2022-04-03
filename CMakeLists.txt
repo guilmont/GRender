@@ -22,4 +22,7 @@ add_executable(${PROJECT_NAME} "Template/template.cpp"   "Template/polymer.cpp" 
 
 target_link_libraries(${PROJECT_NAME} PRIVATE GRender)
 target_compile_definitions(${PROJECT_NAME} PRIVATE ASSETS="${ASSETS_DIR}")
-set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
+
+if (WIN32)
+	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
+endif()
