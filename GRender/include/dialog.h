@@ -10,65 +10,65 @@ enum class GDialog : const uint8_t
 };
 
 
-namespace GRender
-{
-    class Dialog
+namespace GRender {
+
+class Dialog {
+
+public:
+    Dialog(void);
+    ~Dialog(void);
+
+
+    void createDialog(GDialog type, const std::string& title,
+        const std::list<std::string>& ext,
+        void* data = nullptr,
+        void (*callback)(const std::filesystem::path&, void*) = nullptr);
+
+    void showDialog(void);
+
+    // RETRIEVE DATA
+    const std::filesystem::path& getPath(void) const { return filePath; }
+
+    // Used to drop files
+    struct
     {
-    public:
-        Dialog(void);
-        ~Dialog(void);
+        bool handle = false;
+        std::filesystem::path path;
+    } drop;
 
 
-        void createDialog(GDialog type, const std::string& title,
-            const std::list<std::string>& ext,
-            void* data = nullptr,
-            void (*callback)(const fs::path&, void*) = nullptr);
+private:
+    bool active = false;
+    GDialog myType;
 
-        void showDialog(void);
+    std::string title;
 
-        // RETRIEVE DATA
-        const fs::path& getPath(void) const { return filePath; }
+    glm::vec2 size = { 720.0f, 450.0f };
 
-        // Used to drop files
-        struct
-        {
-            bool handle = false;
-            fs::path path;
-        } drop;
+    std::filesystem::path mainPath, filePath, filename;
 
+    std::string currentExt;
+    std::list<std::string> lExtension;
 
-    private:
-        bool active = false;
-        GDialog myType;
+    bool (Dialog::* dialog_function)(void);
 
-        std::string title;
+    // callback
+    void* callback_data = nullptr;
+    void (*callback)(const std::filesystem::path&, void*) = nullptr;
 
-        glm::vec2 size = { 720.0f, 450.0f };
+    // DISPLAY DIALOGS
+    bool openDialog(void);
+    bool openDirectory(void);
+    bool saveDialog(void);
 
-        fs::path mainPath, filePath, filename;
+    bool systemDisplay(void);
 
-        std::string currentExt;
-        std::list<std::string> lExtension;
-
-        bool (Dialog::* dialog_function)(void);
-
-        // callback
-        void* callback_data = nullptr;
-        void (*callback)(const fs::path&, void*) = nullptr;
-
-        // DISPLAY DIALOGS
-        bool openDialog(void);
-        bool openDirectory(void);
-        bool saveDialog(void);
-
-        bool systemDisplay(void);
-
-        bool existPopup = false;
-        bool fileExistsPopup(void);
+    bool existPopup = false;
+    bool fileExistsPopup(void);
 
 
-    private:
-        friend void winDrop_callback(GLFWwindow*, int, const char**); // so we can drop stuff only when dialog windows are openned
-    };
+private:
+    friend void winDrop_callback(GLFWwindow*, int, const char**); // so we can drop stuff only when dialog windows are openned
+};
 
-}
+} // namespace GRender

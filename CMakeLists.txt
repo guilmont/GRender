@@ -12,13 +12,12 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/bin")
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 
-
 set(ASSETS_DIR "../assets")  # GRender need to know this path. Written in relation to bin
 add_subdirectory("GRender")
 
 project(Template)
 
-add_executable(${PROJECT_NAME} 
+add_executable(${PROJECT_NAME} WIN32
 	"Template/template.cpp"   "Template/polymer.cpp"   "Template/polymer.h")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE GRender)

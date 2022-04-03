@@ -3,6 +3,8 @@
 
 #include <random>
 
+namespace fs = std::filesystem;
+
 class Sandbox : public GRender::Application
 {
 public:
@@ -36,18 +38,8 @@ private:
 
 };
 
-int main(int argc, char *argv[])
-{
-	// Setup program to use executable path as reference
-	fs::path exe(argv[0]);
-	fs::current_path(exe.parent_path());
-
-	Sandbox app;  
-	// Initialize argv input here if needed
-
-	app.run();
-
-	return EXIT_SUCCESS;
+GRender::Application* GRender::createApplication() {
+	return new Sandbox;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -55,13 +47,8 @@ int main(int argc, char *argv[])
 
 
 
-Sandbox::Sandbox(void)
-{
-	fs::path assets(ASSETS);
-
-	uint32_t width = 1200, height = 800;
-	initialize("Sandbox", width, height, assets / "layout.ini");
-	
+Sandbox::Sandbox(void) : Application("Sandbox", 1200, 800, "layout.ini") {
+	std::filesystem::path assets(ASSETS);
 	shader.loadShader("polyBlobs",
 					  assets / "polyBlobs.vtx.glsl",
 					  assets / "polyShader.frag.glsl");
@@ -71,7 +58,7 @@ Sandbox::Sandbox(void)
 					  assets / "polyConnections.vtx.glsl",
 					  assets / "polyShader.frag.glsl");
 	
-	fbuffer = std::make_unique<GRender::Framebuffer>(width, height);
+	fbuffer = std::make_unique<GRender::Framebuffer>(1200, 800);
 
 	glEnable(GL_DEPTH_TEST);
 	generatePolymer(1024, 1.0f);
@@ -123,14 +110,14 @@ void Sandbox::onUserUpdate(float deltaTime)
 	if (ctrl && keyboard.isPressed('O'))
 		dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, &mailbox,
 							[](const fs::path &path, void *ptr) -> void{
-								GRender::pout("Selected path:", path); 
+								std::cout << "Selected path: " << path << std::endl;
 								reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Selected file: " + path.string());
 							});
 
 	if (ctrl && keyboard.isPressed('S'))
 		dialog.createDialog(GDialog::SAVE, "Save file...", {"txt", "json"}, nullptr,
 							[](const fs::path &path, void *ptr) -> void
-							{ GRender::pout("Selected path:", path); });
+							{ std::cout << "Selected path: " << path << std::endl; });
 
 #ifdef BUILD_IMPLOT
 	if (ctrl && keyboard.isPressed('P'))
@@ -236,17 +223,11 @@ void Sandbox::ImGuiLayer(void)
 	if (ImGui::ColorEdit3("Background", glm::value_ptr(bgColor)))
 		poly->updateCylinderColor();
 
-
 	ImGui::End();
-
 	
 
 	//////////////////////////////////////////////////////////////////////////////
 	/// Updating viewport
-
-	glm::vec2 size = 0.75f * window.size;
-	ImGui::SetNextWindowSize({size.x, size.y});
-
 	ImGui::Begin("Viewport", NULL, ImGuiWindowFlags_NoTitleBar);
 	viewport_hover = ImGui::IsWindowHovered();
 
@@ -261,10 +242,6 @@ void Sandbox::ImGuiLayer(void)
 		camera.setAspectRatio(port.x / port.y);
 	}
 
-	// Checking if anchoring position changed
-	ImVec2 pos = ImGui::GetItemRectMin();
-	fbuffer->setPosition(pos.x - window.position.x, pos.y - window.position.y);
-
 	ImGui::End();
 }
 
@@ -275,13 +252,13 @@ void Sandbox::ImGuiMenuLayer(void)
 		if (ImGui::MenuItem("Open...", "Ctrl+O"))
 			dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, &mailbox,
 								[](const fs::path &path, void *ptr) -> void {
-									GRender::pout("Selected path:", path);
+									std::cout << "Selected path: " << path << std::endl;
 									reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Selected file: " + path.string());
 								});
 
 		if (ImGui::MenuItem("Save...", "Ctrl+S"))
 			dialog.createDialog(GDialog::SAVE, "Save file...", {"txt", "json"}, nullptr,
-								[](const fs::path &path, void *ptr) -> void { GRender::pout("Selected path:", path); });
+								[](const fs::path &path, void *ptr) -> void { std::cout << "Selected path: " << path << std::endl; });
 
 		if (ImGui::MenuItem("Exit"))
 			closeApp();

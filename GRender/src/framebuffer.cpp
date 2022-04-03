@@ -18,20 +18,13 @@ namespace GRender
         // Assigning texture to framebuffer
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureID, 0);
 
-
         glGenTextures(1, &depthID);
         glBindTexture(GL_TEXTURE_2D, depthID);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
         glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthID, 0);
 
-
-
         // Testing if it worked properly
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-        {
-           pout("ERROR: Framebuffer is incomplete!!");
-            exit(-1);
-        }
+        ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is incomplete!!");
 
         // binding standard buffer back
         glBindFramebuffer(GL_FRAMEBUFFER, 0);

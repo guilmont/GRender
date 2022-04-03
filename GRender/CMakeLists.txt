@@ -6,7 +6,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(GRENDER_IMPLOT "Build plotting utilities" ON)
-option(GRENDER_PRECOMPILE_HEADERS "Create precompiled headers" OFF)
 
 # Setup vendors
 add_subdirectory(vendor)
@@ -25,6 +24,7 @@ add_library(${PROJECT_NAME} STATIC
 	"include/fonts.h"          "src/fonts.cpp"
 	"include/application.h"    "src/application.cpp"
 	"include/mailbox.h"        "src/mailbox.cpp"
+	"include/entryPoint.h"
 )
 
 file(COPY ${PROJECT_SOURCE_DIR}/assets/ DESTINATION "${CMAKE_SOURCE_DIR}/${ASSETS_DIR}")
@@ -40,8 +40,5 @@ endif()
 
 
 target_link_libraries(${PROJECT_NAME} PUBLIC ${DEPENDENCIES})
-
-if (GRENDER_PRECOMPILE_HEADERS)
-	target_precompile_headers(${PROJECT_NAME} PUBLIC "include/core.h")
-endif()
+target_precompile_headers(${PROJECT_NAME} PUBLIC "include/core.h")
 

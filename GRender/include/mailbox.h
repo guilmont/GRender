@@ -54,12 +54,12 @@ namespace GRender
     class Progress : public Message
     {
     public:
-        Progress(const std::string& msg, std::function<void(void*)> cancelFunction, void *ptr = nullptr) : Message(msg), function(cancelFunction), ptr(ptr), zero(Clock::now()) {}
+        Progress(const std::string& msg, void (*cancelFunction)(void*) , void *ptr = nullptr) : Message(msg), function(cancelFunction), ptr(ptr), zero(Clock::now()) {}
         void show(void) override;
         float progress = 0.0f;
 
     private:
-        std::function<void(void*)> function;
+        void (*function)(void*);
         void* ptr = nullptr;
 
         TimePoint zero, current;
@@ -70,12 +70,12 @@ namespace GRender
     class Timer : public Message
     {
     public:
-        Timer(const std::string& msg, std::function<void(void*)> cancelFunction, void *ptr = nullptr) : Message(msg), function(cancelFunction), ptr(ptr), zero(Clock::now()) {}
+        Timer(const std::string& msg, void (*cancelFunction)(void*), void *ptr = nullptr) : Message(msg), function(cancelFunction), ptr(ptr), zero(Clock::now()) {}
         void show(void) override;
         void stop(void);
 
     private:
-        std::function<void(void*)> function;
+        void (*function)(void*);
         void* ptr = nullptr;
 
         TimePoint zero, current;
@@ -93,8 +93,8 @@ namespace GRender
         Info* createInfo(const std::string& msg);
         Warn* createWarn(const std::string& msg);
         Error* createError(const std::string& msg);
-        Progress* createProgress(const std::string& msg, std::function<void(void*)> function, void *ptr = nullptr);
-        Timer* createTimer(const std::string& msg, std::function<void(void*)>function, void *ptr = nullptr);
+        Progress* createProgress(const std::string& msg, void (*function)(void*), void *ptr = nullptr);
+        Timer* createTimer(const std::string& msg, void (*function)(void*), void *ptr = nullptr);
 
         void showMessages(void);
 

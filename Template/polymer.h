@@ -1,6 +1,9 @@
 #pragma once
 
-#include "GRender.h"
+#include <vector>
+
+#include "glm/glm.hpp"
+#include "glad/glad.h"
 
 
 class Polymer

@@ -156,14 +156,14 @@ namespace GRender
         return reinterpret_cast<Error*>(messages.back());
     }
 
-    Progress* Mailbox::createProgress(const std::string& msg, std::function<void(void*)> function, void* ptr)
+    Progress* Mailbox::createProgress(const std::string& msg, void (*function)(void*), void* ptr)
     {
         active = true;
         messages.emplace_back(new Progress(msg, function, ptr));
         return reinterpret_cast<Progress*>(messages.back());
     }
 
-    Timer* Mailbox::createTimer(const std::string& msg, std::function<void(void*)> function, void* ptr)
+    Timer* Mailbox::createTimer(const std::string& msg, void(*function)(void*), void* ptr)
     {
         active = true;
         messages.emplace_back(new Timer(msg, function, ptr));

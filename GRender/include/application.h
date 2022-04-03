@@ -17,22 +17,14 @@
 
 namespace GRender {
 
-    struct Window
-    {
-        std::string title = "Application";
-        glm::vec2 position = { 0.0f, 0.0f }, size = { 10.0f, 10.0f }; // Just whatever
-        GLFWwindow* ptr = nullptr;
-    };
-
     class Application
     {
     public:
-        Application(void) = default;
+        Application(const std::string& name, uint32_t width, uint32_t height, const std::filesystem::path& layout);
         virtual ~Application(void);
 
         // Flow control
-        void initialize(const std::string& name, uint32_t width, uint32_t height, const fs::path& layout);
-        void closeApp(void) { glfwSetWindowShouldClose(window.ptr, 1); }
+        void closeApp(void) { glfwSetWindowShouldClose(window, 1); }
         void run(void);
 
         // To be implemented by user
@@ -41,7 +33,6 @@ namespace GRender {
         virtual void ImGuiMenuLayer(void) {}
 
         // Basic utilities
-        Window window;
         Fonts fonts;
         Mouse mouse;
         Keyboard keyboard;
@@ -51,6 +42,7 @@ namespace GRender {
         void scaleSizes(float scale); // Used to rescales sizes for HIDPI screens
 
     private:
+        GLFWwindow* window = nullptr;
         float deltaTime = 0.1f;   // This value is going to be uploaded by main loop
 
         std::string layoutINI;
@@ -65,4 +57,6 @@ namespace GRender {
         friend void winDrop_callback(GLFWwindow*, int, const char**);
     };
 
+    // Used to manage entry point in Windows, Linux and Mac
+    Application* createApplication();
 }
