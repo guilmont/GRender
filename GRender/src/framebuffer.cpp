@@ -37,6 +37,14 @@ Framebuffer::~Framebuffer(void) {
     glDeleteFramebuffers(1, &bufferID);
 }
 
+Framebuffer::Framebuffer(Framebuffer&& fBuffer) noexcept {
+    std::swap(bufferID, fBuffer.bufferID);
+    std::swap(textureID, fBuffer.textureID);
+    std::swap(depthID, fBuffer.depthID);
+    std::swap(size, fBuffer.size);
+    std::swap(position, fBuffer.position);
+}
+
 Framebuffer& Framebuffer::operator=(Framebuffer&& fBuffer) noexcept {
     std::swap(bufferID, fBuffer.bufferID);
     std::swap(textureID, fBuffer.textureID);

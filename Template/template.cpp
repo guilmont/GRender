@@ -63,8 +63,7 @@ Sandbox::Sandbox(void) : Application("Sandbox", 1200, 800, "layout.ini") {
 
 }
 
-void Sandbox::generatePolymer(uint32_t numBeads, float kuhn)
-{
+void Sandbox::generatePolymer(uint32_t numBeads, float kuhn) {
 	uint32_t resolution = 50;
 
 	std::default_random_engine ran(123456);
@@ -92,8 +91,7 @@ void Sandbox::generatePolymer(uint32_t numBeads, float kuhn)
 	poly->update(vpos);
 }
 
-void Sandbox::onUserUpdate(float deltaTime)
-{
+void Sandbox::onUserUpdate(float deltaTime) {
 	bool
 		ctrl = keyboard.isDown(GRender::Key::LEFT_CONTROL) || keyboard.isDown(GRender::Key::RIGHT_CONTROL),
 		shift = keyboard.isDown(GRender::Key::LEFT_SHIFT) || keyboard.isDown(GRender::Key::RIGHT_SHIFT);
@@ -172,9 +170,7 @@ void Sandbox::onUserUpdate(float deltaTime)
 	fbuffer.unbind();
 }
 
-void Sandbox::ImGuiLayer(void)
-{
-
+void Sandbox::ImGuiLayer(void) {
 	if (view_specs)
 	{
 		ImGui::Begin("Specs", &view_specs);
@@ -243,8 +239,7 @@ void Sandbox::ImGuiLayer(void)
 	ImGui::End();
 }
 
-void Sandbox::ImGuiMenuLayer(void)
-{
+void Sandbox::ImGuiMenuLayer(void) {
 	if (ImGui::BeginMenu("File"))
 	{
 		if (ImGui::MenuItem("Open...", "Ctrl+O"))
