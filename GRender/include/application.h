@@ -49,11 +49,6 @@ namespace GRender {
 
         // Callback functions to control flow
         friend void winResize_callback(GLFWwindow*, int, int);
-        friend void winPos_callback(GLFWwindow*, int, int);
-        friend void mousePos_callback(GLFWwindow*, double, double);
-        friend void mouseScroll_callback(GLFWwindow*, double, double);
-        friend void mouseButton_callback(GLFWwindow*, int, int, int);
-        friend void keyboard_callback(GLFWwindow*, int, int, int, int);
         friend void winDrop_callback(GLFWwindow*, int, const char**);
     };
 

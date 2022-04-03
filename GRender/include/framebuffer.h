@@ -8,8 +8,16 @@ namespace GRender
     class  Framebuffer
     {
     public:
+        Framebuffer(void) = default;
+        Framebuffer(const glm::uvec2& size);
         Framebuffer(uint32_t width, uint32_t height);
         ~Framebuffer(void);
+
+        // We don't want a framebuffer to be copied
+        Framebuffer& operator=(const Framebuffer& fBuffer) = delete;
+
+        // But it can be moved no problem
+        Framebuffer& operator=(Framebuffer&& fBuffer) noexcept;
 
         void bind(void);
         void unbind(void);
@@ -19,11 +27,11 @@ namespace GRender
         void setPosition(float x, float y) { position = { x, y }; }
         const glm::vec2& getPosition(void) const { return position; }
 
-        glm::vec2 getSize(void) const { return size; }
+        glm::uvec2 getSize(void) const { return size; }
 
     private:
         uint32_t bufferID = 0, textureID = 0, depthID = 0;
-        glm::vec2 size = { 1.0f, 1.0f }, position = { 0.0f, 0.0f };
+        glm::uvec2 size = { 1, 1 }, position = { 0, 0 };
 
     };
 

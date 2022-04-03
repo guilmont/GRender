@@ -28,7 +28,7 @@ private:
 
 	GRender::Camera camera;
 	GRender::Shader shader;
-	std::unique_ptr<GRender::Framebuffer> fbuffer;
+	GRender::Framebuffer fbuffer;
 
 	std::unique_ptr<Polymer> poly = nullptr;
 
@@ -45,8 +45,6 @@ GRender::Application* GRender::createApplication() {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-
-
 Sandbox::Sandbox(void) : Application("Sandbox", 1200, 800, "layout.ini") {
 	std::filesystem::path assets(ASSETS);
 	shader.loadShader("polyBlobs",
@@ -58,13 +56,12 @@ Sandbox::Sandbox(void) : Application("Sandbox", 1200, 800, "layout.ini") {
 					  assets / "polyConnections.vtx.glsl",
 					  assets / "polyShader.frag.glsl");
 	
-	fbuffer = std::make_unique<GRender::Framebuffer>(1200, 800);
+	fbuffer = GRender::Framebuffer(1200, 800);
 
 	glEnable(GL_DEPTH_TEST);
 	generatePolymer(1024, 1.0f);
 
 }
-
 
 void Sandbox::generatePolymer(uint32_t numBeads, float kuhn)
 {
@@ -156,7 +153,7 @@ void Sandbox::onUserUpdate(float deltaTime)
 
 	///////////////////////////////////////////////////////////////////////////
 
-	fbuffer->bind();
+	fbuffer.bind();
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(bgColor.r, bgColor.g, bgColor.b, 1.0f);
@@ -172,7 +169,7 @@ void Sandbox::onUserUpdate(float deltaTime)
 	shader.setFloat("u_radius", 0.5f*poly->kuhn);
 	poly->submitBlobs();
 
-	fbuffer->unbind();
+	fbuffer.unbind();
 }
 
 void Sandbox::ImGuiLayer(void)
@@ -233,12 +230,13 @@ void Sandbox::ImGuiLayer(void)
 
 	// Check if it needs to resize
 	ImVec2 port = ImGui::GetContentRegionAvail();
-	ImGui::Image((void *)(uintptr_t)fbuffer->getID(), port, {0.0f, 1.0f}, {1.0f, 0.0f});
+	ImGui::Image((void *)(uintptr_t)fbuffer.getID(), port, {0.0f, 1.0f}, {1.0f, 0.0f});
 
-	glm::vec2 view = fbuffer->getSize();
-	if (port.x != view.x || port.y != view.y)
-	{
-		fbuffer = std::make_unique<GRender::Framebuffer>(uint32_t(port.x), uint32_t(port.y));
+	glm::uvec2 view = fbuffer.getSize();
+	glm::uvec2 uport{ uint32_t(port.x), uint32_t(port.y) };
+
+	if (uport.x != view.x || uport.y != view.y) {
+		fbuffer = GRender::Framebuffer(uport);
 		camera.setAspectRatio(port.x / port.y);
 	}
 

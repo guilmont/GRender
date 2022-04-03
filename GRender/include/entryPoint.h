@@ -2,7 +2,7 @@
 
 extern GRender::Application* GRender::createApplication();
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(_DEBUG)
 #include <Windows.h>
 
 int WINAPI wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int) {
