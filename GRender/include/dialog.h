@@ -1,5 +1,7 @@
 #pragma once
 
+#include <list>
+
 #include "core.h"
 
 enum class GDialog : const uint8_t

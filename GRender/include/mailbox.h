@@ -1,5 +1,6 @@
 #pragma once
 
+#include <list>
 #include "core.h"
 
 namespace GRender
