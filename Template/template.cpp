@@ -97,15 +97,15 @@ void Sandbox::onUserUpdate(float deltaTime) {
 
 	if (ctrl && keyboard.isPressed('O'))
 		dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, &mailbox,
-							[](const fs::path &path, void *ptr) -> void{
-								std::cout << "Selected path: " << path << std::endl;
+							[](const fs::path &path, void *ptr) -> void {
 								reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Selected file: " + path.string());
 							});
 
 	if (ctrl && keyboard.isPressed('S'))
-		dialog.createDialog(GDialog::SAVE, "Save file...", {"txt", "json"}, nullptr,
-							[](const fs::path &path, void *ptr) -> void
-							{ std::cout << "Selected path: " << path << std::endl; });
+		dialog.createDialog(GDialog::SAVE, "Save file...", {"txt", "json"}, &mailbox,
+							[](const fs::path &path, void *ptr) -> void {
+								reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Save file: " + path.string());
+							});
 
 #ifdef BUILD_IMPLOT
 	if (ctrl && keyboard.isPressed('P'))

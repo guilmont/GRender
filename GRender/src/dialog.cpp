@@ -25,8 +25,7 @@ void Dialog::createDialog(GDialog type, const std::string& title, const std::lis
     if (!ext.empty())
         this->currentExt = "." + ext.front();
 
-    switch (type)
-    {
+    switch (type) {
     case GDialog::OPEN:
         dialog_function = &Dialog::openDialog;
         break;
@@ -58,8 +57,7 @@ void Dialog::showDialog(void) {
     if (existPopup)
         status = fileExistsPopup();
 
-    if (status)
-    {
+    if (status) {
         active = false;
         if (myType == GDialog::OPEN_DIRECTORY)
             callback(mainPath, callback_data);
@@ -81,11 +79,9 @@ bool Dialog::openDialog(void) {
     static char loc[512] = { 0 };
     sprintf(loc, "%s", mainPath.string().c_str());
 
-    float width = ImGui::GetContentRegionAvail().x;
+    ImGui::PushItemWidth(0.97f * ImGui::GetWindowWidth());
 
-    ImGui::PushItemWidth(width);
-    if (ImGui::InputText("##MainAdress", loc, 512, ImGuiInputTextFlags_EnterReturnsTrue))
-    {
+    if (ImGui::InputText("##MainAdress", loc, 512, ImGuiInputTextFlags_EnterReturnsTrue)) {
         fs::path var(loc);
         if (fs::is_directory(var))
             mainPath = std::move(var);
@@ -97,21 +93,18 @@ bool Dialog::openDialog(void) {
 
     bool status = systemDisplay();
 
-
     ImGui::Text("Extensions:");
     ImGui::SameLine();
 
     ImGui::PushItemWidth(100);
-    if (ImGui::BeginCombo("##combo", currentExt.c_str() + 1))
-    {
-        for (const std::string& ext : lExtension)
-        {
+    if (ImGui::BeginCombo("##combo", currentExt.c_str() + 1)) {
+        for (const std::string& ext : lExtension) {
             bool check = currentExt.compare("." + ext) == 0;
-            if (ImGui::Selectable(ext.c_str(), &check))
-            {
+            
+            if (ImGui::Selectable(ext.c_str(), &check)) {
                 currentExt = "." + ext;
                 ImGui::SetItemDefaultFocus();
-            } // if-selected
+            }
         }
 
         ImGui::EndCombo();
@@ -125,7 +118,6 @@ bool Dialog::openDialog(void) {
         active = false;
 
     return status;
-
 }
 
 bool Dialog::openDirectory(void) {
@@ -138,11 +130,8 @@ bool Dialog::openDirectory(void) {
     static char loc[1024] = { 0 };
     sprintf(loc, "%s", mainPath.string().c_str());
 
-    float width = ImGui::GetContentRegionAvail().x;
-
-    ImGui::PushItemWidth(width);
-    if (ImGui::InputText("##MainAdress", loc, 512, ImGuiInputTextFlags_EnterReturnsTrue))
-    {
+    ImGui::PushItemWidth(0.97f * ImGui::GetWindowWidth());
+    if (ImGui::InputText("##MainAdress", loc, 512, ImGuiInputTextFlags_EnterReturnsTrue)) {
         fs::path var(loc);
         if (fs::is_directory(var))
             mainPath = std::move(var);
@@ -154,8 +143,7 @@ bool Dialog::openDirectory(void) {
 
     bool status = systemDisplay();
 
-    if (ImGui::Button("Open"))
-    {
+    if (ImGui::Button("Open")) {
         active = false;
         status = true;
     }
@@ -170,7 +158,6 @@ bool Dialog::saveDialog(void) {
     bool status = false;
 
     ImGui::Text("Output path:");
-
     ImGui::SameLine();
     if (ImGui::Button("Back"))
         mainPath = mainPath.parent_path();
@@ -178,23 +165,18 @@ bool Dialog::saveDialog(void) {
     char buf[512] = { 0 };
     sprintf(buf, "%s", mainPath.string().c_str());
 
-    float width = ImGui::GetContentRegionAvail().x;
-
-    ImGui::PushItemWidth(width);
-    if (ImGui::InputText("##MainAdress", buf, 512, ImGuiInputTextFlags_EnterReturnsTrue))
-    {
+    ImGui::PushItemWidth(0.97f * ImGui::GetWindowWidth());
+    if (ImGui::InputText("##MainAdress", buf, 512, ImGuiInputTextFlags_EnterReturnsTrue)) {
         fs::path var(buf);
-        if (fs::is_directory(var))
+        if (fs::is_directory(var)) {
             mainPath = std::move(var);
-
-        else if (fs::is_regular_file(var))
-        {
+        }
+        else if (fs::is_regular_file(var)) {
             mainPath = var.parent_path();
             filename = var.stem();
         }
     }
     ImGui::PopItemWidth();
-
 
     if (systemDisplay())
         filename = filePath.stem();
@@ -205,34 +187,29 @@ bool Dialog::saveDialog(void) {
     memset(buf, 0, 512);
     sprintf(buf, "%s", filename.string().c_str());
 
-    ImGui::PushItemWidth(0.333f * width);
+    ImGui::PushItemWidth(0.333f * ImGui::GetWindowWidth());
     ImGui::InputText("##inp", buf, 512, ImGuiInputTextFlags_EnterReturnsTrue);
     filename = fs::path(buf).stem();
 
     ImGui::SameLine();
 
     ImGui::PushItemWidth(100);
-    if (ImGui::BeginCombo("##combo", currentExt.c_str() + 1))
-    {
-        for (const std::string& ext : lExtension)
-        {
+    if (ImGui::BeginCombo("##combo", currentExt.c_str() + 1)) {
+        for (const std::string& ext : lExtension) {
             bool check = currentExt.compare("." + ext) == 0;
-            if (ImGui::Selectable(ext.c_str(), &check))
-            {
+            if (ImGui::Selectable(ext.c_str(), &check)) {
                 currentExt = "." + ext;
                 ImGui::SetItemDefaultFocus();
-            } // if-selected
+            }
         }
-
         ImGui::EndCombo();
     }
 
     ImGui::PopItemWidth();
     ImGui::SameLine();
         
-    bool check = ImGui::GetIO().KeysDown[GLFW_KEY_ENTER] && filename.string().size() > 0;
-    if (ImGui::Button("Save") || check)
-    {
+    bool check = ImGui::IsKeyDown(ImGuiKey_Enter) && filename.string().size() > 0;
+    if (ImGui::Button("Save") || check) {
         filePath = mainPath / (filename.string() + currentExt);
         status = true;
     }
@@ -252,13 +229,10 @@ bool Dialog::saveDialog(void) {
 
 bool Dialog::systemDisplay(void) {
     bool status = false;
+    ImVec2 size = { 0.97f * ImGui::GetWindowWidth(), 0.70f * ImGui::GetWindowHeight() };
+    ImGui::BeginChild("child_2", size, true, ImGuiWindowFlags_HorizontalScrollbar);
 
-    float width = ImGui::GetContentRegionAvail().x * DPI_FACTOR;
-
-    ImGui::BeginChild("child_2", { width, 0.87f * width }, true);
-
-    for (auto entry : fs::directory_iterator(mainPath, fs::directory_options::skip_permission_denied))
-    {
+    for (auto entry : fs::directory_iterator(mainPath, fs::directory_options::skip_permission_denied)) {
         const fs::path& path = entry.path();
         const std::string& filename = path.filename().string();
 
@@ -267,48 +241,36 @@ bool Dialog::systemDisplay(void) {
             continue;
 
         bool isDirectory = false, isFile = false;
-        try
-        {
+        try {
             isDirectory = fs::is_directory(path);
             isFile = fs::is_regular_file(path);
-        }
-        catch (...)
-        {
-        }
+        } catch (...) {}
 
-        if (isDirectory)
-        {
+        if (isDirectory) {
             if (ImGui::Selectable(filename.c_str(), true))
                 mainPath /= filename;
 
             ImGui::Spacing();
-
         }
 
-        if (isFile && path.extension().compare(currentExt) == 0)
-        {
+        if (isFile && path.extension().compare(currentExt) == 0) {
             ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 0.2f, 0.7f, 0.2f, 1.0f });
-            if (ImGui::Selectable(filename.c_str(), false))
-            {
+           
+            if (ImGui::Selectable(filename.c_str(), false)) {
                 filePath = mainPath / filename;
                 status = true;
             }
 
             ImGui::PopStyleColor();
-
             ImGui::Spacing();
         }
-
     }
 
-
     ImGui::EndChild();
-
     ImGui::Spacing();
     ImGui::Spacing();
 
-    if (drop.handle)
-    {
+    if (drop.handle) {
         if (fs::is_directory(drop.path))
             mainPath = drop.path;
 
@@ -319,35 +281,30 @@ bool Dialog::systemDisplay(void) {
     }
 
     return status;
-} // systemDisplay
+}
 
-bool Dialog::fileExistsPopup(void)
-{
+bool Dialog::fileExistsPopup(void) {
     bool status = false;
     ImGui::OpenPopup("File exists");
 
-    if (ImGui::BeginPopupModal("File exists"))
-    {
+    if (ImGui::BeginPopupModal("File exists")) {
         const std::string& name = filePath.filename().string();
         ImGui::Text("'%s' already exists. Replace?", name.c_str());
 
-        if (ImGui::Button("Yes"))
-        {
+        if (ImGui::Button("Yes")) {
             existPopup = active = false;
             status = true;
             ImGui::CloseCurrentPopup();
         }
-
         ImGui::SameLine();
-
-        if (ImGui::Button("No"))
-        {
+        
+        if (ImGui::Button("No")) {
             existPopup = false;
             ImGui::CloseCurrentPopup();
         }
 
         ImGui::EndPopup();
-    } // popup-file-exists
+    } 
 
     return status;
 }

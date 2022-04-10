@@ -44,8 +44,7 @@ private:
     GDialog myType;
 
     std::string title;
-
-    glm::vec2 size = { 720.0f, 450.0f };
+    glm::vec2 size = { 720.0f, 480.0f };
 
     std::filesystem::path mainPath, filePath, filename;
 
