@@ -2,6 +2,7 @@
 #include "polymer.h"
 
 #include <random>
+#include <thread>
 
 namespace fs = std::filesystem;
 
@@ -19,6 +20,7 @@ private:
 	bool
 		view_specs = false,
 		view_imguidemo = false,
+		view_messages = false,
 		viewport_hover = false;
 
 #ifdef BUILD_IMPLOT
@@ -39,6 +41,34 @@ private:
 GRender::Application* GRender::createApplication() {
 	return new Sandbox;
 }
+
+///////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
+
+static bool cancel = false;
+
+static void cancelFunction(void*) {
+	// this will cause confusion is progress and timer are running in parallel, but it is just a quick demo
+	cancel = true; 
+};
+
+static void testProgress(float* progress) {
+	cancel = false;
+	while (*progress < 1.0f && !cancel) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(250));
+		*progress += 0.05f;
+	}
+	// automatically detects when progress >= 1.0f
+};
+
+static void testTimer(GRender::Timer* timer) {
+	cancel = false;
+	uint32_t ct = 0;
+	while (++ct < 10 && !cancel) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(250));
+	}
+	timer->stop();
+};
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -81,6 +111,9 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	if (ctrl && keyboard.isPressed('P'))
 		view_implotdemo = true;
 #endif
+
+	if (ctrl && keyboard.isPressed('M'))
+		view_messages = true;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Camera
@@ -156,6 +189,34 @@ void Sandbox::ImGuiLayer(void) {
 	if (view_implotdemo)
 		ImPlot::ShowDemoWindow(&view_implotdemo);
 #endif
+
+	if (view_messages) {
+		ImGui::Begin("Messages");
+		if (ImGui::Button("Info")) {
+			mailbox.createInfo("Information");
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Warn")) {
+			mailbox.createWarn("Warning");
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Error")) {
+			mailbox.createError("There was an error!");
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Progress")) {
+			GRender::Progress* prog = mailbox.createProgress("Running...", cancelFunction);
+			std::thread thr(testProgress, &prog->progress);
+			thr.detach();
+		}
+		ImGui::SameLine();
+		if (ImGui::Button("Timer")) {
+			GRender::Timer* timer = mailbox.createTimer("Timing stuff...", cancelFunction);
+			std::thread thr(testTimer, timer);
+			thr.detach();
+		}
+		ImGui::End();
+	}
 
 	//////////////////////////////////////////////////////////////////////////////
 	// Polymer control
@@ -257,9 +318,11 @@ void Sandbox::ImGuiMenuLayer(void) {
 			view_implotdemo = true;
 #endif
 
+		if (ImGui::MenuItem("Messages Demo", "Ctrl+M"))
+			view_messages = true;
+
 		if (ImGui::MenuItem("View mailbox"))
 			mailbox.setActive();
-
 		
 		ImGui::EndMenu();
 	}
