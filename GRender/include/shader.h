@@ -8,14 +8,20 @@ namespace GRender {
 
 class Shader {
 public:
+    Shader(const std::filesystem::path& vtxPath, const std::filesystem::path& frgPath);
     Shader(void) = default;
     ~Shader(void);
 
-    bool loadShader(const std::string& label, 
-                    const std::filesystem::path& vtxPath, 
-                    const std::filesystem::path& frgPath);
+    // We don't want a shader to be copied
+    Shader(const Shader&) = delete;
+    Shader& operator=(const Shader&) = delete;
 
-    void useProgram(const std::string &name);
+    // But it can be moved no problem
+    Shader(Shader&&) noexcept;
+    Shader& operator=(Shader&&) noexcept;
+
+    // Return a reference to current object for easier handling
+    Shader& bind(void);
 
     void setInteger(const std::string&, int);
     void setFloat(const std::string&, float);
@@ -33,9 +39,7 @@ public:
     void setMat3Array(const std::string&, const float *, int);
 
 private:
-    uint32_t program_used = 0;
-    std::unordered_map<std::string, uint32_t> vProgram;
-
+    uint32_t programID = 0;
 };
 
 } // namespace GRender

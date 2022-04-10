@@ -1,8 +1,8 @@
 #pragma once
 
 #include "core.h"
+#include "table.h"
 
-// local
 #include "quad.h"
 #include "shader.h"
 #include "framebuffer.h"

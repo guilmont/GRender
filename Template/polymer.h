@@ -5,55 +5,58 @@
 #include "glm/glm.hpp"
 #include "glad/glad.h"
 
+namespace polymer {
 
-class Polymer
-{
+struct Vertex {
+    Vertex(void) = default;
+    Vertex(const glm::vec3& pos, const glm::vec3& normal, const glm::vec3& cor); 
 
+    glm::vec3 pos, normal, color;
+};
+
+struct Object3D {
+    uint32_t vao, vtx, idx, com, dir;
+    std::vector<Vertex> vtxBuffer;
+    std::vector<glm::uvec3> idxBuffer;
+    glm::vec3 color;
+};
+
+class Polymer {
 public:
-    Polymer(uint32_t numBeads, uint32_t divisions = 20);
+    Polymer(uint32_t numBeads, float kuhn);
+    Polymer(void) = default;
     ~Polymer(void);
 
-    void update(const std::vector<glm::vec3> &positions);
+    // We have some GPU data we don't want to copy
+    Polymer(const Polymer&) = delete;
+    Polymer& operator=(const Polymer&) = delete;
+    // We might want to move polymers around
+    Polymer(Polymer&&) noexcept;
+    Polymer& operator=(Polymer&&) noexcept;
+
+    uint32_t getNumBeads(void) const;
+    float getKuhn(void) const;
+    float& getRadius(void);
+
+    glm::vec3 getSphereColor(void) const;
+    glm::vec3 getCylinderColor(void) const;
+    
     void submitBlobs(void);
     void submitConnections(void);
 
-    // Let's leave them public for now
-    uint32_t numBeads;
-
-    float kuhn = 1.0f;
-        
-    glm::vec3 
-        sphereColor = {0.2f, 0.5f, 0.8f},
-        cylinderColor = {0.9f, 0.9f, 0.9f};
-
-    void updateSphereColor(void);
-    void updateCylinderColor(void);
+    void updateSphereColor(const glm::vec3&);
+    void updateCylinderColor(const glm::vec3&);
 
 private:
+    void createSphere(const glm::vec3& color, uint32_t divisions);
+    void createCylinder(const glm::vec3& color, uint32_t divisions);
+
+private:
+    uint32_t numBeads = 1;   // number of beads in polymer
+    float kuhn = 1.0f;       // defines polymer structure
+    float radius = 0.5f;     // drawing radius
     
-    struct Vertex
-    {
-        Vertex(void) = default;
-        ~Vertex(void) = default;
-        
-        Vertex(const glm::vec3& pos, const glm::vec3& normal, const glm::vec3& cor) 
-            : pos(pos), normal(normal), color(cor) {}
-
-        glm::vec3 pos;
-        glm::vec3 normal;
-        glm::vec3 color;
-    };
-
-    struct Object3D {
-        uint32_t vao, vtx, idx, com, dir;
-        std::vector<Vertex> vtxBuffer;
-        std::vector<glm::uvec3> idxBuffer; 
-    };
-
-    void createSphere(uint32_t divisions);
-    void createCylinder(uint32_t divisions);
-
-private:
     Object3D sphere, cylinder;
+};
 
-}; // class-object
+} // namespace polymer

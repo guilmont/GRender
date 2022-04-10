@@ -46,12 +46,9 @@ Framebuffer::Framebuffer(Framebuffer&& fBuffer) noexcept {
 }
 
 Framebuffer& Framebuffer::operator=(Framebuffer&& fBuffer) noexcept {
-    std::swap(bufferID, fBuffer.bufferID);
-    std::swap(textureID, fBuffer.textureID);
-    std::swap(depthID, fBuffer.depthID);
-    std::swap(size, fBuffer.size);
-    std::swap(position, fBuffer.position);
-
+    if (&fBuffer != this) {
+        new(this) Framebuffer(std::move(fBuffer));
+    }
     return *this;
 }
 

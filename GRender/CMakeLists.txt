@@ -25,6 +25,7 @@ add_library(${PROJECT_NAME} STATIC
 	"include/application.h"    "src/application.cpp"
 	"include/mailbox.h"        "src/mailbox.cpp"
 	"include/entryPoint.h"
+    "include/table.h"
 )
 
 file(COPY ${PROJECT_SOURCE_DIR}/assets/ DESTINATION "${CMAKE_SOURCE_DIR}/${ASSETS_DIR}")

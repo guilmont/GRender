@@ -7,168 +7,152 @@ namespace fs = std::filesystem;
 
 namespace GRender {
 
-static bool CheckShaderError(int32_t shader, int32_t flag, bool isProgram, std::string msg) {
+static void CheckShaderError(uint32_t shader, uint32_t flag, bool isProgram, const std::string& msg) {
     int success = 0;
-    char error[1024] = {0};
 
     if (isProgram)
-        glad_glGetProgramiv(shader, flag, &success);
+        glGetProgramiv(shader, flag, &success);
     else
-        glad_glGetShaderiv(shader, flag, &success);
+        glGetShaderiv(shader, flag, &success);
 
     if (success == GL_FALSE)
     {
+        char error[1024] = { 0 }; // arbitrary large size
         if (isProgram)
-            glad_glGetProgramInfoLog(shader, sizeof(error), NULL, error);
+            glGetProgramInfoLog(shader, sizeof(error), NULL, error);
         else
-            glad_glGetShaderInfoLog(shader, sizeof(error), NULL, error);
+            glGetShaderInfoLog(shader, sizeof(error), NULL, error);
 
         ASSERT(false, msg + " :: " + std::string(error));
     } 
-
-    return success;
 }
 
-static int32_t CreateShader(const char *shaderSource, GLenum shaderType) {
-    int32_t shader = glad_glCreateShader(shaderType);
-    ASSERT(shader != 0,"Failed to create shader!");
+static uint32_t CreateShader(const fs::path& shaderPath, GLenum shaderType) {
+    // Importing file into stream
+    std::ifstream arq(shaderPath);
+    std::stringstream strData;
+    strData << arq.rdbuf();
+    arq.close();
 
-    int sourceLength = int(strlen(shaderSource));
-    glShaderSource(shader, 1, &shaderSource, &sourceLength);
+    // Creating shader from data
+    uint32_t shader = glCreateShader(shaderType);
+    ASSERT(shader != 0, "Failed to create shader!");
 
-    std::string type = shaderType == GL_VERTEX_SHADER ? "GL_VERTEX_SHADER" : "GL_FRAGMENT_SHADER";
-    std::string error = "Error: Shader compilation failed :: " + type + " = > ";
-
+    std::string data = strData.str();
+    GLint length = (GLint) data.size();
+    const GLchar* ptr = data.c_str();
+    glShaderSource(shader, 1, &ptr, &length);
     glCompileShader(shader);
 
-    if (CheckShaderError(shader, GL_COMPILE_STATUS, false, error))
-        return shader;
-    else
-    {
-        std::cerr << shaderSource << std::endl;
-        return -1;
-    }
-}
+    std::string type = shaderType == GL_VERTEX_SHADER ? "GL_VERTEX_SHADER" : "GL_FRAGMENT_SHADER";
+    std::string error = "Shader compilation failed :: " + type + " => " + shaderPath.string();
+    CheckShaderError(shader, GL_COMPILE_STATUS, false, error);
 
-static int32_t genShader(const fs::path &vertex_shader, const fs::path &frag_shader) {
-
-    auto readShader = [](const fs::path &path) -> std::string {
-        std::ifstream arq(path);
-        std::stringstream shader;
-        shader << arq.rdbuf();
-        arq.close();
-        shader << "\0";
-        return shader.str();
-    };
-
-    int32_t vtx = CreateShader(readShader(vertex_shader).c_str(), GL_VERTEX_SHADER);
-    int32_t frg = CreateShader(readShader(frag_shader).c_str(), GL_FRAGMENT_SHADER);
-
-    if (vtx < 0 || frg < 0)
-        return -1;
-
-    // Create program
-    int32_t program = glad_glCreateProgram();
-    glad_glAttachShader(program, vtx);
-    glad_glAttachShader(program, frg);
-
-    // Link shaders to program
-    std::string error = "ERROR: Cannot link shader programs => ";
-
-    glad_glLinkProgram(program);
-    if (!CheckShaderError(program, GL_LINK_STATUS, true, error))
-        return -1;
-
-    glad_glDeleteShader(vtx);
-    glad_glDeleteShader(frg);
-
-    return program;
+    return shader;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
-    
-Shader::~Shader(void) {
-    for (auto &it : vProgram)
-        glad_glDeleteProgram(it.second);
-}
 
-bool Shader::loadShader(const std::string &label, const fs::path &vtxPath, const fs::path &frgPath) {
-    ASSERT(fs::exists(vtxPath),"Shader not found! => " + vtxPath.string());
+Shader::Shader(const fs::path& vtxPath, const fs::path& frgPath) {
+    ASSERT(fs::exists(vtxPath), "Shader not found! => " + vtxPath.string());
     ASSERT(fs::exists(frgPath), "Shader not found! => " + frgPath.string());
 
-    int32_t code = genShader(vtxPath.string(), frgPath.string());
-    ASSERT(code > 0, "Shader code was not generated!");
+    uint32_t vtx = CreateShader(vtxPath, GL_VERTEX_SHADER);
+    uint32_t frg = CreateShader(frgPath, GL_FRAGMENT_SHADER);
 
-    vProgram[label] = code;
-    return true;
+    // Create program
+    programID = glad_glCreateProgram();
+    glAttachShader(programID, vtx);
+    glAttachShader(programID, frg);
+
+    // Link shaders to program
+    glad_glLinkProgram(programID);
+
+    CheckShaderError(programID, GL_LINK_STATUS, true, 
+                     "Cannot link shader programs => " + vtxPath.string() + " -- " + frgPath.string());
+
+    glDeleteShader(vtx);
+    glDeleteShader(frg);
 }
 
-void Shader::useProgram(const std::string &name) {
-    auto it = vProgram.find(name);
-    ASSERT(it != vProgram.end(), "Shader program not found! -> " + name);
+Shader::~Shader(void) {
+    glad_glDeleteProgram(programID);
+}
 
-    program_used = it->second;
-    glUseProgram(program_used);
+Shader::Shader(Shader&& shader) noexcept {
+    std::swap(programID, shader.programID);
+}
+
+Shader& Shader::operator=(Shader&& shader) noexcept {
+    if (programID != shader.programID) {
+        std::swap(programID, shader.programID);
+    }
+    return *this;
+}
+
+Shader& Shader::bind() {
+    glUseProgram(programID);
+    return *this;
 }
 
 void Shader::setInteger(const std::string &name, int val) {
-    int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
+    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform1i(loc, val);
 }
 
 void Shader::setFloat(const std::string &name, float val) {
-    int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
+    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform1f(loc, val);
 }
 
 void Shader::setVec2f(const std::string &name, const float *v) {
-    int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
+    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform2f(loc, v[0], v[1]);
 }
 
 void Shader::setVec3f(const std::string &name, const float *v) {
-    int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
+    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform3f(loc, v[0], v[1], v[2]);
 }
 
 void Shader::setVec4f(const std::string &name, const float *v) {
-    int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
+    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform4f(loc, v[0], v[1], v[2], v[3]);
 }
 
 void Shader::setMatrix3f(const std::string &name, const float *mat) {
-    int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
+    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniformMatrix3fv(loc, 1, GL_FALSE, mat);
 }
 
 void Shader::setMatrix4f(const std::string &name, const float *mat) {
-    int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
+    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniformMatrix4fv(loc, 1, GL_FALSE, mat);
 }
 
 void Shader::setIntArray(const std::string &name, const int *ptr, int32_t N) {
-    int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
+    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform1iv(loc, N, ptr);
 }
 
 void Shader::setFloatArray(const std::string &name, const float *ptr, int32_t N) {
-    int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
+    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform1fv(loc, N, ptr);
 }
 
 void Shader::setVec2fArray(const std::string &name, const float *ptr, int32_t N) {
-    int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
+    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform2fv(loc, N, ptr);
 }
 
 void Shader::setVec3fArray(const std::string &name, const float *ptr, int32_t N) {
-    int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
+    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform3fv(loc, N, ptr);
 }
 
 void Shader::setMat3Array(const std::string &name, const float *ptr, int32_t N) {
-    int32_t loc = glad_glGetUniformLocation(program_used, name.c_str());
+    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniformMatrix3fv(loc, N, true, ptr);
 }
 

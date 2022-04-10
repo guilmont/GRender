@@ -27,12 +27,10 @@ private:
 
 
 	GRender::Camera camera;
-	GRender::Shader shader;
 	GRender::Framebuffer fbuffer;
+	GRender::Table<GRender::Shader> shader;
 
-	std::unique_ptr<Polymer> poly = nullptr;
-
-	void generatePolymer(uint32_t numBeads, float kuhn);
+	polymer::Polymer poly;
 
 	glm::vec3 bgColor = { 0.3f, 0.3f, 0.3f };
 
@@ -46,49 +44,14 @@ GRender::Application* GRender::createApplication() {
 ///////////////////////////////////////////////////////////////////////////////
 
 Sandbox::Sandbox(void) : Application("Sandbox", 1200, 800, "layout.ini") {
-	std::filesystem::path assets(ASSETS);
-	shader.loadShader("polyBlobs",
-					  assets / "polyBlobs.vtx.glsl",
-					  assets / "polyShader.frag.glsl");
-
-
-	shader.loadShader("polyConnections",
-					  assets / "polyConnections.vtx.glsl",
-					  assets / "polyShader.frag.glsl");
+	fs::path assets(ASSETS);
+	shader.insert("polyBlobs",       { assets / "polyBlobs.vtx.glsl",       assets / "polyShader.frag.glsl" });
+	shader.insert("polyConnections", { assets / "polyConnections.vtx.glsl", assets / "polyShader.frag.glsl" });
 	
 	fbuffer = GRender::Framebuffer(1200, 800);
 
 	glEnable(GL_DEPTH_TEST);
-	generatePolymer(1024, 1.0f);
-
-}
-
-void Sandbox::generatePolymer(uint32_t numBeads, float kuhn) {
-	uint32_t resolution = 50;
-
-	std::default_random_engine ran(123456);
-	std::normal_distribution<float> normal(0.0f, kuhn / sqrt(3.0f));
-
-	glm::vec3 com = { 0.0f, 0.0f, 0.0f };
-	std::vector<glm::vec3> vpos(numBeads);
-
-	vpos.at(0) = { 0.0f, 0.0f, 0.0f };
-	for (uint64_t k = 1; k < numBeads; k++)
-	{
-		vpos.at(k).x = vpos.at(k - 1).x + normal(ran);
-		vpos.at(k).y = vpos.at(k - 1).y + normal(ran);
-		vpos.at(k).z = vpos.at(k - 1).z + normal(ran);
-		com += vpos.at(k);
-	}
-
-	com /= float(numBeads);
-	for (glm::vec3& p : vpos)
-		p -= com;
-
-	poly = std::make_unique<Polymer>(numBeads, resolution);
-	poly->kuhn = kuhn;
-	
-	poly->update(vpos);
+	poly = polymer::Polymer(1024, 1.0f);
 }
 
 void Sandbox::onUserUpdate(float deltaTime) {
@@ -157,22 +120,22 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	glClearColor(bgColor.r, bgColor.g, bgColor.b, 1.0f);
 
 	// Drawing polymer
-	shader.useProgram("polyConnections");
-	shader.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
-	shader.setFloat("u_radius", 0.25f*poly->kuhn);
-	poly->submitConnections();
+	float radius = poly.getRadius();
+	GRender::Shader& sCnt = shader["polyConnections"].bind();
+	sCnt.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
+	sCnt.setFloat("u_radius", 0.5f*radius);
+	poly.submitConnections();
 	
-	shader.useProgram("polyBlobs");
-	shader.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
-	shader.setFloat("u_radius", 0.5f*poly->kuhn);
-	poly->submitBlobs();
+	shader["polyBlobs"].bind();
+	shader["polyBlobs"].setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
+	shader["polyBlobs"].setFloat("u_radius", radius);
+	poly.submitBlobs();
 
 	fbuffer.unbind();
 }
 
 void Sandbox::ImGuiLayer(void) {
-	if (view_specs)
-	{
+	if (view_specs) {
 		ImGui::Begin("Specs", &view_specs);
 		ImGui::Text("FT: %.3f ms", 1000.0 * double(ImGui::GetIO().DeltaTime));
 		ImGui::Text("FPS: %.0f", ImGui::GetIO().Framerate);
@@ -199,22 +162,26 @@ void Sandbox::ImGuiLayer(void) {
 
 	ImGui::Begin("Polymer");
 
-	int32_t numBeads = int32_t(poly->numBeads);
-	float kuhn = poly->kuhn;
+	int32_t numBeads = (int32_t) poly.getNumBeads();
+	if (ImGui::DragInt("numBeads", &numBeads, 1.0f, 1, 8192) && numBeads > 0) {
+		float kuhn = poly.getKuhn();
+		float radius = poly.getRadius();
+		poly = polymer::Polymer(uint32_t(numBeads), kuhn);
+		poly.getRadius() = radius;
+	}
 
-	if (ImGui::DragInt("numBeads", &numBeads, 1.0f, 1, 8192))
-		generatePolymer(numBeads, kuhn);
+	float& radius = poly.getRadius();
+	ImGui::DragFloat("radius", &radius, 0.1f, 0.1f, 5.0f, "%.2f");
 
-	ImGui::DragFloat("radius", &(poly->kuhn), 0.1f, 0.1f, 5.0f, "%.2f");
+	glm::vec3 color = poly.getSphereColor();
+	if (ImGui::ColorEdit3("Spheres", glm::value_ptr(color)))
+		poly.updateSphereColor(color);
 
-	if (ImGui::ColorEdit3("Spheres", glm::value_ptr(poly->sphereColor)))
-		poly->updateSphereColor();
+	color = poly.getCylinderColor();
+	if (ImGui::ColorEdit3("Connections", glm::value_ptr(color)))
+		poly.updateCylinderColor(color);
 
-	if (ImGui::ColorEdit3("Connections", glm::value_ptr(poly->cylinderColor)))
-		poly->updateCylinderColor();
-
-	if (ImGui::ColorEdit3("Background", glm::value_ptr(bgColor)))
-		poly->updateCylinderColor();
+	ImGui::ColorEdit3("Background", glm::value_ptr(bgColor));
 
 	ImGui::End();
 	
@@ -261,15 +228,14 @@ void Sandbox::ImGuiMenuLayer(void) {
 
 	if (ImGui::BeginMenu("Edit"))
 	{
+		// TODO: Do I really need this?
 		if (GRender::DPI_FACTOR == 1) {
-			if (ImGui::MenuItem("Set HIDPI")) {
+			if (ImGui::MenuItem("Set HIDPI"))
 				scaleSizes(2.0f);
-			}
 		} 
 		else {
-			if (ImGui::MenuItem("* Set HIDPI")) {
+			if (ImGui::MenuItem("* Set HIDPI"))
 				scaleSizes(1.0f);
-			}
 		}
 
 		if (ImGui::MenuItem("Camera controls"))
