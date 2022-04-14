@@ -17,14 +17,13 @@
 
 namespace GRender {
 
-    class Application
-    {
+    class Application {
     public:
         Application(const std::string& name, uint32_t width, uint32_t height, const std::filesystem::path& layout);
         virtual ~Application(void);
 
         // Flow control
-        void closeApp(void) { glfwSetWindowShouldClose(window, 1); }
+        void closeApp(void);
         void run(void);
 
         // To be implemented by user

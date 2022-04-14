@@ -5,14 +5,7 @@ namespace GRender {
 void winResize_callback(GLFWwindow* window, int width, int height) {
     glad_glViewport(0, 0, width, height);
 }
-
-void winDrop_callback(GLFWwindow* window, int nDrops, const char** dropPath) {
-    Dialog& diag = reinterpret_cast<Application*>(glfwGetWindowUserPointer(window))->dialog;
-    if (diag.active)
-        diag.drop = { true, std::filesystem::path{dropPath[0]} };
-}
-
-    
+   
 /*****************************************************************************/
 /*****************************************************************************/
 
@@ -69,7 +62,6 @@ Application::Application(const std::string& name, uint32_t width, uint32_t heigh
     glfwSetWindowPos(window, static_cast<int>(0.1f * width), static_cast<int>(0.1f*height));
 
     glfwSetWindowUserPointer(window, this);
-    glfwSetDropCallback(window, winDrop_callback);
 
     ///////////////////////////////////////////////////////////////////////////
     // SETUP DEAR IMGApplication/IMPLOT CONTEXT
@@ -117,6 +109,10 @@ Application::~Application(void) {
 
     ImGui::DestroyContext();
     glfwTerminate();
+}
+
+void Application::closeApp(void) {
+    glfwSetWindowShouldClose(window, 1);
 }
 
 void Application::scaleSizes(float scale) {

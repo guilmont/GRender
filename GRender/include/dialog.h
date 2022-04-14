@@ -1,75 +1,53 @@
 #pragma once
 
-#include <list>
-
 #include "core.h"
-
-enum class GDialog : const uint8_t
-{
-    OPEN,
-    OPEN_DIRECTORY,
-    SAVE,
-};
-
 
 namespace GRender {
 
 class Dialog {
-
 public:
     Dialog(void);
-    ~Dialog(void);
+    ~Dialog(void) = default;
 
+    void openDirectory(const std::string& title, void (*callback)(const std::filesystem::path&, void*), void* data);
 
-    void createDialog(GDialog type, const std::string& title,
-        const std::list<std::string>& ext,
-        void* data = nullptr,
-        void (*callback)(const std::filesystem::path&, void*) = nullptr);
+    void openFile(const std::string& title, const std::vector<std::string>& extensions,
+                  void (*callback)(const std::filesystem::path&, void*), void* data);
+
+    void saveFile(const std::string& title, const std::vector<std::string>& extensions,
+                  void (*callback)(const std::filesystem::path&, void*), void* data);
 
     void showDialog(void);
 
-    // RETRIEVE DATA
-    const std::filesystem::path& getPath(void) const { return filePath; }
-
-    // Used to drop files
-    struct
-    {
-        bool handle = false;
-        std::filesystem::path path;
-    } drop;
-
+private:
+    void (Dialog::*internalShow)(void) = nullptr; // points to one of the following functions
+    
+    void showOpenDirectory(void);
+    void showOpenFile(void);
+    void showSaveFile(void);
 
 private:
-    bool active = false;
-    GDialog myType;
+    bool mActive = false;
+    bool mExistsPopup = false;
+    
+    std::string mTitle;
+    std::vector<std::string> mExtensions;
+    std::string mCurrentExt = "";
 
-    std::string title;
-    glm::vec2 size = { 720.0f, 480.0f };
+    void (*mCallback)(const std::filesystem::path&, void*) = nullptr;
+    void* mCallbackData = nullptr;
 
-    std::filesystem::path mainPath, filePath, filename;
+    std::string filename = "";
+    std::filesystem::path mainpath;
+    std::vector<std::filesystem::path> availablePaths;
 
-    std::string currentExt;
-    std::list<std::string> lExtension;
-
-    bool (Dialog::* dialog_function)(void);
-
-    // callback
-    void* callback_data = nullptr;
-    void (*callback)(const std::filesystem::path&, void*) = nullptr;
-
-    // DISPLAY DIALOGS
-    bool openDialog(void);
-    bool openDirectory(void);
-    bool saveDialog(void);
-
+    void updateAvailablePaths(void);
     bool systemDisplay(void);
-
-    bool existPopup = false;
-    bool fileExistsPopup(void);
-
-
+    void fileExistsPopup(void);
+    
 private:
-    friend void winDrop_callback(GLFWwindow*, int, const char**); // so we can drop stuff only when dialog windows are openned
+    const glm::vec2 mSize = { 720.0f, 480.0f };
+
 };
 
-} // namespace GRender
+} // namespace GRender::dialog

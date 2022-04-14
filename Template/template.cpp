@@ -27,7 +27,6 @@ private:
 	bool view_implotdemo = false;
 #endif
 
-
 	GRender::Camera camera;
 	GRender::Framebuffer fbuffer;
 	GRender::Table<GRender::Shader> shader;
@@ -92,20 +91,29 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	if (ctrl && keyboard.isPressed('H'))
 		view_specs = true;
 
-	if (ctrl && keyboard.isPressed('D'))
+	if (ctrl && keyboard.isPressed('I'))
 		view_imguidemo = true;
 
-	if (ctrl && keyboard.isPressed('O'))
-		dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, &mailbox,
-							[](const fs::path &path, void *ptr) -> void {
-								reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Selected file: " + path.string());
-							});
+	if (ctrl && keyboard.isPressed('O')) {
+		auto callback = [](const fs::path& path, void* ptr) -> void {
+			reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Selected file: " + path.string());
+		};
+		dialog.openFile("Open file...", { "txt", "json" }, callback, &mailbox);
+	}
 
-	if (ctrl && keyboard.isPressed('S'))
-		dialog.createDialog(GDialog::SAVE, "Save file...", {"txt", "json"}, &mailbox,
-							[](const fs::path &path, void *ptr) -> void {
-								reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Save file: " + path.string());
-							});
+	if (ctrl && keyboard.isPressed('S')) {
+		auto callback = [](const fs::path& path, void* ptr) -> void {
+			reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Save file: " + path.string());
+		};
+		dialog.saveFile("Save file...", {"txt", "json"}, callback, &mailbox);
+	}
+
+	if (ctrl && keyboard.isPressed('D')) {
+		auto callback = [](const fs::path& path, void* ptr) -> void {
+			reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Open directory: " + path.string());
+		};
+		dialog.openDirectory("Open directory...", callback, &mailbox);
+	}
 
 #ifdef BUILD_IMPLOT
 	if (ctrl && keyboard.isPressed('P'))
@@ -122,10 +130,10 @@ void Sandbox::onUserUpdate(float deltaTime) {
 		if ((keyboard.isDown('W')) || (mouse.wheel() > 0.0f))
 			camera.moveFront(deltaTime);
 		
-		if ((keyboard.isDown('S')) || (mouse.wheel() < 0.0f))
+		if ((keyboard.isDown('S') && !ctrl) || (mouse.wheel() < 0.0f))
 			camera.moveBack(deltaTime);
 
-		if (keyboard.isDown('D'))
+		if (!ctrl && keyboard.isDown('D'))
 			camera.moveRight(deltaTime);
 
 		if (keyboard.isDown('A'))
@@ -136,7 +144,6 @@ void Sandbox::onUserUpdate(float deltaTime) {
 
 		if (keyboard.isDown('Q'))
 			camera.moveDown(deltaTime);
-
 
 		if (mouse.isClicked(GRender::MouseButton::MIDDLE))
 			camera.reset();
@@ -268,18 +275,27 @@ void Sandbox::ImGuiLayer(void) {
 }
 
 void Sandbox::ImGuiMenuLayer(void) {
-	if (ImGui::BeginMenu("File"))
-	{
-		if (ImGui::MenuItem("Open...", "Ctrl+O"))
-			dialog.createDialog(GDialog::OPEN, "Open file...", {"txt", "json"}, &mailbox,
-								[](const fs::path &path, void *ptr) -> void {
-									std::cout << "Selected path: " << path << std::endl;
-									reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Selected file: " + path.string());
-								});
+	if (ImGui::BeginMenu("File")) {
+		if (ImGui::MenuItem("Open...", "Ctrl+O")) {
+			auto callback = [](const fs::path& path, void* ptr) -> void {
+				reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Selected file: " + path.string());
+			};
+			dialog.openFile("Open file...", { "txt", "json" }, callback, &mailbox);
+		}
 
-		if (ImGui::MenuItem("Save...", "Ctrl+S"))
-			dialog.createDialog(GDialog::SAVE, "Save file...", {"txt", "json"}, nullptr,
-								[](const fs::path &path, void *ptr) -> void { std::cout << "Selected path: " << path << std::endl; });
+		if (ImGui::MenuItem("Save...", "Ctrl+S")) {
+			auto callback = [](const fs::path& path, void* ptr) -> void {
+				reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Save file: " + path.string());
+			};
+			dialog.saveFile("Save file...", {"txt", "json"}, callback, &mailbox);
+		}
+
+		if (ImGui::MenuItem("Open directory...", "Ctrl+D")) {
+			auto callback = [](const fs::path& path, void* ptr) -> void {
+				reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Open directory: " + path.string());
+			};
+			dialog.openDirectory("Open directory...", callback, &mailbox);
+		}
 
 		if (ImGui::MenuItem("Exit"))
 			closeApp();

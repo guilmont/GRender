@@ -2,262 +2,144 @@
 
 namespace fs = std::filesystem;
 
-namespace GRender {
-
-Dialog::Dialog(void) {
+static fs::path getHomeDirectory(void) {
 #ifdef WIN32
-    mainPath = std::getenv("USERPROFILE");
+    return std::getenv("USERPROFILE");
 #else
-    mainPath = std::getenv("HOME");
+    return std::getenv("HOME");
 #endif
 }
 
-Dialog::~Dialog(void) {}
+namespace GRender {
 
-void Dialog::createDialog(GDialog type, const std::string& title, const std::list<std::string>& ext, void* data,
-                            void (*callback)(const fs::path&, void*)) {
-    active = true;
-    myType = type;
-    this->title = title;
-    this->lExtension = ext;
-    this->filename = "";
+Dialog::Dialog(void) : mainpath(getHomeDirectory()) {}
 
-    if (!ext.empty())
-        this->currentExt = "." + ext.front();
+void Dialog::openDirectory(const std::string& title, void (*callback)(const fs::path&, void*), void* data) {
 
-    switch (type) {
-    case GDialog::OPEN:
-        dialog_function = &Dialog::openDialog;
-        break;
-    case GDialog::OPEN_DIRECTORY:
-        dialog_function = &Dialog::openDirectory;
-        break;
-    case GDialog::SAVE:
-        dialog_function = &Dialog::saveDialog;
-        break;
-    default:
-        ASSERT(false, "Unknown dialog type");
-        break;
-    }
+    mActive = true;
+    mTitle = title;
+    mCallback = callback;
+    mCallbackData = data;
+    mExtensions = {};
+    mCurrentExt = "";
+    filename = "";
 
-    this->callback = callback;
-    this->callback_data = data;
+    internalShow = &Dialog::showOpenDirectory;
+    updateAvailablePaths();
 }
 
-void Dialog::showDialog(void) {
-    if (!active)
-        return;
+void Dialog::openFile(const std::string& title, const std::vector<std::string>& extensions, 
+                       void (*callback)(const fs::path&, void*), void* data) {
 
-    ImGui::Begin(title.c_str(), &active);
-    ImGui::SetWindowSize({ DPI_FACTOR * size.x, DPI_FACTOR * size.y });
+    mActive = true;
+    mTitle = title;
+    mCallback = callback;
+    mCallbackData = data;
+    mExtensions = extensions;
+    mCurrentExt = "." + extensions.front();
+    filename = "";
 
-    bool status = (this->*dialog_function)();
-    ImGui::End();
-
-    if (existPopup)
-        status = fileExistsPopup();
-
-    if (status) {
-        active = false;
-        if (myType == GDialog::OPEN_DIRECTORY)
-            callback(mainPath, callback_data);
-        else
-            callback(filePath, callback_data);
-    }
+    internalShow = &Dialog::showOpenFile;
+    updateAvailablePaths();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// PRIVATE FUNCTIONS
+void Dialog::saveFile(const std::string& title, const std::vector<std::string>& extensions,
+                      void (*callback)(const fs::path&, void*), void* data) {
 
-bool Dialog::openDialog(void) {
-    ImGui::Text("Input path to file:");
+    mActive = true;
+    mTitle = title;
+    mCallback = callback;
+    mCallbackData = data;
+    mExtensions = extensions;
+    mCurrentExt = "." + extensions.front();
+    filename = "";
+    
+    internalShow = &Dialog::showSaveFile;
+    updateAvailablePaths();
+}
 
-    ImGui::SameLine();
-    if (ImGui::Button("Back"))
-        mainPath = mainPath.parent_path();
+void Dialog::showDialog() {
+    if (mExistsPopup)
+        fileExistsPopup();
 
-    static char loc[512] = { 0 };
-    sprintf(loc, "%s", mainPath.string().c_str());
+    if (mActive)
+        (this->*internalShow)();
+}
 
-    ImGui::PushItemWidth(0.97f * ImGui::GetWindowWidth());
+void Dialog::updateAvailablePaths(void) {
+    // Gets all directories and files available at current path. 
+    availablePaths.clear();
+    
+    for (auto entry : fs::directory_iterator(mainpath, fs::directory_options::skip_permission_denied)) {
+        const fs::path& path = entry.path();
+        const std::string& filename = path.filename().string();
 
-    if (ImGui::InputText("##MainAdress", loc, 512, ImGuiInputTextFlags_EnterReturnsTrue)) {
-        fs::path var(loc);
-        if (fs::is_directory(var))
-            mainPath = std::move(var);
+        try {
+            bool check = fs::is_directory(path);
+            check = check || (mExtensions.size() > 0 && fs::is_regular_file(path));  // only interesting if we have extensions
+            check = check && (filename[0] != '.');  // not interested in hidden files for now
 
-        else if (fs::is_regular_file(var))
-            mainPath = var.parent_path();
-    }
-    ImGui::PopItemWidth();
-
-    bool status = systemDisplay();
-
-    ImGui::Text("Extensions:");
-    ImGui::SameLine();
-
-    ImGui::PushItemWidth(100);
-    if (ImGui::BeginCombo("##combo", currentExt.c_str() + 1)) {
-        for (const std::string& ext : lExtension) {
-            bool check = currentExt.compare("." + ext) == 0;
-            
-            if (ImGui::Selectable(ext.c_str(), &check)) {
-                currentExt = "." + ext;
-                ImGui::SetItemDefaultFocus();
+            if (check) {
+                availablePaths.emplace_back(path);
             }
         }
-
-        ImGui::EndCombo();
-    }
-
-    ImGui::PopItemWidth();
-
-    ImGui::SameLine();
-
-    if (ImGui::Button("Close"))
-        active = false;
-
-    return status;
-}
-
-bool Dialog::openDirectory(void) {
-    ImGui::Text("Input path:");
-
-    ImGui::SameLine();
-    if (ImGui::Button("Back"))
-        mainPath = mainPath.parent_path();
-
-    static char loc[1024] = { 0 };
-    sprintf(loc, "%s", mainPath.string().c_str());
-
-    ImGui::PushItemWidth(0.97f * ImGui::GetWindowWidth());
-    if (ImGui::InputText("##MainAdress", loc, 512, ImGuiInputTextFlags_EnterReturnsTrue)) {
-        fs::path var(loc);
-        if (fs::is_directory(var))
-            mainPath = std::move(var);
-
-        else if (fs::is_regular_file(var))
-            mainPath = var.parent_path();
-    }
-    ImGui::PopItemWidth();
-
-    bool status = systemDisplay();
-
-    if (ImGui::Button("Open")) {
-        active = false;
-        status = true;
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Close"))
-        active = false;
-
-    return status;
-}
-
-bool Dialog::saveDialog(void) {
-    bool status = false;
-
-    ImGui::Text("Output path:");
-    ImGui::SameLine();
-    if (ImGui::Button("Back"))
-        mainPath = mainPath.parent_path();
-
-    char buf[512] = { 0 };
-    sprintf(buf, "%s", mainPath.string().c_str());
-
-    ImGui::PushItemWidth(0.97f * ImGui::GetWindowWidth());
-    if (ImGui::InputText("##MainAdress", buf, 512, ImGuiInputTextFlags_EnterReturnsTrue)) {
-        fs::path var(buf);
-        if (fs::is_directory(var)) {
-            mainPath = std::move(var);
-        }
-        else if (fs::is_regular_file(var)) {
-            mainPath = var.parent_path();
-            filename = var.stem();
+        catch (...) {
+            // Something weird happened and we are probably not interest in that anyway
         }
     }
-    ImGui::PopItemWidth();
-
-    if (systemDisplay())
-        filename = filePath.stem();
-
-    ImGui::Text("Filename");
-    ImGui::SameLine();
-
-    memset(buf, 0, 512);
-    sprintf(buf, "%s", filename.string().c_str());
-
-    ImGui::PushItemWidth(0.333f * ImGui::GetWindowWidth());
-    ImGui::InputText("##inp", buf, 512, ImGuiInputTextFlags_EnterReturnsTrue);
-    filename = fs::path(buf).stem();
-
-    ImGui::SameLine();
-
-    ImGui::PushItemWidth(100);
-    if (ImGui::BeginCombo("##combo", currentExt.c_str() + 1)) {
-        for (const std::string& ext : lExtension) {
-            bool check = currentExt.compare("." + ext) == 0;
-            if (ImGui::Selectable(ext.c_str(), &check)) {
-                currentExt = "." + ext;
-                ImGui::SetItemDefaultFocus();
-            }
-        }
-        ImGui::EndCombo();
-    }
-
-    ImGui::PopItemWidth();
-    ImGui::SameLine();
-        
-    bool check = ImGui::IsKeyDown(ImGuiKey_Enter) && filename.string().size() > 0;
-    if (ImGui::Button("Save") || check) {
-        filePath = mainPath / (filename.string() + currentExt);
-        status = true;
-    }
-
-    ImGui::SameLine();
-    if (ImGui::Button("Close"))
-        active = false;
-
-    // Let's check if file already exists
-    if (status)
-        existPopup = fs::is_regular_file(filePath);
-
-    return status;
 }
-
-///////////////////////////////////////////////////////////////////////////////
 
 bool Dialog::systemDisplay(void) {
+    ImGui::Text("Input path:");
+    ImGui::SameLine();
+
+    if (ImGui::Button("Home")) {
+        mainpath = getHomeDirectory();
+        updateAvailablePaths();
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Back") && fs::is_directory(mainpath.parent_path())) {
+        mainpath = mainpath.parent_path();
+        updateAvailablePaths();
+    }
+
+    char loc[512] = { 0 };
+    sprintf(loc, "%s", mainpath.string().c_str());
+    ImGui::PushItemWidth(0.97f * ImGui::GetWindowWidth());
+    if (ImGui::InputText("##MainAdress", loc, 512, ImGuiInputTextFlags_EnterReturnsTrue)) {
+        fs::path var(loc);
+         if (fs::is_regular_file(var)) {
+            mainpath = var.parent_path();
+            filename = var.stem().string();
+            updateAvailablePaths();
+        } else if (fs::is_directory(var)){
+            mainpath = std::move(var);
+            updateAvailablePaths();
+        }
+    }
+    ImGui::PopItemWidth();
+    
     bool status = false;
     ImVec2 size = { 0.97f * ImGui::GetWindowWidth(), 0.70f * ImGui::GetWindowHeight() };
     ImGui::BeginChild("child_2", size, true, ImGuiWindowFlags_HorizontalScrollbar);
 
-    for (auto entry : fs::directory_iterator(mainPath, fs::directory_options::skip_permission_denied)) {
-        const fs::path& path = entry.path();
-        const std::string& filename = path.filename().string();
+    for (const fs::path& apath : availablePaths) {
+        const std::string& name = apath.filename().string();
 
-        // hidden files
-        if (filename[0] == '.')
-            continue;
-
-        bool isDirectory = false, isFile = false;
-        try {
-            isDirectory = fs::is_directory(path);
-            isFile = fs::is_regular_file(path);
-        } catch (...) {}
-
-        if (isDirectory) {
-            if (ImGui::Selectable(filename.c_str(), true))
-                mainPath /= filename;
-
+        if (fs::is_directory(apath)) { 
+            if (ImGui::Selectable(name.c_str(), true)) {
+                mainpath = apath;
+                updateAvailablePaths();
+                break; // availablePaths will be different, so we stop the loop here
+            }
             ImGui::Spacing();
         }
-
-        if (isFile && path.extension().compare(currentExt) == 0) {
+        else if (apath.extension().string().compare(mCurrentExt) == 0) {
             ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 0.2f, 0.7f, 0.2f, 1.0f });
-           
-            if (ImGui::Selectable(filename.c_str(), false)) {
-                filePath = mainPath / filename;
+            
+            if (ImGui::Selectable(name.c_str(), false)) {
+                mainpath = apath;
+                filename = name;
                 status = true;
             }
 
@@ -265,48 +147,155 @@ bool Dialog::systemDisplay(void) {
             ImGui::Spacing();
         }
     }
-
     ImGui::EndChild();
     ImGui::Spacing();
     ImGui::Spacing();
-
-    if (drop.handle) {
-        if (fs::is_directory(drop.path))
-            mainPath = drop.path;
-
-        else if (fs::is_regular_file(drop.path))
-            mainPath = drop.path.parent_path();
-
-        drop.handle = false;
-    }
-
+    
     return status;
 }
 
-bool Dialog::fileExistsPopup(void) {
-    bool status = false;
-    ImGui::OpenPopup("File exists");
+void Dialog::showOpenDirectory(void) {
+    ImGui::Begin(mTitle.c_str(), &mActive);
+    ImGui::SetWindowSize({ DPI_FACTOR * mSize.x, DPI_FACTOR * mSize.y });
 
-    if (ImGui::BeginPopupModal("File exists")) {
-        const std::string& name = filePath.filename().string();
-        ImGui::Text("'%s' already exists. Replace?", name.c_str());
+    bool status = systemDisplay();
 
-        if (ImGui::Button("Yes")) {
-            existPopup = active = false;
-            status = true;
-            ImGui::CloseCurrentPopup();
+    if (ImGui::Button("Open")) {
+        mActive = false;
+        status = true;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Close"))
+        mActive = false;
+
+    ImGui::End();
+
+    if (status) {
+        mActive = false;
+        mCallback(mainpath, mCallbackData);
+    }
+}
+
+void Dialog::showOpenFile(void) {
+    ImGui::Begin(mTitle.c_str(), &mActive);
+    ImGui::SetWindowSize({ DPI_FACTOR * mSize.x, DPI_FACTOR * mSize.y });
+
+    bool status = systemDisplay();
+
+    ImGui::Text("Extensions:");
+    ImGui::SameLine();
+
+    ImGui::PushItemWidth(100);
+    if (ImGui::BeginCombo("##combo", mCurrentExt.c_str()+1)) { // skipping the point
+        for (const std::string& ext : mExtensions) {
+            bool check = mCurrentExt.compare(ext) == 0;
+            
+            if (ImGui::Selectable(ext.c_str(), &check)) {
+                mCurrentExt = "." + ext;
+                ImGui::SetItemDefaultFocus();
+            }
         }
-        ImGui::SameLine();
+        ImGui::EndCombo();
+    }
+
+    ImGui::PopItemWidth();
+    ImGui::SameLine();
+    if (ImGui::Button("Close"))
+        mActive = false;
+
+    ImGui::End();
+
+    if (status) {
+        mCallback(mainpath, mCallbackData);
+        mActive = false;
+        mainpath = mainpath.parent_path(); // going back to parent directory
+    }
+}
+
+void Dialog::showSaveFile(void) {
+    ImGui::Begin(mTitle.c_str(), &mActive);
+    ImGui::SetWindowSize({ DPI_FACTOR * mSize.x, DPI_FACTOR * mSize.y });
+
+    bool status = systemDisplay();
+
+    ImGui::Text("Filename");
+    ImGui::SameLine();
+
+    char buf[512] = { 0 };
+    sprintf(buf, "%s", filename.c_str());
+
+    ImGui::PushItemWidth(0.333f * ImGui::GetWindowWidth());
+    if (ImGui::InputText("##inp", buf, 512)) {
+        filename = fs::path(buf).stem().string();
+    }
+    ImGui::SameLine();
+
+    ImGui::PushItemWidth(100);
+    if (ImGui::BeginCombo("##combo", mCurrentExt.c_str() + 1)) {
+        for (const std::string& ext : mExtensions) {
+            bool check = mCurrentExt.compare("." + ext) == 0;
+            if (ImGui::Selectable(ext.c_str(), &check)) {
+                mCurrentExt = "." + ext;
+                ImGui::SetItemDefaultFocus();
+            }
+        }
+        ImGui::EndCombo();
+    }
+    ImGui::PopItemWidth();
+    ImGui::SameLine();
         
-        if (ImGui::Button("No")) {
-            existPopup = false;
-            ImGui::CloseCurrentPopup();
+    bool check = ImGui::IsKeyDown(ImGuiKey_Enter);
+    if ((ImGui::Button("Save") || check) && filename.size() > 0) {
+            mainpath /= (filename + mCurrentExt);
+        status = true;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Close"))
+        mActive = false;
+
+    ImGui::End();
+
+    // Let's check if file already exists
+    if (status) {
+        mActive = false;
+        mExistsPopup = fs::is_regular_file(mainpath);
+
+        if (!mExistsPopup) {
+            mCallback(mainpath, mCallbackData);
+            mainpath = mainpath.parent_path();
         }
+    }
+}
 
-        ImGui::EndPopup();
-    } 
+void Dialog::fileExistsPopup(void) {
+   bool status = false;
+    const std::string& name = mainpath.filename().string();
 
-    return status;
+    ImGui::Begin("File exists");
+    ImGui::SetWindowSize({ 0.0f, DPI_FACTOR * 100.0f });
+
+    ImGui::Text("'%s' already exists. Replace?", name.c_str());
+
+    if (ImGui::Button("Yes")) {
+        status = true;
+        mExistsPopup = false;
+        ImGui::CloseCurrentPopup();
+    }
+    ImGui::SameLine();       
+    if (ImGui::Button("No")) {
+        mExistsPopup = status = false;
+        ImGui::CloseCurrentPopup();
+    }
+
+    ImGui::End();
+
+    if (status) {
+        mCallback(mainpath, mCallbackData);
+    }
+
+    if (!mExistsPopup) {
+        mainpath = mainpath.parent_path();
+    }
 }
 
 } // namespace GRender
