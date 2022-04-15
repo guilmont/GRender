@@ -72,9 +72,9 @@ void Dialog::updateAvailablePaths(void) {
     
     for (auto entry : fs::directory_iterator(mainpath, fs::directory_options::skip_permission_denied)) {
         const fs::path& path = entry.path();
-        const std::string& filename = path.filename().string();
-
+        
         try {
+            const std::string& filename = path.filename().string();
             bool check = fs::is_directory(path);
             check = check || (mExtensions.size() > 0 && fs::is_regular_file(path));  // only interesting if we have extensions
             check = check && (filename[0] != '.');  // not interested in hidden files for now
