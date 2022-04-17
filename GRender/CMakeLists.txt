@@ -3,7 +3,8 @@ project(GRender)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
+
 
 option(GRENDER_IMPLOT "Build plotting utilities" ON)
 
@@ -27,10 +28,10 @@ add_library(${PROJECT_NAME} STATIC
 	"include/entryPoint.h"
     "include/table.h"
 )
-
-file(COPY ${PROJECT_SOURCE_DIR}/assets/ DESTINATION "${CMAKE_SOURCE_DIR}/${ASSETS_DIR}")
-target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/include)
-target_compile_definitions(${PROJECT_NAME} PRIVATE ASSETS="${ASSETS_DIR}" _CRT_SECURE_NO_WARNINGS)
+file(GLOB PROJ_ASSETS "${PROJECT_SOURCE_DIR}/assets/*")
+file(COPY "${PROJ_ASSETS}" DESTINATION "${CMAKE_SOURCE_DIR}/${ASSETS_DIR}")
+target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}/include")
+target_compile_definitions(${PROJECT_NAME} PRIVATE ASSETS="../${ASSETS_DIR}" _CRT_SECURE_NO_WARNINGS)
 
 set(DEPENDENCIES glm glad glfw imgui stb_image)
 
