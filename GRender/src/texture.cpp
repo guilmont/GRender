@@ -36,6 +36,10 @@ void Texture::bind(uint32_t slot) const {
     glBindTexture(GL_TEXTURE_2D, texID);
 }
 
+uint32_t Texture::getID() const {
+    return texID;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////// TextureRGBA  //////////////////////////////////////////////
 
@@ -53,6 +57,8 @@ TextureRGBA::TextureRGBA(uint32_t width, uint32_t height, const uint32_t* data) 
 }
 
 TextureRGBA::TextureRGBA(const fs::path& path) {
+    ASSERT(fs::is_regular_file(path), "File not found: " + path.string());
+
     // We will will sbt_image to load image from file
     // It supports most of popular formats: PNG, JPG, TIF, ...
     // RGB will be converted into RGBA automatically
