@@ -3,42 +3,51 @@
 #include <vector>
 #include "core.h"
 
-namespace GRender
-{
-    class Quad
-    {
+namespace GRender::quad {
 
-    public:
-        Quad(uint32_t numQuads);
-        ~Quad(void);
+struct Specs {
+    glm::vec3 position = {0.0f, 0.0f, 0.0f}; // center of mass
+    glm::vec2 size = {1.0f, 1.0f};
+    float angle = 0.0f;
+    uint32_t texID = 0;
+    glm::vec4 color = {1.0f, 1.0f, 1.0f, 1.0f};
+    glm::vec4 texCoord = {0.0f, 0.0f, 1.0f, 1.0f};
+};
 
-        void draw(const glm::vec3& position, const glm::vec2& size, float angle, const glm::vec4& color, float texID, const glm::vec2& coord0 = { 0.0f, 0.0f }, const glm::vec2& coord1 = { 1.0f, 1.0f });
-        void draw(const glm::vec3& position, const glm::vec2& size, float angle, float texID, const glm::vec2& coord0 = { 0.0f, 0.0f }, const glm::vec2& coord1 = { 1.0f, 1.0f });
-        void draw(const glm::vec3& position, const glm::vec2& size, float angle, const glm::vec4& color);
+struct Vertex {
+    glm::vec3 pos;
+    glm::vec4 color;
+    glm::vec2 texCoord;
+    float texID;
+};
 
-        void submit(void);
+class Quad {
+public:
+    Quad(void) = default;
+    Quad(uint32_t numQuads);
+    ~Quad(void);
 
-    private:
-    private:
-        struct Vertex
-        {
-            glm::vec3 pos;
-            glm::vec4 color;
-            glm::vec2 texCoord;
-            float texID;
-        };
+    // We don't want to copy GPU related data
+    Quad(const Quad&) = delete;
+    Quad& operator=(const Quad&) = delete;
+    // It is fine to move it around
+    Quad(Quad&&) noexcept;
+    Quad& operator=(Quad&&) noexcept;
 
-        uint32_t
-            vao, // Vertex array object
-            vertex_buffer,
-            index_buffer;
 
-        uint32_t
-            counter = 0, // Current number of quads
-            maxVertices = 0; // Maximum number of quads
+    void draw(const Specs& spec = Specs());
+    void submit(void);
 
-        std::vector<uint32_t> vIndex;
-        std::vector<Vertex> vtxBuffer;
+private:
+    uint32_t
+        vao = 0,          // Vertex array object
+        vtxBuffer = 0,
+        idxBuffer = 0,
+        maxVertices = 0; // Maximum number of quads
 
-    }; // class-object
-}
+    std::vector<uint32_t> vID;
+    std::vector<Vertex> vertices;
+
+};
+
+} // namespace GRender::quad
