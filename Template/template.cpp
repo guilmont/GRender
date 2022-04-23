@@ -338,7 +338,7 @@ void Sandbox::ImGuiMenuLayer(void) {
 			view_messages = true;
 
 		if (ImGui::MenuItem("View mailbox"))
-			mailbox.setActive();
+			mailbox.open();
 		
 		ImGui::EndMenu();
 	}
