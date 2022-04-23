@@ -170,8 +170,12 @@ Timer* Mailbox::createTimer(const std::string& msg, void(*function)(void*), void
     return reinterpret_cast<Timer*>(messages.back());
 }
 
-void Mailbox::setActive() {
+void Mailbox::open() {
     active = true;
+}
+
+void Mailbox::close() {
+    active = false;
 }
 
 void Mailbox::showMessages(void) {
@@ -196,21 +200,25 @@ void Mailbox::showMessages(void) {
 
     ImGui::Spacing();
     if (ImGui::Button("Clear"))
-        messages.remove_if([](Message* msg) -> bool {
-            if (msg->is_read) {
-                delete msg;
-                return true;
-            }
-            else {
-                return false;
-            }
-        });
+        clear();
         
     ImGui::SameLine();
     if (ImGui::Button("Close"))
-        active = false;
+        close();
 
     ImGui::End();
+}
+
+void Mailbox::clear() {
+    messages.remove_if([](Message* msg) -> bool {
+        if (msg->is_read) {
+            delete msg;
+            return true;
+        }
+        else {
+            return false;
+        }
+    });
 }
 
 } // namespace GRender

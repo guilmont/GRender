@@ -77,8 +77,11 @@ public:
     Progress* createProgress(const std::string& msg, void (*function)(void*), void *ptr = nullptr);
     Timer* createTimer(const std::string& msg, void (*function)(void*), void *ptr = nullptr);
 
-    void setActive(void); // Schedules mailbox to display next interation
+    void open(void); // Schedules mailbox to display next iterations
+    void close(void); // Hides in next iterations
+
     void showMessages(void);
+    void clear(); // Cleans already read messages
 
 private:
     bool active = false;
