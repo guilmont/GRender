@@ -16,25 +16,22 @@ add_subdirectory("GRender")
 
 project(Template)
 
-add_executable(${PROJECT_NAME} "Template/template.cpp"   "Template/polymer.cpp"   "Template/polymer.h")
+add_executable(Template "Template/template.cpp"   "Template/polymer.cpp"   "Template/polymer.h")
 
-target_link_libraries(${PROJECT_NAME} PRIVATE GRender)
+target_link_libraries(Template PRIVATE GRender)
 
 if (WIN32)
-	set_target_properties(${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
+	set_target_properties(Template PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
 endif()
-
-file(GLOB PROJ_ASSETS "${CMAKE_SOURCE_DIR}/Template/assets/*")
-file(COPY ${PROJ_ASSETS} DESTINATION "${CMAKE_SOURCE_DIR}/${ASSETS_DIR}")
 
 ### INTSTALLATION ##########################################
 
-install(TARGETS "${PROJECT_NAME}" 
+install(TARGETS "Template" 
 	CONFIGURATIONS Release
 		DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
 )
 
-install(DIRECTORY "${ASSETS_DIR}" 
+install(DIRECTORY "assets" 
 	CONFIGURATIONS Release	
 		DESTINATION ${CMAKE_INSTALL_PREFIX}
 )
