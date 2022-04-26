@@ -22,16 +22,15 @@ add_library(${PROJECT_NAME} STATIC
 	"include/camera2D.h"       "src/camera2D.cpp"
 	"include/quad.h"           "src/quad.cpp"
 	"include/framebuffer.h"    "src/framebuffer.cpp"
-	"include/fonts.h"          "src/fonts.cpp"
+	"include/fonts.h"          "src/fonts.cpp"           "src/OpenSans.cpp"
 	"include/application.h"    "src/application.cpp"
 	"include/mailbox.h"        "src/mailbox.cpp"
 	"include/entryPoint.h"
     "include/table.h"
 )
-file(GLOB PROJ_ASSETS "${PROJECT_SOURCE_DIR}/assets/*")
-file(COPY "${PROJ_ASSETS}" DESTINATION "${CMAKE_SOURCE_DIR}/${ASSETS_DIR}")
+
 target_include_directories(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}/include")
-target_compile_definitions(${PROJECT_NAME} PRIVATE ASSETS="../${ASSETS_DIR}" _CRT_SECURE_NO_WARNINGS)
+target_compile_definitions(${PROJECT_NAME} PRIVATE _CRT_SECURE_NO_WARNINGS)  # so it doesn't bother about std::getenv
 
 set(DEPENDENCIES glm glad glfw imgui stb_image)
 

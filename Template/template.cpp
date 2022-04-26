@@ -72,8 +72,8 @@ static void testTimer(GRender::Timer* timer) {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-Sandbox::Sandbox(void) : Application("Sandbox", 1200, 800, "layout.ini") {
-	fs::path assets(ASSETS);
+Sandbox::Sandbox(void) : Application("Sandbox", 1200, 800, "../assets/layout.ini") {
+	fs::path assets("../assets");
 	shader.insert("polyBlobs",       { assets / "polyBlobs.vtx.glsl",       assets / "polyShader.frag.glsl" });
 	shader.insert("polyConnections", { assets / "polyConnections.vtx.glsl", assets / "polyShader.frag.glsl" });
 	
@@ -308,11 +308,11 @@ void Sandbox::ImGuiMenuLayer(void) {
 		// TODO: Do I really need this?
 		if (GRender::DPI_FACTOR == 1) {
 			if (ImGui::MenuItem("Set HIDPI"))
-				scaleSizes(2.0f);
+				scaleSizes(); // Toggle sizes
 		} 
 		else {
 			if (ImGui::MenuItem("* Set HIDPI"))
-				scaleSizes(1.0f);
+				scaleSizes(); // Toggle sizes
 		}
 
 		if (ImGui::MenuItem("Camera controls"))

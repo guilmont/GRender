@@ -38,7 +38,7 @@ namespace GRender {
         Dialog dialog;
         Mailbox mailbox;
 
-        void scaleSizes(float scale); // Used to rescales sizes for HIDPI screens
+        void scaleSizes(void); // Toggles the scaling for HIDPI screens
 
     private:
         GLFWwindow* window = nullptr;

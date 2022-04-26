@@ -82,21 +82,14 @@ Application::Application(const std::string& name, uint32_t width, uint32_t heigh
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     // Setup path to layout
-    layoutINI = (fs::path(ASSETS) / layout).string();
+    layoutINI = layout.string();
     io.IniFilename = layoutINI.c_str();
         
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     // Setup fonts
-    float fontSize = 18.0f;
-    fonts.loadFont("regular", (fs::path(ASSETS) / "Open_Sans/OpenSans-Regular.ttf").string(), fontSize);
-    fonts.loadFont("bold", (fs::path(ASSETS) / "Open_Sans/OpenSans-Bold.ttf").string(), fontSize);
-
-    fonts.loadFont("regular2", (fs::path(ASSETS) / "Open_Sans/OpenSans-Regular.ttf").string(), 2.0f * fontSize);
-    fonts.loadFont("bold2", (fs::path(ASSETS) / "Open_Sans/OpenSans-Bold.ttf").string(), 2.0f * fontSize);
-
-    fonts.setDefault("regular");
+    fonts.loadDefaultFonts();
 } 
 
 Application::~Application(void) {
@@ -115,20 +108,22 @@ void Application::closeApp(void) {
     glfwSetWindowShouldClose(window, 1);
 }
 
-void Application::scaleSizes(float scale) {
+void Application::scaleSizes() {
     // Rescaling all sizes to account for HIDPI screens
     ImGuiStyle& style = ImGui::GetStyle();
 
-    if (scale == 1 && DPI_FACTOR == 2) {
+    if (DPI_FACTOR == 2) {
         style.ScaleAllSizes(0.5f);
+        DPI_FACTOR = 1.0f;
     }
     else {
         style.ScaleAllSizes(2.0f);
+        DPI_FACTOR = 2.0f;
     }
 
-    DPI_FACTOR = scale;
-    fonts.swap("regular", "regular2");
-    fonts.swap("bold", "bold2");
+    fonts.swap("regular", "regularDPI");
+    fonts.swap("bold",    "boldDPI");
+    fonts.swap("italic",  "italicDPI");
     fonts.setDefault("regular");
 }
 

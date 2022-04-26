@@ -104,7 +104,8 @@ bool Dialog::systemDisplay(void) {
     }
 
     char loc[512] = { 0 };
-    sprintf(loc, "%s", mainpath.string().c_str());
+    const std::string& locMain = mainpath.string();
+    std::copy(locMain.begin(), locMain.end(), loc);
     ImGui::PushItemWidth(0.97f * ImGui::GetWindowWidth());
     if (ImGui::InputText("##MainAdress", loc, 512, ImGuiInputTextFlags_EnterReturnsTrue)) {
         fs::path var(loc);
@@ -222,7 +223,7 @@ void Dialog::showSaveFile(void) {
     ImGui::SameLine();
 
     char buf[512] = { 0 };
-    sprintf(buf, "%s", filename.c_str());
+    std::copy(filename.begin(), filename.end(), buf);
 
     ImGui::PushItemWidth(0.333f * ImGui::GetWindowWidth());
     if (ImGui::InputText("##inp", buf, 512)) {
