@@ -3,49 +3,34 @@
 #include <glm/glm.hpp>
 #include "eventsWrapper.h"
 
-namespace GRender {
+namespace GRender::mouse {
 
-struct Mouse {
-    Mouse() = default;
-    ~Mouse() = default;
+float wheel();
+glm::vec2 position();
+glm::vec2 delta();
 
-    float wheel() const;
-    glm::vec2 position() const;
-    glm::vec2 delta() const;
-        
-    bool isPressed(MouseButton btn) const;
-    bool isReleased(MouseButton btn) const;
+bool isPressed(MouseButton btn);
+bool isReleased(MouseButton btn);
 
-    bool isClicked(MouseButton btn) const;
-    bool isDoubleClicked(MouseButton btn) const;
-};
+bool isClicked(MouseButton btn);
+bool isDoubleClicked(MouseButton btn);
 
-///////////////////////////////////////////////////////////////////////////////
-///////////////////////////////////////////////////////////////////////////////
+} // namespace GRender::mouse
 
-class Keyboard {
-public:
-    Keyboard() = default;
-    ~Keyboard() = default;
+namespace GRender::keyboard {
+// Keys
+bool isDown(Key key);
+bool isPressed(Key key);
+bool isReleased(Key key);
 
-    // Keys
-    bool isDown(Key key) const;
-    bool isPressed(Key key) const;
-    bool isReleased(Key key) const;
+// Letters
+bool isDown(char key);
+bool isPressed(char key);
+bool isReleased(char key);
 
-    // Letters
-    bool isDown(char key) const;
-    bool isPressed(char key) const;
-    bool isReleased(char key) const;
+// Numbers
+bool isDown(int32_t key);
+bool isPressed(int32_t key);
+bool isReleased(int32_t key);
 
-    // Numbers
-    bool isDown(int32_t key) const;
-    bool isPressed(int32_t key) const;
-    bool isReleased(int32_t key) const;
-
-private:
-    ImGuiKey convertLetter(char key) const;
-    ImGuiKey convertNumber(int32_t key) const;
-};
-
-} // namespace GRender
+} // namespace GRender::keyboard

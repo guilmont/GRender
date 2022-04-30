@@ -12,13 +12,17 @@ public:
     Camera(const glm::vec3& defaultPosition = {0.0f, 0.0f, 0.0f}, const glm::vec3& defaultFront = {0.0f, 0.0f, 1.0f});
     ~Camera(void) = default;
 
+    // displaying showing camera data and parameters
+    void display(void);
     void open(void);
     void close(void);
-    void showControls(void);
-
+    
     // Transformations
     glm::mat4 getViewMatrix(void);
     void reset(void);
+
+    // allows for automatic keyboard and mouse input handling
+    void controls(float deltaTime);
 
     // Movement
     void lookAround(const glm::vec2& offset, float elapsed);

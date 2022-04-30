@@ -1,91 +1,95 @@
 #include "events.h"
 
-namespace GRender {
+namespace GRender::mouse {
 
-///////////////////////////////////////////////////////////
-// MOUSE
-
-float Mouse::wheel() const {
+float wheel() {
     return ImGui::GetIO().MouseWheel;
 }
 
-glm::vec2 Mouse::position() const {
+glm::vec2 position() {
     ImGuiIO& io = ImGui::GetIO();
     return { io.MousePos.x, io.MousePos.y };
 }
 
-glm::vec2 Mouse::delta() const {
+glm::vec2 delta() {
     ImGuiIO& io = ImGui::GetIO();
     return { io.MouseDelta.x, io.MouseDelta.y };
 }
 
-bool Mouse::isPressed(MouseButton btn) const {
+bool isPressed(MouseButton btn) {
     return ImGui::IsMouseDown(static_cast<ImGuiMouseButton>(btn));
 }
 
-bool Mouse::isClicked(MouseButton btn) const {
+bool isClicked(MouseButton btn) {
     return ImGui::IsMouseClicked(static_cast<ImGuiMouseButton>(btn));
 }
 
-bool Mouse::isDoubleClicked(MouseButton btn) const {
+bool isDoubleClicked(MouseButton btn) {
     return ImGui::IsMouseDoubleClicked(static_cast<ImGuiMouseButton>(btn));
 }
 
-bool Mouse::isReleased(MouseButton btn) const {
+bool isReleased(MouseButton btn) {
     return ImGui::IsMouseReleased(static_cast<ImGuiMouseButton>(btn));
 }
 
-///////////////////////////////////////////////////////////
-// KEYBOARD
+} // namespace GRender::mouse
 
-bool Keyboard::isDown(Key key) const {
-    return ImGui::IsKeyDown(static_cast<ImGuiKey>(key));
-}
+/////////////////////////////////////////////////////////////////////////////////////////
 
-bool Keyboard::isPressed(Key key) const {
-    return ImGui::IsKeyPressed(static_cast<ImGuiKey>(key));
-}
+namespace GRender::keyboard::internal {
 
-bool Keyboard::isReleased(Key key) const {
-    return ImGui::IsKeyReleased(static_cast<ImGuiKey>(key));
-}
-
-bool Keyboard::isDown(char key) const {
-    ImGuiKey foo = convertLetter(key);
-    return ImGui::IsKeyDown(foo);
-}
-
-bool Keyboard::isPressed(char key) const {
-    ImGuiKey foo = convertLetter(key);
-    return ImGui::IsKeyPressed(foo);
-}
-
-bool Keyboard::isReleased(char key) const {
-    ImGuiKey foo = convertLetter(key);
-    return ImGui::IsKeyReleased(foo);
-}
-
-bool Keyboard::isDown(int32_t key) const {
-    ImGuiKey foo = convertNumber(key);
-    return ImGui::IsKeyDown(foo);
-}
-
-bool Keyboard::isPressed(int32_t key) const {
-    ImGuiKey foo = convertNumber(key);
-    return ImGui::IsKeyPressed(foo);
-}
-
-bool Keyboard::isReleased(int32_t key) const {
-    ImGuiKey foo = convertNumber(key);
-    return ImGui::IsKeyReleased(foo);
-}
-
-ImGuiKey Keyboard::convertLetter(char key) const {
+ImGuiKey convertLetter(char key) {
     return key - 'A' + ImGuiKey_A;
 }
 
-ImGuiKey Keyboard::convertNumber(int32_t key) const {
+ImGuiKey convertNumber(int32_t key) {
     return key + ImGuiKey_0;
 }
 
-} // namespace GRender
+} // namespace GRender::keyboard::internal
+
+namespace GRender::keyboard {
+
+bool isDown(Key key){
+    return ImGui::IsKeyDown(static_cast<ImGuiKey>(key));
+}
+
+bool isPressed(Key key){
+    return ImGui::IsKeyPressed(static_cast<ImGuiKey>(key));
+}
+
+bool isReleased(Key key){
+    return ImGui::IsKeyReleased(static_cast<ImGuiKey>(key));
+}
+
+bool isDown(char key){
+    ImGuiKey foo = internal::convertLetter(key);
+    return ImGui::IsKeyDown(foo);
+}
+
+bool isPressed(char key){
+    ImGuiKey foo = internal::convertLetter(key);
+    return ImGui::IsKeyPressed(foo);
+}
+
+bool isReleased(char key){
+    ImGuiKey foo = internal::convertLetter(key);
+    return ImGui::IsKeyReleased(foo);
+}
+
+bool isDown(int32_t key){
+    ImGuiKey foo = internal::convertNumber(key);
+    return ImGui::IsKeyDown(foo);
+}
+
+bool isPressed(int32_t key){
+    ImGuiKey foo = internal::convertNumber(key);
+    return ImGui::IsKeyPressed(foo);
+}
+
+bool isReleased(int32_t key){
+    ImGuiKey foo = internal::convertNumber(key);
+    return ImGui::IsKeyReleased(foo);
+}
+
+} // namespace GRender::keyboard

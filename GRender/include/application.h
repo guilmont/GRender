@@ -32,8 +32,6 @@ namespace GRender {
         virtual void ImGuiMenuLayer(void) {}
 
         // Basic utilities
-        Mouse mouse;
-        Keyboard keyboard;
         Dialog dialog;
         Mailbox mailbox;
 

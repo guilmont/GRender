@@ -1,7 +1,9 @@
 #include "camera.h"
-#include "fonts.h"
 
 #include <glm/gtc/matrix_transform.hpp>
+
+#include "events.h"
+#include "fonts.h"
 
 namespace GRender {
 
@@ -21,7 +23,7 @@ void Camera::close() {
     active = false;
 }
 
-void Camera::showControls(void) {
+void Camera::display(void) {
     if (!active) {
         return;
     }
@@ -72,6 +74,32 @@ void Camera::reset() {
     bool view = active;
     new(this) Camera(mDefaultPosition, mDefaultFront);
     active = view;
+}
+
+void Camera::controls(float deltaTime) {
+    if (keyboard::isDown('W') || (mouse::wheel() > 0.0f))
+        moveFront(deltaTime);
+
+    if (keyboard::isDown('S') || (mouse::wheel() < 0.0f))
+        moveBack(deltaTime);
+
+    if (keyboard::isDown('D'))
+        moveRight(deltaTime);
+
+    if (keyboard::isDown('A'))
+        moveLeft(deltaTime);
+
+    if (keyboard::isDown('E'))
+        moveUp(deltaTime);
+
+    if (keyboard::isDown('Q'))
+        moveDown(deltaTime);
+
+    if (mouse::isClicked(GRender::MouseButton::MIDDLE))
+        reset();
+
+    if (mouse::isPressed(GRender::MouseButton::LEFT))
+        lookAround(mouse::delta(), deltaTime);
 }
 
 void Camera::moveFront(float elapsed) {

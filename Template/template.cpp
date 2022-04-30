@@ -86,73 +86,49 @@ Sandbox::Sandbox(void) : Application("Sandbox", 1200, 800, "../assets/layout.ini
 }
 
 void Sandbox::onUserUpdate(float deltaTime) {
-	bool
-		ctrl = keyboard.isDown(GRender::Key::LEFT_CONTROL) || keyboard.isDown(GRender::Key::RIGHT_CONTROL),
-		shift = keyboard.isDown(GRender::Key::LEFT_SHIFT) || keyboard.isDown(GRender::Key::RIGHT_SHIFT);
+	using namespace GRender;
 
-	if (ctrl && keyboard.isPressed('H'))
+	bool ctrl = keyboard::isDown(Key::LEFT_CONTROL) || keyboard::isDown(Key::RIGHT_CONTROL);
+
+	if (ctrl && keyboard::isPressed('H'))
 		view_specs = true;
 
-	if (ctrl && keyboard.isPressed('I'))
+	if (ctrl && keyboard::isPressed('I'))
 		view_imguidemo = true;
 
-	if (ctrl && keyboard.isPressed('O')) {
+	if (ctrl && keyboard::isPressed('O')) {
 		auto callback = [](const fs::path& path, void* ptr) -> void {
-			reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Selected file: " + path.string());
+			reinterpret_cast<Mailbox*>(ptr)->createInfo("Selected file: " + path.string());
 		};
 		dialog.openFile("Open file...", { "txt", "json" }, callback, &mailbox);
 	}
 
-	if (ctrl && keyboard.isPressed('S')) {
+	if (ctrl && keyboard::isPressed('S')) {
 		auto callback = [](const fs::path& path, void* ptr) -> void {
-			reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Save file: " + path.string());
+			reinterpret_cast<Mailbox*>(ptr)->createInfo("Save file: " + path.string());
 		};
 		dialog.saveFile("Save file...", {"txt", "json"}, callback, &mailbox);
 	}
 
-	if (ctrl && keyboard.isPressed('D')) {
+	if (ctrl && keyboard::isPressed('D')) {
 		auto callback = [](const fs::path& path, void* ptr) -> void {
-			reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Open directory: " + path.string());
+			reinterpret_cast<Mailbox*>(ptr)->createInfo("Open directory: " + path.string());
 		};
 		dialog.openDirectory("Open directory...", callback, &mailbox);
 	}
 
 #ifdef BUILD_IMPLOT
-	if (ctrl && keyboard.isPressed('P'))
+	if (ctrl && keyboard::isPressed('P'))
 		view_implotdemo = true;
 #endif
 
-	if (ctrl && keyboard.isPressed('M'))
+	if (ctrl && keyboard::isPressed('M'))
 		view_messages = true;
 
 	///////////////////////////////////////////////////////////////////////////
 	// Camera
-	if (viewport_hover)
-	{
-		if ((keyboard.isDown('W')) || (mouse.wheel() > 0.0f))
-			camera.moveFront(deltaTime);
-		
-		if ((keyboard.isDown('S') && !ctrl) || (mouse.wheel() < 0.0f))
-			camera.moveBack(deltaTime);
-
-		if (!ctrl && keyboard.isDown('D'))
-			camera.moveRight(deltaTime);
-
-		if (keyboard.isDown('A'))
-			camera.moveLeft(deltaTime);
-
-		if (keyboard.isDown('E'))
-			camera.moveUp(deltaTime);
-
-		if (keyboard.isDown('Q'))
-			camera.moveDown(deltaTime);
-
-		if (mouse.isClicked(GRender::MouseButton::MIDDLE)) {
-			camera.reset();
-		}
-
-		if (mouse.isPressed(GRender::MouseButton::LEFT))
-			camera.lookAround(mouse.delta(), deltaTime);
+	if (viewport_hover) {
+		camera.controls(deltaTime);
 	}
 
 	///////////////////////////////////////////////////////////////////////////
@@ -189,7 +165,7 @@ void Sandbox::ImGuiLayer(void) {
 		ImGui::End();
 	}
 
-	camera.showControls();
+	camera.display();
 
 	if (view_imguidemo)
 		ImGui::ShowDemoWindow(&view_imguidemo);
