@@ -6,10 +6,9 @@ namespace GRender {
 
 class Camera {
 public:
-    // x -> left to right
-    // y -> bottom to top
-    // z -> positive axis into screen
-    Camera(const glm::vec3& defaultPosition = {0.0f, 0.0f, 0.0f}, const glm::vec3& defaultFront = {0.0f, 0.0f, 1.0f});
+    // x: left to right; y: bottom to top; z: positive axis into screen
+    // yaw (x): 0..2pi; pitch(bot->top): -pi/2..pi/2
+    Camera(const glm::vec3& defPosition = {0.0f, 0.0f, 0.0f}, float defPitch = 0.0f, float defYaw = 1.5708f);
     ~Camera(void) = default;
 
     // displaying showing camera data and parameters
@@ -35,19 +34,25 @@ public:
 
 
     // Getters/setters
-    float& aspectRatio(void);
+    float getYaw(void) const;
+    void setYaw(float value);
 
-    float& yaw(void);
-    float& pitch(void);
+    float getPitch(void) const;
+    void setPitch(float value);
+
+    float& fieldView(void);
+    float& aspectRatio(void);
     glm::vec3& position(void);
 
-    glm::vec3 front(void) const; // controlled by yaw and pitch
-    
-    void setDefaultPosition(const glm::vec3& pos);
-    void setDefaultFront(const glm::vec3& front);
+    // Default values for reset
+    glm::vec3& defaultPosition(void);
+    float& defPitch();
+    float& defYaw();
+   
 
 private:
     bool active = false;
+    void calculateFront();
 
 private:
     float
@@ -59,12 +64,11 @@ private:
     float
         mSpeed = 10.0f,
         mSensitivity = 0.1f,
-        mYaw,
-        mPitch;
+        mPitch, mDefPitch,
+        mYaw, mDefYaw;
 
     glm::vec3
-        mDefaultPosition, mPosition,
-        mDefaultFront, mFront;
+        mDefPosition, mPosition, mFront;
 };
 
 } // namespace GRender
