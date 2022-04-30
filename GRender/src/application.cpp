@@ -89,7 +89,7 @@ Application::Application(const std::string& name, uint32_t width, uint32_t heigh
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     // Setup fonts
-    fonts.loadDefaultFonts();
+    fonts::LoadDefaultFonts();
 } 
 
 Application::~Application(void) {
@@ -121,10 +121,10 @@ void Application::scaleSizes() {
         DPI_FACTOR = 2.0f;
     }
 
-    fonts.swap("regular", "regularDPI");
-    fonts.swap("bold",    "boldDPI");
-    fonts.swap("italic",  "italicDPI");
-    fonts.setDefault("regular");
+    fonts::Swap("regular", "regularDPI");
+    fonts::Swap("bold",    "boldDPI");
+    fonts::Swap("italic",  "italicDPI");
+    fonts::SetDefault("regular");
 }
 
 void Application::run(void) {

@@ -4,27 +4,21 @@
 
 #include "core.h"
 
-namespace GRender {
+namespace GRender::fonts {
 
-class  Fonts {
-public:
-    Fonts(void) = default;
-    ~Fonts(void) = default;
+static std::unordered_map<std::string, ImFont *> mFonts;
 
-    void loadDefaultFonts(void);
-    void loadFont(const std::string &fontname, const std::string &path, float size);
-    void setDefault(const std::string &name);
+void LoadDefaultFonts(void);
+void SetDefault(const std::string &name);
 
-    void swap(const std::string& name1, const std::string& name2);
+void LoadFont(const std::string &fontname, const std::string &path, float size);
 
-    void text(const std::string &txt, const std::string &type);
+// Used for DPI switching
+void Swap(const std::string& name1, const std::string& name2);
 
-    void push(const std::string &fontname);
-    void pop(void);
+void Text(const std::string &txt, const std::string &type);
+void Push(const std::string &fontname);
+void Pop(void);
 
-private:
-    std::string assets;
-    std::unordered_map<std::string, ImFont *> mFonts;
-};
 
 } // namespace GRender

@@ -78,6 +78,8 @@ Sandbox::Sandbox(void) : Application("Sandbox", 1200, 800, "../assets/layout.ini
 	shader.insert("polyConnections", { assets / "polyConnections.vtx.glsl", assets / "polyShader.frag.glsl" });
 	
 	fbuffer = GRender::Framebuffer(1200, 800);
+	camera = GRender::Camera({0.0f, 0.0f, -10.0f});
+	camera.open();
 
 	glEnable(GL_DEPTH_TEST);
 	poly = polymer::Polymer(1024, 1.0f);
@@ -145,8 +147,9 @@ void Sandbox::onUserUpdate(float deltaTime) {
 		if (keyboard.isDown('Q'))
 			camera.moveDown(deltaTime);
 
-		if (mouse.isClicked(GRender::MouseButton::MIDDLE))
+		if (mouse.isClicked(GRender::MouseButton::MIDDLE)) {
 			camera.reset();
+		}
 
 		if (mouse.isPressed(GRender::MouseButton::LEFT))
 			camera.lookAround(mouse.delta(), deltaTime);
@@ -186,8 +189,7 @@ void Sandbox::ImGuiLayer(void) {
 		ImGui::End();
 	}
 
-	if (camera.viewControls)
-		camera.controls();
+	camera.showControls();
 
 	if (view_imguidemo)
 		ImGui::ShowDemoWindow(&view_imguidemo);
@@ -268,7 +270,7 @@ void Sandbox::ImGuiLayer(void) {
 
 	if (uport.x != view.x || uport.y != view.y) {
 		fbuffer = GRender::Framebuffer(uport);
-		camera.setAspectRatio(port.x / port.y);
+		camera.aspectRatio() = port.x / port.y;
 	}
 
 	ImGui::End();
@@ -316,7 +318,7 @@ void Sandbox::ImGuiMenuLayer(void) {
 		}
 
 		if (ImGui::MenuItem("Camera controls"))
-			camera.viewControls = true;
+			camera.open();
 
 		ImGui::EndMenu();
 	}
