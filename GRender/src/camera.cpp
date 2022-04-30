@@ -29,7 +29,7 @@ void Camera::display(void) {
     }
 
     ImGui::Begin("Camera info", &active);
-    ImGui::SetWindowSize({ DPI_FACTOR * 350.0f, DPI_FACTOR * 200.0f });
+    ImGui::SetWindowSize({ DPI_FACTOR * 500.0f, DPI_FACTOR * 225.0f }, ImGuiCond_FirstUseEver);
     
     float space = 0.7f * ImGui::GetContentRegionAvail().x;
     float drag = 0.33f * space;
