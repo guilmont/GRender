@@ -127,10 +127,9 @@ void Sandbox::onUserUpdate(float deltaTime) {
 
 	///////////////////////////////////////////////////////////////////////////
 	// Camera
-	if (viewport_hover) {
+	if (viewport_hover && !ctrl)  // !ctrl not to interfere with commands used above
 		camera.controls(deltaTime);
-	}
-
+	
 	///////////////////////////////////////////////////////////////////////////
 
 	fbuffer.bind();
