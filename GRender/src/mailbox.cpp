@@ -133,63 +133,61 @@ void Timer::stop(void) {
 
 ///////////////////////////////////////////////////////////////////////////
 
-Mailbox::~Mailbox(void) {
-    for (Message* msg : messages) {
-        delete msg;
-    }
-    messages.clear();
+namespace mailbox {
+
+static bool active = false;
+static std::list<Message*> messages;
+
+void Open() {
+    active = true;
 }
 
-Info* Mailbox::createInfo(const std::string& msg) {
+void Close() {
+    active = false;
+}
+
+Info* CreateInfo(const std::string& msg) {
     active = true;
     messages.emplace_back(new Info(msg));
     return reinterpret_cast<Info*>(messages.back());
 }
 
-Warn* Mailbox::createWarn(const std::string& msg) {
+Warn* CreateWarn(const std::string& msg) {
     active = true;
     messages.emplace_back(new Warn(msg));
     return reinterpret_cast<Warn*>(messages.back());
 }
 
-Error* Mailbox::createError(const std::string& msg) {
+Error* CreateError(const std::string& msg) {
     active = true;
     messages.emplace_back(new Error(msg));
     return reinterpret_cast<Error*>(messages.back());
 }
 
-Progress* Mailbox::createProgress(const std::string& msg, void (*function)(void*), void* ptr) {
+Progress* CreateProgress(const std::string& msg, void (*function)(void*), void* ptr) {
     active = true;
     messages.emplace_back(new Progress(msg, function, ptr));
     return reinterpret_cast<Progress*>(messages.back());
 }
 
-Timer* Mailbox::createTimer(const std::string& msg, void(*function)(void*), void* ptr) {
+Timer* CreateTimer(const std::string& msg, void(*function)(void*), void* ptr) {
     active = true;
     messages.emplace_back(new Timer(msg, function, ptr));
     return reinterpret_cast<Timer*>(messages.back());
 }
 
-void Mailbox::open() {
-    active = true;
-}
 
-void Mailbox::close() {
-    active = false;
-}
-
-void Mailbox::showMessages(void) {
+void ShowMessages(void) {
     if (!active)
         return;
 
     ImGui::Begin("Mailbox", &active);
     const ImVec2 workpos = ImGui::GetMainViewport()->WorkPos;
-    ImGui::SetWindowPos({ workpos.x + 50 * DPI_FACTOR, workpos.y + 40 * DPI_FACTOR }, ImGuiCond_FirstUseEver);
-    ImGui::SetWindowSize({ DPI_FACTOR * 720.0f, DPI_FACTOR * 405.0f }, ImGuiCond_FirstUseEver);
+    ImGui::SetWindowSize({ DPI_FACTOR * 720.0f, DPI_FACTOR * 405.0f });
 
     ImGui::PushStyleColor(ImGuiCol_ChildBg, { 0.02f, 0.02f, 0.02f, 1.0f });
 
-    ImVec2 size = { 0.98f * ImGui::GetWindowWidth(), 0.85f * ImGui::GetWindowHeight() };
+    ImVec2 size = { 0.98f * ImGui::GetWindowWidth(), 0.82f * ImGui::GetWindowHeight() };
     ImGui::BeginChild("mail_child", size, true, ImGuiWindowFlags_HorizontalScrollbar);
 
     for (Message* msg : messages)
@@ -200,16 +198,16 @@ void Mailbox::showMessages(void) {
 
     ImGui::Spacing();
     if (ImGui::Button("Clear"))
-        clear();
-        
+        Clear();
+
     ImGui::SameLine();
     if (ImGui::Button("Close"))
-        close();
+        Close();
 
     ImGui::End();
 }
 
-void Mailbox::clear() {
+void Clear() {
     messages.remove_if([](Message* msg) -> bool {
         if (msg->is_read) {
             delete msg;
@@ -221,4 +219,12 @@ void Mailbox::clear() {
     });
 }
 
+void Destroy(void) {
+    for (Message* msg : messages) {
+        delete msg;
+    }
+    messages.clear();
+}
+
+} // namespace mailbox
 } // namespace GRender

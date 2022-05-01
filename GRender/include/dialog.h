@@ -2,52 +2,20 @@
 
 #include "core.h"
 
-namespace GRender {
+namespace GRender::dialog {
 
-class Dialog {
-public:
-    Dialog(void);
-    ~Dialog(void) = default;
+// Opens a dialog allowing to seek a directory in the system
+void OpenDirectory(const std::string& title, void (*callback)(const std::filesystem::path&, void*), void* data = nullptr);
 
-    void openDirectory(const std::string& title, void (*callback)(const std::filesystem::path&, void*), void* data);
+// Opens a dialog allowing to seek files in the system
+void OpenFile(const std::string& title, const std::vector<std::string>& extensions,
+                void (*callback)(const std::filesystem::path&, void*), void* data = nullptr);
 
-    void openFile(const std::string& title, const std::vector<std::string>& extensions,
-                  void (*callback)(const std::filesystem::path&, void*), void* data);
+// Opens a dialog allowing to choose a location and name for a file
+void SaveFile(const std::string& title, const std::vector<std::string>& extensions,
+                void (*callback)(const std::filesystem::path&, void*), void* data = nullptr);
 
-    void saveFile(const std::string& title, const std::vector<std::string>& extensions,
-                  void (*callback)(const std::filesystem::path&, void*), void* data);
-
-    void showDialog(void);
-
-private:
-    void (Dialog::*internalShow)(void) = nullptr; // points to one of the following functions
-    
-    void showOpenDirectory(void);
-    void showOpenFile(void);
-    void showSaveFile(void);
-
-private:
-    bool mActive = false;
-    bool mExistsPopup = false;
-    
-    std::string mTitle;
-    std::vector<std::string> mExtensions;
-    std::string mCurrentExt = "";
-
-    void (*mCallback)(const std::filesystem::path&, void*) = nullptr;
-    void* mCallbackData = nullptr;
-
-    std::string filename = "";
-    std::filesystem::path mainpath;
-    std::vector<std::filesystem::path> availablePaths;
-
-    void updateAvailablePaths(void);
-    bool systemDisplay(void);
-    void fileExistsPopup(void);
-    
-private:
-    const glm::vec2 mSize = { 720.0f, 480.0f };
-
-};
+// Internal use to display dialog
+void ShowDialog(void);
 
 } // namespace GRender::dialog

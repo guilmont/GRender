@@ -3,6 +3,8 @@
 
 namespace GRender::fonts {
 
+static std::unordered_map<std::string, ImFont *> mFonts;
+
 void LoadDefaultFonts() {
     const float fontSize = 18.0f;
     mFonts["regular"] = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(OpenSansRegular_compressed_data_base85, fontSize);

@@ -10,6 +10,7 @@
 #include "events.h"
 #include "camera.h"
 #include "camera2D.h"
+
 #include "fonts.h"
 #include "dialog.h"
 #include "mailbox.h"
@@ -30,10 +31,6 @@ namespace GRender {
         virtual void onUserUpdate(float deltaT) = 0;
         virtual void ImGuiLayer(void) {}
         virtual void ImGuiMenuLayer(void) {}
-
-        // Basic utilities
-        Dialog dialog;
-        Mailbox mailbox;
 
         void scaleSizes(void); // Toggles the scaling for HIDPI screens
 

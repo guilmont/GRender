@@ -90,9 +90,12 @@ Application::Application(const std::string& name, uint32_t width, uint32_t heigh
 
     // Setup fonts
     fonts::LoadDefaultFonts();
+
 } 
 
 Application::~Application(void) {
+    mailbox::Destroy();
+
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
 
@@ -180,8 +183,8 @@ void Application::run(void) {
         ImGui::PushStyleColor(ImGuiCol_WindowBg, { 0.0, 0.0, 0.0, 1.0 }); // solid background
             
         // displaying dialog if active
-        dialog.showDialog();
-        mailbox.showMessages();
+        dialog::ShowDialog();
+        mailbox::ShowMessages();
 
         ImGuiLayer();
         ImGui::PopStyleColor();

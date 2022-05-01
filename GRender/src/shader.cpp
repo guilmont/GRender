@@ -1,6 +1,3 @@
-#include <fstream>
-#include <sstream>
-
 #include "shader.h"
 
 namespace fs = std::filesystem;

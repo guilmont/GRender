@@ -97,24 +97,20 @@ void Sandbox::onUserUpdate(float deltaTime) {
 		view_imguidemo = true;
 
 	if (ctrl && keyboard::isPressed('O')) {
-		auto callback = [](const fs::path& path, void* ptr) -> void {
-			reinterpret_cast<Mailbox*>(ptr)->createInfo("Selected file: " + path.string());
-		};
-		dialog.openFile("Open file...", { "txt", "json" }, callback, &mailbox);
+		auto callback = [](const fs::path& path, void*) -> void { mailbox::CreateInfo("Selected file: " + path.string()); };
+		dialog::OpenFile("Open file...", { "txt", "json" }, callback);
 	}
 
 	if (ctrl && keyboard::isPressed('S')) {
-		auto callback = [](const fs::path& path, void* ptr) -> void {
-			reinterpret_cast<Mailbox*>(ptr)->createInfo("Save file: " + path.string());
-		};
-		dialog.saveFile("Save file...", {"txt", "json"}, callback, &mailbox);
+		auto callback = [](const fs::path& path, void*) -> void { mailbox::CreateInfo("Save file: " + path.string()); };
+		dialog::SaveFile("Save file...", {"txt", "json"}, callback);
 	}
 
 	if (ctrl && keyboard::isPressed('D')) {
-		auto callback = [](const fs::path& path, void* ptr) -> void {
-			reinterpret_cast<Mailbox*>(ptr)->createInfo("Open directory: " + path.string());
+		auto callback = [](const fs::path& path, void*) -> void {
+			mailbox::CreateInfo("Open directory: " + path.string());
 		};
-		dialog.openDirectory("Open directory...", callback, &mailbox);
+		dialog::OpenDirectory("Open directory...", callback);
 	}
 
 #ifdef BUILD_IMPLOT
@@ -153,6 +149,8 @@ void Sandbox::onUserUpdate(float deltaTime) {
 }
 
 void Sandbox::ImGuiLayer(void) {
+	using namespace GRender;
+
 	if (view_specs) {
 		ImGui::Begin("Specs", &view_specs);
 		ImGui::Text("FT: %.3f ms", 1000.0 * double(ImGui::GetIO().DeltaTime));
@@ -177,25 +175,25 @@ void Sandbox::ImGuiLayer(void) {
 	if (view_messages) {
 		ImGui::Begin("Messages");
 		if (ImGui::Button("Info")) {
-			mailbox.createInfo("Information");
+			mailbox::CreateInfo("Information");
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Warn")) {
-			mailbox.createWarn("Warning");
+			mailbox::CreateWarn("Warning");
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Error")) {
-			mailbox.createError("There was an error!");
+			mailbox::CreateError("There was an error!");
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Progress")) {
-			GRender::Progress* prog = mailbox.createProgress("Running...", cancelFunction);
+			GRender::Progress* prog = mailbox::CreateProgress("Running...", cancelFunction);
 			std::thread thr(testProgress, &prog->progress);
 			thr.detach();
 		}
 		ImGui::SameLine();
 		if (ImGui::Button("Timer")) {
-			GRender::Timer* timer = mailbox.createTimer("Timing stuff...", cancelFunction);
+			GRender::Timer* timer = mailbox::CreateTimer("Timing stuff...", cancelFunction);
 			std::thread thr(testTimer, timer);
 			thr.detach();
 		}
@@ -255,23 +253,23 @@ void Sandbox::ImGuiMenuLayer(void) {
 	if (ImGui::BeginMenu("File")) {
 		if (ImGui::MenuItem("Open...", "Ctrl+O")) {
 			auto callback = [](const fs::path& path, void* ptr) -> void {
-				reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Selected file: " + path.string());
+				GRender::mailbox::CreateInfo("Selected file: " + path.string()); 
 			};
-			dialog.openFile("Open file...", { "txt", "json" }, callback, &mailbox);
+			GRender::dialog::OpenFile("Open file...", { "txt", "json" }, callback);
 		}
 
 		if (ImGui::MenuItem("Save...", "Ctrl+S")) {
 			auto callback = [](const fs::path& path, void* ptr) -> void {
-				reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Save file: " + path.string());
+				GRender::mailbox::CreateInfo("Save file: " + path.string());
 			};
-			dialog.saveFile("Save file...", {"txt", "json"}, callback, &mailbox);
+			GRender::dialog::SaveFile("Save file...", {"txt", "json"}, callback);
 		}
 
 		if (ImGui::MenuItem("Open directory...", "Ctrl+D")) {
 			auto callback = [](const fs::path& path, void* ptr) -> void {
-				reinterpret_cast<GRender::Mailbox*>(ptr)->createInfo("Open directory: " + path.string());
+				GRender::mailbox::CreateInfo("Open directory: " + path.string());
 			};
-			dialog.openDirectory("Open directory...", callback, &mailbox);
+			GRender::dialog::OpenDirectory("Open directory...", callback);
 		}
 
 		if (ImGui::MenuItem("Exit"))
@@ -315,7 +313,7 @@ void Sandbox::ImGuiMenuLayer(void) {
 			view_messages = true;
 
 		if (ImGui::MenuItem("View mailbox"))
-			mailbox.open();
+			GRender::mailbox::Open();
 		
 		ImGui::EndMenu();
 	}

@@ -6,8 +6,6 @@
 
 namespace GRender::fonts {
 
-static std::unordered_map<std::string, ImFont *> mFonts;
-
 void LoadDefaultFonts(void);
 void SetDefault(const std::string &name);
 
@@ -19,6 +17,5 @@ void Swap(const std::string& name1, const std::string& name2);
 void Text(const std::string &txt, const std::string &type);
 void Push(const std::string &fontname);
 void Pop(void);
-
 
 } // namespace GRender

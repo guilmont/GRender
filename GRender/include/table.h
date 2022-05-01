@@ -22,7 +22,7 @@ public:
 	}
 
 	T& operator[](const std::string& name) {
-		// Throws error if name doesn't exist
+		ASSERT(contains(name), "Table doesn't contains -> " + name);
 		return table.at(name);
 	}
 

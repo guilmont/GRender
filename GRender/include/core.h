@@ -1,9 +1,15 @@
 #pragma once
 
+// This is a precompiled header
+
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <filesystem>
 #include <string>
 #include <vector>
+#include <list>
+#include <unordered_map>
 
 // vendor
 #include <glad/glad.h>

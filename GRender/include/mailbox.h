@@ -1,6 +1,5 @@
 #pragma once
 
-#include <list>
 #include "core.h"
 
 namespace GRender {
@@ -66,26 +65,30 @@ private:
 ///////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////
 
-class Mailbox {
-public:
-    Mailbox(void) = default;
-    ~Mailbox(void);
+namespace mailbox {
 
-    Info* createInfo(const std::string& msg);
-    Warn* createWarn(const std::string& msg);
-    Error* createError(const std::string& msg);
-    Progress* createProgress(const std::string& msg, void (*function)(void*), void *ptr = nullptr);
-    Timer* createTimer(const std::string& msg, void (*function)(void*), void *ptr = nullptr);
+// Displays a message in the mailbox
+Info* CreateInfo(const std::string& msg);
+// Displays a warning message in the mailbox
+Warn* CreateWarn(const std::string& msg);
+// Displays an error message in the mailbox
+Error* CreateError(const std::string& msg);
+// Creates and displays a progress bar with cancel options in the mailbox
+Progress* CreateProgress(const std::string& msg, void (*function)(void*), void* ptr = nullptr);
+// Creates and displays a timer with cancel options=
+Timer* CreateTimer(const std::string& msg, void (*function)(void*), void* ptr = nullptr);
 
-    void open(void); // Schedules mailbox to display next iterations
-    void close(void); // Hides in next iterations
+// Schedules mailbox to display next iterations
+void Open(void);
+// Hides in next iterations
+void Close(void);          
+// Creates a windows to display all the messages
+void ShowMessages(void);
 
-    void showMessages(void);
-    void clear(); // Cleans already read messages
+// Destroys read messages
+void Clear();
+// Destroys all messages -- Application calls it upon destruction
+void Destroy(); 
 
-private:
-    bool active = false;
-    std::list<Message *> messages;
-};
-
+} // namespace mailbox
 } // namespace GRender
