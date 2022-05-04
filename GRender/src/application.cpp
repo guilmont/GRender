@@ -89,11 +89,15 @@ Application::Application(const std::string& name, uint32_t width, uint32_t heigh
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     // Setup fonts
-    fonts::LoadDefaultFonts();
+    fonts::Create();
+    dialog::Create();
+    mailbox::Create();
 
 } 
 
 Application::~Application(void) {
+    fonts::Destroy();
+    dialog::Destroy();
     mailbox::Destroy();
 
     ImGui_ImplOpenGL3_Shutdown();

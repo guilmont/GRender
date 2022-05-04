@@ -1,52 +1,47 @@
 #include "fonts.h"
-#include "OpenSans.cpp"
+
+#include "internal/fontsImpl.h"
 
 namespace GRender::fonts {
 
-static std::unordered_map<std::string, ImFont *> mFonts;
+internal::FontsImpl* fontsData = nullptr;
 
-void LoadDefaultFonts() {
-    const float fontSize = 18.0f;
-    mFonts["regular"] = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(OpenSansRegular_compressed_data_base85, fontSize);
-    mFonts["bold"] = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(OpenSansBold_compressed_data_base85, fontSize);
-    mFonts["italic"] = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(OpenSansItalic_compressed_data_base85, fontSize);
+void Create() {
+    fontsData = new internal::FontsImpl();
+}
 
-    const float fontDPI = 2.0f * fontSize;
-    mFonts["regularDPI"] = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(OpenSansRegular_compressed_data_base85, fontDPI);
-    mFonts["boldDPI"] = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(OpenSansBold_compressed_data_base85, fontDPI);
-    mFonts["italicDPI"] = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(OpenSansItalic_compressed_data_base85, fontDPI);
-
-    SetDefault("regular");
+void Destroy() {
+    delete fontsData;
 }
 
 void SetDefault(const std::string& name) {
-    ASSERT(mFonts.find(name) != mFonts.end(), "Font name not found => " + name);
-    ImGui::GetIO().FontDefault = mFonts[name];
+    ASSERT(fontsData, "Font module was not created!");
+    fontsData->setDefault(name);
 }
 
 void Swap(const std::string& name1, const std::string& name2) {
-    ASSERT(mFonts.find(name1) != mFonts.end(), "Font name not found => " + name1);
-    ASSERT(mFonts.find(name2) != mFonts.end(), "Font name not found => " + name2);
-    std::swap(mFonts[name1], mFonts[name2]);
+    ASSERT(fontsData, "Font module was not created!");
+    fontsData->swap(name1, name2);
 }
 
 void LoadFont(const std::string& fontname, const std::string& path, float size) {
-    ASSERT(mFonts.find(fontname) == mFonts.end(), "Font name already exists!!");
-    mFonts[fontname] = ImGui::GetIO().Fonts->AddFontFromFileTTF(path.c_str(), size);
+    ASSERT(fontsData, "Font module was not created!");
+    fontsData->loadFont(fontname, path, size);
 }
 
 void Text(const std::string& txt, const std::string& fontname) {
-    ImGui::PushFont(mFonts[fontname]);
-    ImGui::Text("%s", txt.c_str());
-    ImGui::PopFont();
+    ASSERT(fontsData, "Font module was not created!");
+    fontsData->text(txt, fontname);
 }
 
 void Push(const std::string& fontname) {
-    ImGui::PushFont(mFonts[fontname]);
+    ASSERT(fontsData, "Font module was not created!");
+    fontsData->push(fontname);
 }
 
 void Pop(void) {
-    ImGui::PopFont();
+    ASSERT(fontsData, "Font module was not created!");
+    fontsData->pop();
 }
 
 } // namespace GRender::fonts

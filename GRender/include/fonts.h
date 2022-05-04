@@ -1,12 +1,12 @@
 #pragma once
 
-#include <unordered_map>
-
-#include "core.h"
+#include <string>
 
 namespace GRender::fonts {
 
-void LoadDefaultFonts(void);
+void Create(void);
+void Destroy(void);
+
 void SetDefault(const std::string &name);
 
 void LoadFont(const std::string &fontname, const std::string &path, float size);

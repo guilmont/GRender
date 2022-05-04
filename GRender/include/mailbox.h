@@ -67,6 +67,9 @@ private:
 
 namespace mailbox {
 
+void Create();
+void Destroy();
+
 // Displays a message in the mailbox
 Info* CreateInfo(const std::string& msg);
 // Displays a warning message in the mailbox
@@ -87,8 +90,7 @@ void ShowMessages(void);
 
 // Destroys read messages
 void Clear();
-// Destroys all messages -- Application calls it upon destruction
-void Destroy(); 
+
 
 } // namespace mailbox
 } // namespace GRender
