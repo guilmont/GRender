@@ -131,88 +131,58 @@ void Timer::stop(void) {
     is_read = true;
 }
 
-///////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 
-namespace mailbox {
+namespace mailbox::internal {
 
 struct MailboxData {
     bool active;
     std::list<Message*> messages;
 
-    MailboxData(void) : active(false) {}
-    ~MailboxData(void) {
-        for (Message* msg : messages) {
-            delete msg;
-        }
-        messages.clear();
-    }
+    MailboxData(void) = default;
+    ~MailboxData(void);
 
-    void clear() {
-        messages.remove_if([](Message* msg) -> bool {
-            if (msg->is_read) {
-                delete msg;
-                return true;
-            }
-            else {
-                return false;
-            }
-        });
-    }
+    template <typename TP, typename... Args>
+    TP* createMessage(Args... args);
+
+    void open(void);
+    void close(void);
+
+    void showMessages();
+    void clear();
+
 };
 
-// Global parameter in the GRender context
-MailboxData* mail = nullptr;
+/////////////////////////////
 
-void Create() {
-    mail = new MailboxData();
+MailboxData::~MailboxData() {
+    for (Message* msg : messages) {
+        delete msg;
+    }
+    messages.clear();
 }
 
-void Destroy(void) {
-    delete mail;
+void MailboxData::open() {
+    active = true;
 }
 
-void Open() {
-    mail->active = true;
+void MailboxData::close() {
+    active = false;
 }
 
-void Close() {
-    mail->active = false;
-}
-
-// quick template to do our job
 template <typename TP, typename... Args>
-static TP* functionImpl(Args... args) {
-    mail->active = true;
-    mail->messages.emplace_back(new TP(args...));
-    return reinterpret_cast<TP*>(mail->messages.back());
-}
-////////////////////////////////
-
-Info* CreateInfo(const std::string& msg) {
-    return functionImpl<Info>(msg);
+TP* MailboxData::createMessage(Args... args) {
+    open();
+    messages.emplace_back(new TP(args...));
+    return reinterpret_cast<TP*>(messages.back());
 }
 
-Warn* CreateWarn(const std::string& msg) {
-    return functionImpl<Warn>(msg);
-}
-
-Error* CreateError(const std::string& msg) {
-    return functionImpl<Error>(msg);
-}
-
-Progress* CreateProgress(const std::string& msg, void (*function)(void*), void* ptr) {
-    return functionImpl<Progress>(msg, function, ptr);
-}
-
-Timer* CreateTimer(const std::string& msg, void(*function)(void*), void* ptr) {
-    return functionImpl<Timer>(msg, function, ptr);
-}
-
-void ShowMessages(void) {
-    if (!mail->active)
+void MailboxData::showMessages() {
+    if (!active)
         return;
 
-    ImGui::Begin("Mailbox", &mail->active);
+    ImGui::Begin("Mailbox", &active);
     const ImVec2 workpos = ImGui::GetMainViewport()->WorkPos;
     ImGui::SetWindowSize({ DPI_FACTOR * 720.0f, DPI_FACTOR * 405.0f });
 
@@ -221,7 +191,7 @@ void ShowMessages(void) {
     ImVec2 size = { 0.98f * ImGui::GetWindowWidth(), 0.82f * ImGui::GetWindowHeight() };
     ImGui::BeginChild("mail_child", size, true, ImGuiWindowFlags_HorizontalScrollbar);
 
-    for (Message* msg : mail->messages)
+    for (Message* msg : messages)
         msg->show();
 
     ImGui::EndChild();
@@ -238,8 +208,72 @@ void ShowMessages(void) {
     ImGui::End();
 }
 
-void Clear() {
+void MailboxData::clear() {
+    messages.remove_if(
+        [](Message* msg) -> bool {
+            if (msg->is_read) {
+                delete msg;
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+    );
+}
+
+} //namespace mailbox::internal
+
+/////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+
+namespace mailbox {
+
+// Global parameter in the GRender context
+internal::MailboxData* mail = nullptr;
+
+void Create() {
+    mail = new internal::MailboxData();
+}
+
+void Destroy(void) {
+    delete mail;
+}
+
+void Open() {
+    mail->open();
+}
+
+void Close() {
+    mail->close();
+}
+
+Info* CreateInfo(const std::string& msg) {
+    return mail->createMessage<Info>(msg);
+}
+
+Warn* CreateWarn(const std::string& msg) {
+    return mail->createMessage<Warn>(msg);
+}
+
+Error* CreateError(const std::string& msg) {
+    return mail->createMessage<Error>(msg);
+}
+
+Progress* CreateProgress(const std::string& msg, void (*function)(void*), void* ptr) {
+    return mail->createMessage<Progress>(msg, function, ptr);
+}
+
+Timer* CreateTimer(const std::string& msg, void(*function)(void*), void* ptr) {
+    return mail->createMessage<Timer>(msg, function, ptr);
+}
+
+void ShowMessages(void) {
     ASSERT(mail, "Mailbox module was not created!");
+    mail->showMessages();
+}
+
+void Clear() {
     mail->clear();
 }
 
