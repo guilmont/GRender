@@ -77,12 +77,13 @@ enum class Key : int32_t {
     KP_ENTER = ImGuiKey_KeypadEnter,
     KP_EQUAL = ImGuiKey_KeypadEqual,
     LEFT_SHIFT = ImGuiKey_LeftShift,
-    LEFT_CONTROL = ImGuiKey_LeftCtrl,
-    LEFT_SUPER = ImGuiKey_LeftSuper,
     RIGHT_SHIFT = ImGuiKey_RightShift,
+    LEFT_CONTROL = ImGuiKey_LeftCtrl,
     RIGHT_CONTROL = ImGuiKey_RightCtrl,
-    RIGHT_ALT = ImGuiKey_RightAlt,
+    LEFT_SUPER = ImGuiKey_LeftSuper,
     RIGHT_SUPER = ImGuiKey_RightSuper,
+    LEFT_ALT = ImGuiKey_LeftAlt,
+    RIGHT_ALT = ImGuiKey_RightAlt,
 };
 
 } // namespace GRender
