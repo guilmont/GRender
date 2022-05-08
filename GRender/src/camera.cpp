@@ -60,6 +60,12 @@ void Camera::display(void) {
     }
 
     ImGui::Dummy({0.0f, 5.0f * DPI_FACTOR});
+    if (ImGui::Button("Set defaults")) {
+        mDefPosition = mPosition;
+        mDefPitch = mPitch;
+        mDefYaw = mYaw;
+    }
+    ImGui::SameLine();
     if (ImGui::Button("Reset"))
         reset();
 
