@@ -243,7 +243,7 @@ void Sandbox::ImGuiLayer(void) {
 
 	if (uport.x != view.x || uport.y != view.y) {
 		fbuffer = GRender::Framebuffer(uport);
-		camera.aspectRatio() = port.x / port.y;
+		camera.setAspectRatio(port.x / port.y);
 	}
 
 	ImGui::End();

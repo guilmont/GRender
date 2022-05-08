@@ -59,6 +59,10 @@ void Camera::display(void) {
         setYaw(glm::radians(value));
     }
 
+    ImGui::Dummy({0.0f, 5.0f * DPI_FACTOR});
+    if (ImGui::Button("Reset"))
+        reset();
+
     ///////////////////////////////////////////////////////
 
     space = 0.65f * ImGui::GetContentRegionAvail().x;
@@ -84,34 +88,37 @@ void Camera::display(void) {
         if (ImGui::DragFloat("##FOV", &value, 0.5f, 15.0f, 60.0f, "%.f"))
             mFOV = glm::radians(value);
         
-        ImGui::Dummy({ 0.0f, 10.0f * DPI_FACTOR });
+        ImGui::Dummy({ 0.0f, 5.0f * DPI_FACTOR });
+    
+        ImGui::Unindent();
+        if (ImGui::TreeNode("Defaults")) {
+            ImGui::Dummy({0.0f, 5.0f * DPI_FACTOR});
+
+            ImGui::Text("Position:");
+            spaceWidth(space, 3.05f * drag);
+            ImGui::DragFloat3("##defPosition", &mDefPosition[0], 0.1f);
+
+            value = glm::degrees(mDefPitch);
+            ImGui::Text("Pitch:");
+            spaceWidth(space, drag);
+            if (ImGui::DragFloat("##defPitch", &value, 0.25f, -89.0f, 89.0f, "%.f")) {
+                mDefPitch = glm::radians(value);
+            }
+
+            value = glm::degrees(mDefYaw);
+            ImGui::Text("Yaw:");
+            spaceWidth(space, drag);
+            if (ImGui::DragFloat("##defYaw", &value, 0.25f, -180.0f, 180.0f, "%.f")) {
+                mDefYaw = glm::radians(value);
+            }
+            
+            ImGui::Dummy({ 0.0f, 10.0f * DPI_FACTOR });
+            ImGui::TreePop();
+        }
+
         ImGui::TreePop();
     }
 
-    ///////////////////////////////////////////////////////
-
-    if (ImGui::TreeNodeEx("Defaults", nodeFlags)) {
-        ImGui::Text("Position:");
-        spaceWidth(space, 3.05f * drag);
-        ImGui::DragFloat3("##defPosition", &mDefPosition[0], 0.1f);
-
-        value = glm::degrees(mDefPitch);
-        ImGui::Text("Pitch:");
-        spaceWidth(space, drag);
-        if (ImGui::DragFloat("##defPitch", &value, 0.25f, -89.0f, 89.0f, "%.f")) {
-            mDefPitch = glm::radians(value);
-        }
-
-        value = glm::degrees(mDefYaw);
-        ImGui::Text("Yaw:");
-        spaceWidth(space, drag);
-        if (ImGui::DragFloat("##defYaw", &value, 0.25f, -180.0f, 180.0f, "%.f")) {
-            mDefYaw = glm::radians(value);
-        }
-        
-        ImGui::Dummy({ 0.0f, 10.0f * DPI_FACTOR });
-        ImGui::TreePop();
-    }
 
     ImGui::End();
 }
@@ -194,47 +201,29 @@ void Camera::lookAround(const glm::vec2& offset, float elapsed) {
     calculateFront();
 }
 
-glm::vec3& Camera::position() {
-    return mPosition;
-}
+const glm::vec3& Camera::getPosition() const { return mPosition; }
+void Camera::setPosition(const glm::vec3& pos) { mPosition = pos; }
 
-float& Camera::fieldView() {
-    return mFOV;
-}
+float Camera::getFOV() const { return mFOV; }
+void Camera::setFOV(float fov) { mFOV = fov; }
 
-float& Camera::aspectRatio() {
-    return mRatio;
-}
+float Camera::getAspectRatio() const { return mRatio; }
+void Camera::setAspectRatio(float aRatio) { mRatio = aRatio; }
 
-float Camera::getYaw() const {
-    return mYaw;
-}
+float Camera::getYaw() const { return mYaw; }
+void Camera::setYaw(float value) { mYaw = value; calculateFront(); }
 
-void Camera::setYaw(float value) {
-    mYaw = value;
-    calculateFront();
-}
-
-float Camera::getPitch() const {
-    return mPitch;
-}
-
-void Camera::setPitch(float value) {
-    mPitch = value;
-    calculateFront();
-}
+float Camera::getPitch() const { return mPitch; }
+void Camera::setPitch(float value) { mPitch = value; calculateFront(); }
 
 
-glm::vec3& Camera::defaultPosition() {
-    return mDefPosition;
-}
+const glm::vec3& Camera::getDefaultPosition() const { return mDefPosition; }
+void Camera::setDefaultPosition(const glm::vec3& pos) { mDefPosition = pos; }
 
-float& Camera::defPitch() {
-    return mDefPitch;
-}
+float Camera::getDefaultPitch() const { return mDefPitch; }
+void Camera::setDefaultPitch(float pitch) { mDefPitch = pitch; }
 
-float& Camera::defYaw() {
-    return mDefYaw;
-}
+float Camera::getDefaultYaw() const { return mDefYaw; }
+void Camera::setDefaultYaw(float yaw) { mDefYaw = yaw; }
 
 } // namespace GRender

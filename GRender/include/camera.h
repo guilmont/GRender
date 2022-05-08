@@ -40,15 +40,24 @@ public:
     float getPitch(void) const;
     void setPitch(float value);
 
-    float& fieldView(void);
-    float& aspectRatio(void);
-    glm::vec3& position(void);
+    float getFOV(void) const;
+    void setFOV(float fov);
+
+    float getAspectRatio(void) const;
+    void setAspectRatio(float aRatio);
+
+    const glm::vec3& getPosition(void) const;
+    void setPosition(const glm::vec3& pos);
 
     // Default values for reset
-    glm::vec3& defaultPosition(void);
-    float& defPitch();
-    float& defYaw();
+    const glm::vec3& getDefaultPosition(void) const;
+    void setDefaultPosition(const glm::vec3& pos);
    
+    float getDefaultPitch(void) const;
+    void setDefaultPitch(float pitch);
+   
+    float getDefaultYaw(void) const;
+    void setDefaultYaw(float yaw);
 
 private:
     bool active = false;
