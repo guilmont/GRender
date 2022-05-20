@@ -1,5 +1,8 @@
 #include "dialogImpl.h"
 
+#include <algorithm>
+#include "events.h"
+
 namespace fs = std::filesystem;
 
 static fs::path getHomeDirectory(void) {
@@ -238,6 +241,48 @@ void DialogImpl::updateAvailablePaths(void) {
     }
 }
 
+int inputCompletion(ImGuiInputTextCallbackData* data) {
+    // In this function, we determine all the available paths that contain inserted partial path
+    // and delete otherwise
+    DialogImpl* diag = reinterpret_cast<DialogImpl*>(data->UserData);
+    fs::path localPath(data->Buf);
+    std::string partial = localPath.filename().string();
+
+    // With this partial, we should go to parent path and filter for partial
+    localPath = localPath.parent_path();
+    diag->mainpath = localPath;
+    diag->updateAvailablePaths();
+    
+    ///////////////////////////////////////////////////////
+    // Removing different paths
+    //
+    // Setup a lambda function which determines simular partial paths
+    auto removeFunction = std::remove_if(diag->availablePaths.begin(), diag->availablePaths.end(),
+        [&partial](const fs::path& var) -> bool {
+            std::string loc = var.filename().string();
+
+            for (size_t k = 0; k < partial.size(); k++) {
+                if (loc[k] != partial[k]) { return true; }
+            }
+            return false;
+        });
+
+    // Actual removal
+    diag->availablePaths.erase(removeFunction, diag->availablePaths.end());
+
+    ///////////////////////////////////////////////////////
+
+    // If there is only one path left, we set widget string
+    if (diag->availablePaths.size() == 1) {
+        diag->mainpath = diag->availablePaths.front();
+        std::string loc = diag->mainpath.string().substr(data->BufTextLen);
+        data->InsertChars(data->BufTextLen, loc.c_str());
+        diag->updateAvailablePaths();
+    }
+
+    return 0;
+}
+
 bool DialogImpl::systemDisplay(void) {
     ImGui::Text("Input path:");
     ImGui::SameLine();
@@ -252,16 +297,26 @@ bool DialogImpl::systemDisplay(void) {
         updateAvailablePaths();
     }
 
+    bool status = false;
     char loc[512] = { 0 };
     const std::string& locMain = mainpath.string();
     std::copy(locMain.begin(), locMain.end(), loc);
     ImGui::PushItemWidth(0.97f * ImGui::GetWindowWidth());
-    if (ImGui::InputText("##MainAdress", loc, 512, ImGuiInputTextFlags_EnterReturnsTrue)) {
+    ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue
+                              | ImGuiInputTextFlags_CallbackCompletion;
+    if (ImGui::InputText("##MainAdress", loc, 512, flags, inputCompletion, this)) {
         fs::path var(loc);
         if (fs::is_regular_file(var)) {
-            mainpath = var.parent_path();
-            filename = var.stem().string();
-            updateAvailablePaths();
+            if (var.extension().string().compare(mCurrentExt) == 0) {
+                mainpath = var;
+                filename = var.stem().string();
+                status = true;
+            }
+            else {
+                mainpath = var.parent_path();
+                filename = var.stem().string();
+                updateAvailablePaths();
+            }
         }
         else if (fs::is_directory(var)) {
             mainpath = std::move(var);
@@ -270,7 +325,6 @@ bool DialogImpl::systemDisplay(void) {
     }
     ImGui::PopItemWidth();
 
-    bool status = false;
     ImVec2 size = { 0.97f * ImGui::GetWindowWidth(), 0.70f * ImGui::GetWindowHeight() };
     ImGui::BeginChild("child_2", size, true, ImGuiWindowFlags_HorizontalScrollbar);
 

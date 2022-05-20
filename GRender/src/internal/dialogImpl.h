@@ -4,6 +4,9 @@
 namespace GRender::dialog::internal {
 
 namespace fs = std::filesystem;
+// Used
+int inputCompletion(ImGuiInputTextCallbackData* data);
+
 
 class DialogImpl {
 public:
@@ -51,6 +54,7 @@ private:
     std::string filename = "";
     std::filesystem::path mainpath;
     std::vector<std::filesystem::path> availablePaths;
+    friend int inputCompletion(ImGuiInputTextCallbackData* data);
 };
 
 } // namespace GRender
