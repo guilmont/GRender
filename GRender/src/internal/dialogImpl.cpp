@@ -274,16 +274,28 @@ int inputCompletion(ImGuiInputTextCallbackData* data) {
 
     // If there is only one path left, we set widget string
     if (diag->availablePaths.size() == 1) {
-        diag->mainpath = diag->availablePaths.front();
-        std::string loc = diag->mainpath.string().substr(data->BufTextLen);
-        data->InsertChars(data->BufTextLen, loc.c_str());
-        diag->updateAvailablePaths();
+        fs::path var = diag->availablePaths.front();
+
+        if (fs::is_regular_file(var) && var.extension().string().compare(diag->mCurrentExt) == 0) {
+            diag->mainpath = var;
+            diag->filename = var.stem().string();
+            std::string loc = var.string().substr(data->BufTextLen);
+            data->InsertChars(data->BufTextLen, loc.c_str());
+        }
+        else if (fs::is_directory(var)) {
+            diag->mainpath = var;
+            diag->updateAvailablePaths();
+            std::string loc = var.string().substr(data->BufTextLen);
+            data->InsertChars(data->BufTextLen, loc.c_str());
+
+        }
     }
 
     return 0;
 }
 
 bool DialogImpl::systemDisplay(void) {
+
     ImGui::Text("Input path:");
     ImGui::SameLine();
 
@@ -304,6 +316,7 @@ bool DialogImpl::systemDisplay(void) {
     ImGui::PushItemWidth(0.97f * ImGui::GetWindowWidth());
     ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue
                               | ImGuiInputTextFlags_CallbackCompletion;
+    
     if (ImGui::InputText("##MainAdress", loc, 512, flags, inputCompletion, this)) {
         fs::path var(loc);
         if (fs::is_regular_file(var)) {
