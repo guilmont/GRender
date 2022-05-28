@@ -9,7 +9,7 @@ namespace fs = std::filesystem;
 class Sandbox : public GRender::Application
 {
 public:
-	Sandbox(void);
+	Sandbox(const std::string& title = "Sandbox");
 	~Sandbox(void) = default;
 
 	void onUserUpdate(float deltaTime) override;
@@ -37,8 +37,12 @@ private:
 
 };
 
-GRender::Application* GRender::createApplication() {
-	return new Sandbox;
+GRender::Application* GRender::createApplication(int argc, char** argv) {
+	// Just to display on can handle arguments, such as file path as an input
+	if (argc == 1)
+		return new Sandbox;
+	else
+		return new Sandbox(argv[1]);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -72,7 +76,7 @@ static void testTimer(GRender::Timer* timer) {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-Sandbox::Sandbox(void) : Application("Sandbox", 1200, 800, "../assets/layout.ini") {
+Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../assets/layout.ini") {
 	fs::path assets("../assets");
 	shader.insert("polyBlobs",       { assets / "polyBlobs.vtx.glsl",       assets / "polyShader.frag.glsl" });
 	shader.insert("polyConnections", { assets / "polyConnections.vtx.glsl", assets / "polyShader.frag.glsl" });
@@ -82,7 +86,7 @@ Sandbox::Sandbox(void) : Application("Sandbox", 1200, 800, "../assets/layout.ini
 	camera.open();
 
 	glEnable(GL_DEPTH_TEST);
-	poly = polymer::Polymer(1024, 1.0f);
+	poly = polymer::Polymer(128, 1.0f);
 }
 
 void Sandbox::onUserUpdate(float deltaTime) {
@@ -173,7 +177,7 @@ void Sandbox::ImGuiLayer(void) {
 #endif
 
 	if (view_messages) {
-		ImGui::Begin("Messages");
+		ImGui::Begin("Messages", &view_messages);
 		if (ImGui::Button("Info")) {
 			mailbox::CreateInfo("Information");
 		}

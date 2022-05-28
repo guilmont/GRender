@@ -1,12 +1,20 @@
 #pragma once
 
-extern GRender::Application* GRender::createApplication();
+extern GRender::Application* GRender::createApplication(int argc, char** argv);
 
 #if defined(WIN32) && !defined(_DEBUG)
 #include <Windows.h>
+#include <stdlib.h>
 
-int WINAPI wWinMain(_In_ HINSTANCE, _In_opt_ HINSTANCE, _In_ LPWSTR, _In_ int) {
-	GRender::Application* app = GRender::createApplication();
+int WINAPI WinMain(HINSTANCE, HINSTANCE, PSTR, int) {
+	namespace fs = std::filesystem;
+
+	// Setup program to use executable path as reference
+	std::filesystem::path exe = fs::path{ __argv[0] }.parent_path();
+	if (fs::exists(exe))
+		fs::current_path(exe);
+
+	GRender::Application* app = GRender::createApplication(__argc, __argv);
 	app->run();
 	delete app;
 
@@ -19,7 +27,7 @@ int main(int argc, char *argv[]) {
 	std::filesystem::path exe(argv[0]);
 	std::filesystem::current_path(exe.parent_path());
 
-	GRender::Application* app = GRender::createApplication();
+	GRender::Application* app = GRender::createApplication(argc, argv);
 	app->run();
 	delete app;
 

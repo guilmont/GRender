@@ -134,6 +134,10 @@ void Application::scaleSizes() {
     fonts::SetDefault("regular");
 }
 
+void Application::setAppTitle(const std::string& title) {
+    glfwSetWindowTitle(window, title.c_str());
+}
+
 void Application::run(void) {
     // Setup timer
     glfwSetTime(0);

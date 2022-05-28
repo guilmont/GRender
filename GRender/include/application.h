@@ -26,6 +26,7 @@ namespace GRender {
         // Flow control
         void closeApp(void);
         void run(void);
+        void setAppTitle(const std::string& title);
 
         // To be implemented by user
         virtual void onUserUpdate(float deltaT) = 0;
@@ -46,5 +47,5 @@ namespace GRender {
     };
 
     // Used to manage entry point in Windows, Linux and Mac
-    Application* createApplication();
+    Application* createApplication(int argc, char** argv);
 }
