@@ -38,7 +38,13 @@ private:
 };
 
 GRender::Application* GRender::createApplication(int argc, char** argv) {
-	// Just to display on can handle arguments, such as file path as an input
+	// Setup program to use executable path as reference
+	namespace fs = std::filesystem;
+
+	fs::path exe = fs::path{ argv[0] }.parent_path();
+	if (fs::exists(exe))
+		fs::current_path(exe);
+
 	if (argc == 1)
 		return new Sandbox;
 	else
