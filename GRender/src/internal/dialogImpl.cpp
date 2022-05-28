@@ -13,14 +13,38 @@ static fs::path getHomeDirectory(void) {
 #endif
 }
 
+static bool sortingFunction(const  fs::path &p1, const fs::path& p2) {
+    // We want to sort paths so that directories are always on top, hence we have 3 options:
+    // 1) Both paths are directories -> Sort alphabetically to lowercase
+    // 2) Both paths are files -> Sort alphabetically to lowercase
+    // 3) One of each -> directory goes first
+
+    bool
+        isDir1 = fs::is_directory(p1),
+        isDir2 = fs::is_directory(p2);
+
+    // Case 3
+    if (isDir1 && !isDir2) { return true; }
+    if (!isDir1 && isDir2) {return false; }
+
+    // Case 1 and 2
+    // Getting file names and converting to lowercase
+    std::string 
+        str1 = p1.filename().string(),
+        str2 = p2.filename().string();
+
+    std::transform(str1.begin(), str1.end(), str1.begin(), [](char c) { return std::tolower(c); });
+    std::transform(str2.begin(), str2.end(), str2.begin(), [](char c) { return std::tolower(c); });
+
+    return str1 < str2;
+}
+
 namespace GRender::dialog::internal {
 
 DialogImpl::DialogImpl() : mainpath(getHomeDirectory()) {}
 
-
-
-void DialogImpl::openDirectory(const std::string& title, void (*callback)(const fs::path&, void*), void* data) {
-
+void DialogImpl::openDirectory(const std::string& title,
+                               void (*callback)(const fs::path&, void*), void* data) {
     mActive = true;
     mTitle = title;
     mCallback = callback;
@@ -35,7 +59,6 @@ void DialogImpl::openDirectory(const std::string& title, void (*callback)(const 
 
 void DialogImpl::openFile(const std::string& title, const std::vector<std::string>& extensions,
                           void (*callback)(const fs::path&, void*), void* data) {
-
     mActive = true;
     mTitle = title;
     mCallback = callback;
@@ -50,7 +73,6 @@ void DialogImpl::openFile(const std::string& title, const std::vector<std::strin
 
 void DialogImpl::saveFile(const std::string& title, const std::vector<std::string>& extensions,
                           void (*callback)(const fs::path&, void*), void* data) {
-
     mActive = true;
     mTitle = title;
     mCallback = callback;
@@ -70,8 +92,6 @@ void DialogImpl::showDialog() {
     if (mActive)
         (this->*internalShow)();
 }
-
-
 
 void DialogImpl::showOpenDirectory(void) {
     ImGui::Begin(mTitle.c_str(), &mActive);
@@ -164,7 +184,8 @@ void DialogImpl::showSaveFile(void) {
     ImGui::SameLine();
 
     bool check = ImGui::IsKeyDown(ImGuiKey_Enter);
-    if ((ImGui::Button("Save") || check) && filename.size() > 0) {
+    ImVec2 btnSize = {ImGui::GetFontSize() * 6.0f, 0.0f };
+    if ((ImGui::Button("Save", btnSize) || check) && filename.size() > 0) {
         mainpath /= (filename + mCurrentExt);
         status = true;
     }
@@ -217,8 +238,6 @@ void DialogImpl::fileExistsPopup(void) {
     }
 }
 
-
-
 void DialogImpl::updateAvailablePaths(void) {
     availablePaths.clear();
 
@@ -239,6 +258,9 @@ void DialogImpl::updateAvailablePaths(void) {
             // Something weird happened and we are probably not interest in that anyway
         }
     }
+
+    // Sorting paths alphabetically
+    std::sort(availablePaths.begin(), availablePaths.end(), sortingFunction);
 }
 
 int inputCompletion(ImGuiInputTextCallbackData* data) {
@@ -287,7 +309,6 @@ int inputCompletion(ImGuiInputTextCallbackData* data) {
             diag->updateAvailablePaths();
             std::string loc = var.string().substr(data->BufTextLen);
             data->InsertChars(data->BufTextLen, loc.c_str());
-
         }
     }
 
@@ -371,6 +392,5 @@ bool DialogImpl::systemDisplay(void) {
 
     return status;
 }
-
 
 } // namespace GRender
