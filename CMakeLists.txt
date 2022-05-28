@@ -16,7 +16,7 @@ add_subdirectory("GRender")
 
 project(Template)
 
-add_executable(Template "Template/template.cpp"   "Template/polymer.cpp"   "Template/polymer.h")
+add_executable(Template "Template/template.cpp"   "Template/polymer.cpp")
 
 target_link_libraries(Template PRIVATE GRender)
 
