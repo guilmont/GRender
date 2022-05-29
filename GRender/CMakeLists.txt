@@ -30,6 +30,7 @@ add_library(GRender STATIC
 )
 
 target_include_directories(GRender PUBLIC "${PROJECT_SOURCE_DIR}/include")
+target_include_directories(GRender PRIVATE "${PROJECT_SOURCE_DIR}/include/GRender")
 target_compile_definitions(GRender PRIVATE _CRT_SECURE_NO_WARNINGS)  # so it doesn't bother about std::getenv
 
 set(DEPENDENCIES glm glad glfw imgui stb_image)
@@ -41,5 +42,5 @@ endif()
 
 
 target_link_libraries(GRender PUBLIC ${DEPENDENCIES})
-target_precompile_headers(GRender PUBLIC "include/core.h")
+target_precompile_headers(GRender PUBLIC "include/GRender/core.h")
 
