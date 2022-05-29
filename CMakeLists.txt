@@ -22,6 +22,7 @@ target_link_libraries(Template PRIVATE GRender)
 
 if (WIN32)
 	set_target_properties(Template PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
+	set_target_properties(Template PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:WINDOWS")
 endif()
 
 ### INTSTALLATION ##########################################
