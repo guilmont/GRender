@@ -144,29 +144,29 @@ void Camera::reset() {
 }
 
 void Camera::controls(float deltaTime) {
-    if (keyboard::isDown('W') || (mouse::wheel() > 0.0f))
+    if (keyboard::IsDown('W') || (mouse::Wheel() > 0.0f))
         moveFront(deltaTime);
 
-    if (keyboard::isDown('S') || (mouse::wheel() < 0.0f))
+    if (keyboard::IsDown('S') || (mouse::Wheel() < 0.0f))
         moveBack(deltaTime);
 
-    if (keyboard::isDown('D'))
+    if (keyboard::IsDown('D'))
         moveRight(deltaTime);
 
-    if (keyboard::isDown('A'))
+    if (keyboard::IsDown('A'))
         moveLeft(deltaTime);
 
-    if (keyboard::isDown('E'))
+    if (keyboard::IsDown('E'))
         moveUp(deltaTime);
 
-    if (keyboard::isDown('Q'))
+    if (keyboard::IsDown('Q'))
         moveDown(deltaTime);
 
-    if (mouse::isClicked(GRender::MouseButton::MIDDLE))
+    if (mouse::IsClicked(GRender::MouseButton::MIDDLE))
         reset();
 
-    if (mouse::isPressed(GRender::MouseButton::LEFT))
-        lookAround(mouse::delta(), deltaTime);
+    if (mouse::IsDown(GRender::MouseButton::LEFT))
+        lookAround(mouse::Delta(), deltaTime);
 }
 
 void Camera::moveFront(float elapsed) {

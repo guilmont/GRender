@@ -100,25 +100,25 @@ Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../a
 void Sandbox::onUserUpdate(float deltaTime) {
 	using namespace GRender;
 
-	bool ctrl = keyboard::isDown(Key::LEFT_CONTROL) || keyboard::isDown(Key::RIGHT_CONTROL);
+	bool ctrl = keyboard::IsDown(Key::LEFT_CONTROL) || keyboard::IsDown(Key::RIGHT_CONTROL);
 
-	if (ctrl && keyboard::isPressed('H'))
+	if (ctrl && keyboard::IsPressed('H'))
 		view_specs = true;
 
-	if (ctrl && keyboard::isPressed('I'))
+	if (ctrl && keyboard::IsPressed('I'))
 		view_imguidemo = true;
 
-	if (ctrl && keyboard::isPressed('O')) {
+	if (ctrl && keyboard::IsPressed('O')) {
 		auto callback = [](const fs::path& path, void*) -> void { mailbox::CreateInfo("Selected file: " + path.string()); };
 		dialog::OpenFile("Open file...", { "txt", "json" }, callback);
 	}
 
-	if (ctrl && keyboard::isPressed('S')) {
+	if (ctrl && keyboard::IsPressed('S')) {
 		auto callback = [](const fs::path& path, void*) -> void { mailbox::CreateInfo("Save file: " + path.string()); };
 		dialog::SaveFile("Save file...", {"txt", "json"}, callback);
 	}
 
-	if (ctrl && keyboard::isPressed('D')) {
+	if (ctrl && keyboard::IsPressed('D')) {
 		auto callback = [](const fs::path& path, void*) -> void {
 			mailbox::CreateInfo("Open directory: " + path.string());
 		};
@@ -126,11 +126,11 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	}
 
 #ifdef BUILD_IMPLOT
-	if (ctrl && keyboard::isPressed('P'))
+	if (ctrl && keyboard::IsPressed('P'))
 		view_implotdemo = true;
 #endif
 
-	if (ctrl && keyboard::isPressed('M'))
+	if (ctrl && keyboard::IsPressed('M'))
 		view_messages = true;
 
 	///////////////////////////////////////////////////////////////////////////

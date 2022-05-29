@@ -5,32 +5,32 @@
 
 namespace GRender::mouse {
 
-float wheel();
-glm::vec2 position();
-glm::vec2 delta();
+float Wheel();
+glm::vec2 Position();
+glm::vec2 Delta();
 
-bool isPressed(MouseButton btn);
-bool isReleased(MouseButton btn);
+bool IsDown(MouseButton btn);
+bool IsReleased(MouseButton btn);
 
-bool isClicked(MouseButton btn);
-bool isDoubleClicked(MouseButton btn);
+bool IsClicked(MouseButton btn);
+bool IsDoubleClicked(MouseButton btn);
 
 } // namespace GRender::mouse
 
 namespace GRender::keyboard {
 // Keys
-bool isDown(Key key);
-bool isPressed(Key key);
-bool isReleased(Key key);
+bool IsDown(Key key);
+bool IsPressed(Key key);
+bool IsReleased(Key key);
 
 // Letters
-bool isDown(char key);
-bool isPressed(char key);
-bool isReleased(char key);
+bool IsDown(char key);
+bool IsPressed(char key);
+bool IsReleased(char key);
 
 // Numbers
-bool isDown(int32_t key);
-bool isPressed(int32_t key);
-bool isReleased(int32_t key);
+bool IsDown(int32_t key);
+bool IsPressed(int32_t key);
+bool IsReleased(int32_t key);
 
 } // namespace GRender::keyboard

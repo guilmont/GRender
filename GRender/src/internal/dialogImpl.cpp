@@ -317,7 +317,7 @@ int inputCompletion(ImGuiInputTextCallbackData* data) {
 
 bool DialogImpl::systemDisplay(void) {
     // As this function runs to all dialogs, we can provide a shortcut to close dialogs on escape event 
-    if (keyboard::isPressed(Key::ESCAPE)) {
+    if (keyboard::IsPressed(Key::ESCAPE)) {
         mActive = false;
     }
 

@@ -2,33 +2,33 @@
 
 namespace GRender::mouse {
 
-float wheel() {
+float Wheel() {
     return ImGui::GetIO().MouseWheel;
 }
 
-glm::vec2 position() {
+glm::vec2 Position() {
     ImGuiIO& io = ImGui::GetIO();
     return { io.MousePos.x, io.MousePos.y };
 }
 
-glm::vec2 delta() {
+glm::vec2 Delta() {
     ImGuiIO& io = ImGui::GetIO();
     return { io.MouseDelta.x, io.MouseDelta.y };
 }
 
-bool isPressed(MouseButton btn) {
+bool IsDown(MouseButton btn) {
     return ImGui::IsMouseDown(static_cast<ImGuiMouseButton>(btn));
 }
 
-bool isClicked(MouseButton btn) {
+bool IsClicked(MouseButton btn) {
     return ImGui::IsMouseClicked(static_cast<ImGuiMouseButton>(btn));
 }
 
-bool isDoubleClicked(MouseButton btn) {
+bool IsDoubleClicked(MouseButton btn) {
     return ImGui::IsMouseDoubleClicked(static_cast<ImGuiMouseButton>(btn));
 }
 
-bool isReleased(MouseButton btn) {
+bool IsReleased(MouseButton btn) {
     return ImGui::IsMouseReleased(static_cast<ImGuiMouseButton>(btn));
 }
 
@@ -50,44 +50,44 @@ ImGuiKey convertNumber(int32_t key) {
 
 namespace GRender::keyboard {
 
-bool isDown(Key key){
+bool IsDown(Key key){
     return ImGui::IsKeyDown(static_cast<ImGuiKey>(key));
 }
 
-bool isPressed(Key key){
+bool IsPressed(Key key){
     return ImGui::IsKeyPressed(static_cast<ImGuiKey>(key));
 }
 
-bool isReleased(Key key){
+bool IsReleased(Key key){
     return ImGui::IsKeyReleased(static_cast<ImGuiKey>(key));
 }
 
-bool isDown(char key){
+bool IsDown(char key){
     ImGuiKey foo = internal::convertLetter(key);
     return ImGui::IsKeyDown(foo);
 }
 
-bool isPressed(char key){
+bool IsPressed(char key){
     ImGuiKey foo = internal::convertLetter(key);
     return ImGui::IsKeyPressed(foo);
 }
 
-bool isReleased(char key){
+bool IsReleased(char key){
     ImGuiKey foo = internal::convertLetter(key);
     return ImGui::IsKeyReleased(foo);
 }
 
-bool isDown(int32_t key){
+bool IsDown(int32_t key){
     ImGuiKey foo = internal::convertNumber(key);
     return ImGui::IsKeyDown(foo);
 }
 
-bool isPressed(int32_t key){
+bool IsPressed(int32_t key){
     ImGuiKey foo = internal::convertNumber(key);
     return ImGui::IsKeyPressed(foo);
 }
 
-bool isReleased(int32_t key){
+bool IsReleased(int32_t key){
     ImGuiKey foo = internal::convertNumber(key);
     return ImGui::IsKeyReleased(foo);
 }
