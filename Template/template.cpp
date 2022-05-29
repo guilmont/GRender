@@ -1,4 +1,6 @@
-#include "GRender.h"
+#include "GRender/application.h"
+#include "GRender/entryPoint.h"
+
 #include "polymer.h"
 
 #include <random>
