@@ -241,6 +241,9 @@ void DialogImpl::fileExistsPopup(void) {
 void DialogImpl::updateAvailablePaths(void) {
     availablePaths.clear();
 
+    if (!fs::exists(mainpath))
+        return;
+
     for (auto entry : fs::directory_iterator(mainpath, fs::directory_options::skip_permission_denied)) {
         const fs::path& path = entry.path();
 
