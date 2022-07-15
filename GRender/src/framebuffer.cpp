@@ -2,9 +2,7 @@
 
 namespace GRender {
     
-Framebuffer::Framebuffer(uint32_t width, uint32_t height, uint32_t posX, uint32_t posY)
-    : size(width, height), position(posX, posY) {
-
+Framebuffer::Framebuffer(uint32_t width, uint32_t height) : size(width, height) {
     glGenFramebuffers(1, &bufferID);
     glBindFramebuffer(GL_FRAMEBUFFER, bufferID);
 
@@ -30,8 +28,7 @@ Framebuffer::Framebuffer(uint32_t width, uint32_t height, uint32_t posX, uint32_
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 } 
 
-Framebuffer::Framebuffer(const glm::uvec2& size, const glm::uvec2& pos)
-    : Framebuffer(size.x, size.y, pos.x, pos.y) {}
+Framebuffer::Framebuffer(const glm::uvec2& size) : Framebuffer(size.x, size.y) {}
 
 
 Framebuffer::~Framebuffer(void) {
