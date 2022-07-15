@@ -2,7 +2,7 @@
 
 namespace GRender {
     
-Framebuffer::Framebuffer(uint32_t width, uint32_t height) : size(width, height) {
+Framebuffer::Framebuffer(uint32_t width, uint32_t height, bool createDepthBuf) : size(width, height) {
     glGenFramebuffers(1, &bufferID);
     glBindFramebuffer(GL_FRAMEBUFFER, bufferID);
 
@@ -16,10 +16,12 @@ Framebuffer::Framebuffer(uint32_t width, uint32_t height) : size(width, height) 
     // Assigning texture to framebuffer
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureID, 0);
 
-    glGenTextures(1, &depthID);
-    glBindTexture(GL_TEXTURE_2D, depthID);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-    glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthID, 0);
+    if (createDepthBuf) {
+        glGenTextures(1, &depthID);
+        glBindTexture(GL_TEXTURE_2D, depthID);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+        glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthID, 0);
+    }
 
     // Testing if it worked properly
     ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is incomplete!!");
@@ -28,7 +30,8 @@ Framebuffer::Framebuffer(uint32_t width, uint32_t height) : size(width, height) 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 } 
 
-Framebuffer::Framebuffer(const glm::uvec2& size) : Framebuffer(size.x, size.y) {}
+Framebuffer::Framebuffer(const glm::uvec2& size, bool createDepthBuf)
+    : Framebuffer(size.x, size.y, createDepthBuf) {}
 
 
 Framebuffer::~Framebuffer(void) {

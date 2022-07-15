@@ -7,8 +7,8 @@ namespace GRender {
 class  Framebuffer {
 public:
     Framebuffer(void) = default;
-    Framebuffer(const glm::uvec2& size);
-    Framebuffer(uint32_t width, uint32_t height);
+    Framebuffer(const glm::uvec2& size, bool createDepthBuf = true);
+    Framebuffer(uint32_t width, uint32_t height, bool createDepthBuf = true);
     ~Framebuffer(void);
 
     // We don't want a framebuffer to be copied
