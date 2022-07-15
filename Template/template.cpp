@@ -243,6 +243,7 @@ void Sandbox::ImGuiLayer(void) {
 
 	//////////////////////////////////////////////////////////////////////////////
 	/// Updating viewport
+	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0f, 0.0f });
 	ImGui::Begin("Viewport", NULL, ImGuiWindowFlags_NoTitleBar);
 	viewport_hover = ImGui::IsWindowHovered();
 
@@ -257,8 +258,13 @@ void Sandbox::ImGuiLayer(void) {
 		fbuffer = GRender::Framebuffer(uport);
 		camera.setAspectRatio(port.x / port.y);
 	}
+	
+	// In case the windows moved
+	ImVec2 ps = ImGui::GetWindowPos();
+	fbuffer.setPosition(ps.x,ps.y);
 
 	ImGui::End();
+	ImGui::PopStyleVar();
 }
 
 void Sandbox::ImGuiMenuLayer(void) {
