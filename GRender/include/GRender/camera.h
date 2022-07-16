@@ -43,6 +43,12 @@ public:
     float getFOV(void) const;
     void setFOV(float fov);
 
+    float getSpeed(void) const;
+    void setSpeed(float speed);
+
+    float getSensitivity(void) const;
+    void setSensitivity(float sensitivity);
+
     float getAspectRatio(void) const;
     void setAspectRatio(float aRatio);
 

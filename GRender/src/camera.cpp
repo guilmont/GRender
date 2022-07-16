@@ -213,6 +213,12 @@ void Camera::setPosition(const glm::vec3& pos) { mPosition = pos; }
 float Camera::getFOV() const { return mFOV; }
 void Camera::setFOV(float fov) { mFOV = fov; }
 
+float Camera::getSensitivity() const { return mSensitivity; }
+void Camera::setSensitivity(float sensitivity) { mSensitivity = sensitivity; }
+
+float Camera::getSpeed() const { return mSpeed; }
+void Camera::setSpeed(float speed) { mSpeed = speed; }
+
 float Camera::getAspectRatio() const { return mRatio; }
 void Camera::setAspectRatio(float aRatio) { mRatio = aRatio; }
 
