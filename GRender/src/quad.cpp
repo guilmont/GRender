@@ -84,12 +84,12 @@ void Quad::draw(const Specs& spec) {
                           {spec.texCoord[2], spec.texCoord[3]},
                           {spec.texCoord[0], spec.texCoord[3]}};
 
-    glm::mat4 scale = glm::scale(glm::mat4(1.0f), {spec.size.x, spec.size.y, 1.0f});
-    glm::mat4 rotate = glm::rotate(scale, spec.angle, {0.0f, 0.0f, 1.0f});
-    glm::mat4 translate = glm::translate(rotate, spec.position);
+    glm::mat4 transform = glm::translate(glm::mat4(1.0f), spec.position);
+    transform = glm::rotate(transform, spec.angle, {0.0f, 0.0f, 1.0f});
+    transform = glm::scale(transform, {spec.size.x, spec.size.y, 1.0f});
 
     for (uint32_t k = 0; k < 4; k++) {
-        glm::vec4 vec = translate * pos[k];
+        glm::vec4 vec = transform * pos[k];
         vertices.emplace_back(Vertex{{ vec.x, vec.y, vec.z }, spec.color, tCoord[k], float(spec.texID) });
     }
 }

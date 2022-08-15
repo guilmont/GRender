@@ -1,5 +1,7 @@
 #pragma once
 
+#include "application.h"
+
 extern GRender::Application* GRender::createApplication(int argc, char** argv);
 
 #if defined(WIN32) && !defined(_DEBUG)

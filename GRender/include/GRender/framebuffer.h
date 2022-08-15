@@ -11,6 +11,9 @@ public:
     Framebuffer(uint32_t width, uint32_t height, bool createDepthBuf = true);
     ~Framebuffer(void);
 
+    // To facilitate actions related to present framebuffer
+    bool isHovered = false;
+
     // We don't want a framebuffer to be copied
     Framebuffer(const Framebuffer&) = delete;
     Framebuffer& operator=(const Framebuffer&) = delete;
