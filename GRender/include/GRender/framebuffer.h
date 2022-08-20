@@ -3,6 +3,7 @@
 #include "core.h"
 
 namespace GRender {
+class Texture;
 
 class  Framebuffer {
 public:
@@ -25,16 +26,21 @@ public:
     void bind(void);
     void unbind(void);
 
-    uint32_t getID(void) { return textureID; }
+    uint32_t getID(void) { return m_TextureID; }
+    glm::uvec2 getSize(void) const { return m_Size; }
+    
+    void setPosition(float x, float y) { m_Position = { x, y }; }
+    const glm::uvec2& getPosition(void) const { return m_Position; }
 
-    void setPosition(float x, float y) { position = { x, y }; }
-    const glm::uvec2& getPosition(void) const { return position; }
+    // Retrieving data from buffers
+    void getColorData(uint32_t* cpuPtr, const glm::uvec2& posZero, const glm::uvec2& size);
+    void getDepthData(float* cpuPtr, const glm::uvec2& posZero, const glm::uvec2& size);
 
-    glm::uvec2 getSize(void) const { return size; }
+    void copyTextureData(const Texture& destTexture, const glm::uvec2& posZero, const glm::uvec2& size);
 
 private:
-    uint32_t bufferID = 0, textureID = 0, depthID = 0;
-    glm::uvec2 size = { 1, 1 }, position = { 0, 0 };
+    uint32_t m_BufferID = 0, m_TextureID = 0, m_DepthID = 0;
+    glm::uvec2 m_Size = { 1, 1 }, m_Position = { 0, 0 };
 
 };
 

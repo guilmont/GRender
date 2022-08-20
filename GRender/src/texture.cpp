@@ -72,7 +72,7 @@ TextureRGBA::TextureRGBA(const fs::path& path) {
 
 void TextureRGBA::update(const uint32_t* data) {
     glBindTexture(GL_TEXTURE_2D, texID);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y, GL_RGBA, GL_UNSIGNED_INT, data);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y, GL_RGBA, GL_UNSIGNED_BYTE, data);
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
