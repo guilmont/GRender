@@ -30,16 +30,17 @@
 
 namespace GRender {
 
+namespace fs = std::filesystem;
+
 inline float DPI_FACTOR = 1;  // Used to rescale sizes for HIDPI screens
 
-static void ASSERT(bool check, const std::string& msg) {
-#ifdef _DEBUG
-	if (!check) {
-		std::cout << "ERROR: " << msg;
-		std::abort();
-	}
+#if defined(_DEBUG)
+	#define ASSERT(EXPR, MSG) if (!(EXPR)) { std::cerr << "ERROR (" << __FUNCTION__ << "): "<< (MSG) << std::endl; std::abort(); }
+	#define WARN(MSG)         std::cout << "WARN (" << __FUNCTION__ << "): "<< (MSG) << std::endl;
+#else 
+	#define ASSERT(EXPR, MSG) {}
+	#define WARN(MSG)         {}
 #endif
-}
 
 #if defined(_DEBUG) && !defined(__APPLE__) // Apple is stuck with openGL 4.1
 static void glErrorCallback(GLenum source, GLenum type, GLuint id, GLenum severity,

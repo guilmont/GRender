@@ -1,6 +1,7 @@
 #include "quad.h"
 
-namespace GRender::quad {
+namespace GRender {
+using namespace quad;
 
 Quad::Quad(uint32_t numQuads) : maxVertices(4 * numQuads) {
     glGenVertexArrays(1, &vao);
@@ -23,7 +24,7 @@ Quad::Quad(uint32_t numQuads) : maxVertices(4 * numQuads) {
 
     glVertexAttribPointer(3, 1, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void *)offsetof(Vertex, texID));
     glEnableVertexAttribArray(3);
-
+    
     // Preparing index array
     vID.resize(6 * uint64_t(numQuads));
     for (uint32_t k = 0; k < numQuads; k++)
@@ -50,6 +51,8 @@ Quad::~Quad(void) {
     glDeleteVertexArrays(1, &vao);
     
     idxBuffer = vtxBuffer = vao = 0;
+    vID.clear();
+    vertices.clear();
 }
 
 Quad::Quad(Quad&& rhs) noexcept {
@@ -70,7 +73,7 @@ Quad& Quad::operator=(Quad&& rhs) noexcept {
     return *this;
 }
 
-void Quad::draw(const Specs& spec) {
+void Quad::draw(const Specification& spec) {
     ASSERT(maxVertices > 0, "Quad class was not initialized");
     ASSERT(vertices.size() < maxVertices, "Quad class maximum number of vertices was exceeded");
 

@@ -8,6 +8,8 @@
 
 namespace fs = std::filesystem;
 
+using TexSpecification = GRender::texture::Specification;
+
 class Sandbox : public GRender::Application
 {
 public:
@@ -32,8 +34,10 @@ private:
 	GRender::Camera camera;
 	GRender::Framebuffer fbuffer;
 	GRender::Table<GRender::Shader> shader;
+	GRender::Texture texture;
 
 	polymer::Polymer poly;
+	GRender::Quad quad;
 
 	glm::vec3 bgColor = { 0.3f, 0.3f, 0.3f };
 
@@ -46,6 +50,8 @@ GRender::Application* GRender::createApplication(int argc, char** argv) {
 	fs::path exe = fs::path{ argv[0] }.parent_path();
 	if (fs::exists(exe))
 		fs::current_path(exe);
+
+	WARN("Current path: " + fs::current_path().string());
 
 	if (argc == 1)
 		return new Sandbox;
@@ -60,7 +66,7 @@ static bool cancel = false;
 
 static void cancelFunction(void*) {
 	// this will cause confusion is progress and timer are running in parallel, but it is just a quick demo
-	cancel = true; 
+	cancel = true;
 };
 
 static void testProgress(float* progress) {
@@ -88,10 +94,20 @@ Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../a
 	fs::path assets("../assets");
 	shader.insert("polyBlobs",       { assets / "polyBlobs.vtx.glsl",       assets / "polyShader.frag.glsl" });
 	shader.insert("polyConnections", { assets / "polyConnections.vtx.glsl", assets / "polyShader.frag.glsl" });
-	
-	fbuffer = GRender::Framebuffer(1200, 800);
-	camera = GRender::Camera({0.0f, 0.0f, -10.0f});
+	shader.insert("quad",            { assets / "quad.vtx.glsl",            assets / "quad.frag.glsl"       });
+
+	TexSpecification defSpec;
+	fbuffer = GRender::Framebuffer({ 1200, 800 }, { defSpec, defSpec }, true);
+	camera = GRender::Camera({ 0.0f, 0.0f, -10.0f });
 	camera.open();
+
+	quad = GRender::Quad(1);
+
+	using namespace GRender::texture;
+	Specification spec;
+	spec.wrap.x = Wrap::MIRRORED;
+	spec.wrap.y = Wrap::REPEAT;
+	texture = GRender::utils::createTextureFromRGBAFile("../assets/space.jpg", spec);
 
 	glEnable(GL_DEPTH_TEST);
 	poly = polymer::Polymer(128, 1.0f);
@@ -156,6 +172,26 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	shader["polyBlobs"].setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
 	shader["polyBlobs"].setFloat("u_radius", radius);
 	poly.submitBlobs();
+
+#if true
+	auto& qsh = shader["quad"].bind();
+	texture.bind();
+	qsh.setInteger("texSampler", 0);
+	qsh.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
+
+	static float tt = 0;
+	tt += deltaTime;
+	auto sz = texture.size();
+
+	quad::Specification spec;
+	spec.position = { 5.0f, cos(tt), 0.0f};
+	spec.size = glm::vec2{ float(sz.x) / float(sz.y), 1.0f };
+	spec.texCoord = glm::vec4{ 0.0f, 0.0f, 2.0f, 2.0f };
+	spec.texID = texture.id();
+	quad.draw(spec);
+
+	quad.submit();
+#endif 
 
 	fbuffer.unbind();
 }
@@ -238,6 +274,10 @@ void Sandbox::ImGuiLayer(void) {
 
 	ImGui::ColorEdit3("Background", glm::value_ptr(bgColor));
 
+	static bool Which = false;
+	if (ImGui::Button("Which"))
+		Which = !Which;
+
 	ImGui::End();
 	
 
@@ -249,13 +289,13 @@ void Sandbox::ImGuiLayer(void) {
 
 	// Check if it needs to resize
 	ImVec2 port = ImGui::GetContentRegionAvail();
-	ImGui::Image((void *)(uintptr_t)fbuffer.getID(), port, {0.0f, 1.0f}, {1.0f, 0.0f});
+	ImGui::Image((void *)(uintptr_t)fbuffer.getTexture(Which).id(), port, {0.0f, 1.0f}, {1.0f, 0.0f});
 
-	glm::uvec2 view = fbuffer.getSize();
+	glm::uvec2 view = fbuffer.size();
 	glm::uvec2 uport{ uint32_t(port.x), uint32_t(port.y) };
 
 	if (uport.x != view.x || uport.y != view.y) {
-		fbuffer = GRender::Framebuffer(uport);
+		fbuffer.resize(uport);
 		camera.setAspectRatio(port.x / port.y);
 	}
 	

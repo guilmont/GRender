@@ -13,8 +13,6 @@ void winResize_callback(GLFWwindow* window, int width, int height) {
 Application::Application(const std::string& name, uint32_t width, uint32_t height,
                          const std::filesystem::path& layout) {
 
-    namespace fs = std::filesystem;
-
     // Hack to corrent for HiDPI screens
     width = static_cast<uint32_t>(DPI_FACTOR * width);
     height = static_cast<uint32_t>(DPI_FACTOR * height);
@@ -24,7 +22,8 @@ Application::Application(const std::string& name, uint32_t width, uint32_t heigh
         ASSERT(false, "(glfw) -> " + std::to_string(error) + " :: " + std::string(description));
         });
 
-    ASSERT(glfwInit(),"(glfw) -> Couldn't start glfw!!!");
+    int success = glfwInit();
+    ASSERT(success, "(glfw) -> Couldn't start glfw!!!");
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 
@@ -46,7 +45,8 @@ Application::Application(const std::string& name, uint32_t width, uint32_t heigh
     glfwSwapInterval(1); // synchronize with screen updates
 
     // Initialize OPENGL loader
-    ASSERT(gladLoadGL() != 0,"(glad) -> Failed to initialize OpenGL loader!!!");
+    success = gladLoadGL();
+    ASSERT(success,"(glad) -> Failed to initialize OpenGL loader!!!");
 
     // Turning on error events only in debug mode
 #ifdef _DEBUG

@@ -2,17 +2,18 @@
 
 #include "core.h"
 
+#include "GRender/texture.h"
+
 namespace GRender {
-class Texture;
 
 class  Framebuffer {
 public:
+    Framebuffer(const glm::uvec2& size, const std::vector<texture::Specification>& vSpecs, bool createDepthBuf = false);
+    Framebuffer(const glm::uvec2& size, const texture::Specification& spec = texture::Specification(), bool createDepthBuf = false);
     Framebuffer(void) = default;
-    Framebuffer(const glm::uvec2& size, bool createDepthBuf = true);
-    Framebuffer(uint32_t width, uint32_t height, bool createDepthBuf = true);
     ~Framebuffer(void);
 
-    // To facilitate actions related to present framebuffer
+        // To facilitate actions related to present framebuffer
     bool isHovered = false;
 
     // We don't want a framebuffer to be copied
@@ -26,21 +27,23 @@ public:
     void bind(void);
     void unbind(void);
 
-    uint32_t getID(void) { return m_TextureID; }
-    glm::uvec2 getSize(void) const { return m_Size; }
+    void resize(const glm::uvec2& size);
+
+    const Texture& getTexture(uint32_t id = 0) const;
+    glm::uvec2 size(void) const { return m_Size; }
     
     void setPosition(float x, float y) { m_Position = { x, y }; }
     const glm::uvec2& getPosition(void) const { return m_Position; }
 
-    // Retrieving data from buffers
-    void getColorData(uint32_t* cpuPtr, const glm::uvec2& posZero, const glm::uvec2& size);
-    void getDepthData(float* cpuPtr, const glm::uvec2& posZero, const glm::uvec2& size);
-
-    void copyTextureData(const Texture& destTexture, const glm::uvec2& posZero, const glm::uvec2& size);
+    operator bool() const { return m_BufferID > 0; }
 
 private:
-    uint32_t m_BufferID = 0, m_TextureID = 0, m_DepthID = 0;
-    glm::uvec2 m_Size = { 1, 1 }, m_Position = { 0, 0 };
+    bool m_HasDepthBuffer = false;
+    uint32_t m_BufferID = 0, m_DepthID = 0;
+    std::vector<Texture> m_Textures;
+
+    glm::uvec2 m_Size = { 1, 1 };
+    glm::uvec2 m_Position = { 0, 0 };
 
 };
 
