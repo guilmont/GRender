@@ -2,14 +2,15 @@
 
 // This is a precompiled header
 
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <filesystem>
+#include <algorithm>
 #include <chrono>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <list>
+#include <sstream>
 #include <string>
 #include <vector>
-#include <list>
 #include <unordered_map>
 
 // vendor
