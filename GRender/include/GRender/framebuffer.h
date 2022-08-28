@@ -29,11 +29,11 @@ public:
 
     void resize(const glm::uvec2& size);
 
-    const Texture& getTexture(uint32_t id = 0) const;
+    const Texture& texture(uint32_t id = 0) const;
     glm::uvec2 size(void) const { return m_Size; }
     
-    void setPosition(float x, float y) { m_Position = { x, y }; }
-    const glm::uvec2& getPosition(void) const { return m_Position; }
+    glm::uvec2& position(void) { return m_Position; }
+    const glm::uvec2& position(void) const { return m_Position; }
 
     operator bool() const { return m_BufferID > 0; }
 

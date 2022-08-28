@@ -64,7 +64,7 @@ Framebuffer& Framebuffer::operator=(Framebuffer&& fBuffer) noexcept {
     return *this;
 }
 
-const Texture& Framebuffer::getTexture(uint32_t id) const {
+const Texture& Framebuffer::texture(uint32_t id) const {
     ASSERT(id < m_Textures.size(), "Texture id overflow!!");
     return m_Textures[id];
 }

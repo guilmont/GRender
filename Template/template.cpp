@@ -36,8 +36,8 @@ private:
 	GRender::Table<GRender::Shader> shader;
 	GRender::Texture texture;
 
-	polymer::Polymer poly;
 	GRender::Quad quad;
+	polymer::Polymer poly;
 
 	glm::vec3 bgColor = { 0.3f, 0.3f, 0.3f };
 
@@ -289,7 +289,7 @@ void Sandbox::ImGuiLayer(void) {
 
 	// Check if it needs to resize
 	ImVec2 port = ImGui::GetContentRegionAvail();
-	ImGui::Image((void *)(uintptr_t)fbuffer.getTexture(Which).id(), port, {0.0f, 1.0f}, {1.0f, 0.0f});
+	ImGui::Image((void *)(uintptr_t)fbuffer.texture(Which).id(), port, {0.0f, 1.0f}, {1.0f, 0.0f});
 
 	glm::uvec2 view = fbuffer.size();
 	glm::uvec2 uport{ uint32_t(port.x), uint32_t(port.y) };
@@ -301,7 +301,7 @@ void Sandbox::ImGuiLayer(void) {
 	
 	// In case the windows moved
 	ImVec2 ps = ImGui::GetWindowPos();
-	fbuffer.setPosition(ps.x,ps.y);
+	fbuffer.position() = { ps.x,ps.y };
 
 	ImGui::End();
 	ImGui::PopStyleVar();
