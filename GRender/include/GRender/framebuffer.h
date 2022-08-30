@@ -8,33 +8,26 @@ namespace GRender {
 
 class  Framebuffer {
 public:
-    Framebuffer(const glm::uvec2& size, const std::vector<texture::Specification>& vSpecs, bool createDepthBuf = false);
-    Framebuffer(const glm::uvec2& size, const texture::Specification& spec = texture::Specification(), bool createDepthBuf = false);
+    Framebuffer(const glm::uvec2& size, const std::vector<texture::Specification>& vSpecs = {texture::Specification()}, bool createDepthBuf = false);
     Framebuffer(void) = default;
     ~Framebuffer(void);
-
-        // To facilitate actions related to present framebuffer
-    bool isHovered = false;
 
     // We don't want a framebuffer to be copied
     Framebuffer(const Framebuffer&) = delete;
     Framebuffer& operator=(const Framebuffer&) = delete;
 
-    // But it can be moved no problem
+    // But it can be moved, no problem
     Framebuffer(Framebuffer&& fBuffer) noexcept;
     Framebuffer& operator=(Framebuffer&& fBuffer) noexcept;
 
-    void bind(void);
-    void unbind(void);
+    void bind(void) const;
+    void unbind(void) const;
 
     void resize(const glm::uvec2& size);
 
     const Texture& texture(uint32_t id = 0) const;
     glm::uvec2 size(void) const { return m_Size; }
     
-    glm::uvec2& position(void) { return m_Position; }
-    const glm::uvec2& position(void) const { return m_Position; }
-
     operator bool() const { return m_BufferID > 0; }
 
 private:
@@ -43,8 +36,6 @@ private:
     std::vector<Texture> m_Textures;
 
     glm::uvec2 m_Size = { 1, 1 };
-    glm::uvec2 m_Position = { 0, 0 };
-
 };
 
 } // namespace GRender

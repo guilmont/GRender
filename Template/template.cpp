@@ -1,10 +1,17 @@
+#include <random>
+#include <thread>
+
 #include "GRender/application.h"
 #include "GRender/entryPoint.h"
 
+#include "GRender/camera.h"
+#include "GRender/quad.h"
+#include "GRender/shader.h"
+#include "GRender/table.h"
+#include "GRender/viewport.h"
+
 #include "polymer.h"
 
-#include <random>
-#include <thread>
 
 namespace fs = std::filesystem;
 
@@ -32,7 +39,7 @@ private:
 #endif
 
 	GRender::Camera camera;
-	GRender::Framebuffer fbuffer;
+	GRender::Viewport view;
 	GRender::Table<GRender::Shader> shader;
 	GRender::Texture texture;
 
@@ -97,7 +104,7 @@ Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../a
 	shader.insert("quad",            { assets / "quad.vtx.glsl",            assets / "quad.frag.glsl"       });
 
 	TexSpecification defSpec;
-	fbuffer = GRender::Framebuffer({ 1200, 800 }, { defSpec, defSpec }, true);
+	view = GRender::Viewport({ 1200, 800 }, { defSpec, defSpec }, true);
 	camera = GRender::Camera({ 0.0f, 0.0f, -10.0f });
 	camera.open();
 
@@ -151,12 +158,12 @@ void Sandbox::onUserUpdate(float deltaTime) {
 
 	///////////////////////////////////////////////////////////////////////////
 	// Camera
-	if (viewport_hover && !ctrl)  // !ctrl not to interfere with commands used above
+	if (view.hovered() && !ctrl)  // !ctrl not to interfere with commands used above
 		camera.controls(deltaTime);
 	
 	///////////////////////////////////////////////////////////////////////////
 
-	fbuffer.bind();
+	view.bind();
 	
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(bgColor.r, bgColor.g, bgColor.b, 1.0f);
@@ -193,7 +200,7 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	quad.submit();
 #endif 
 
-	fbuffer.unbind();
+	view.unbind();
 }
 
 void Sandbox::ImGuiLayer(void) {
@@ -274,37 +281,19 @@ void Sandbox::ImGuiLayer(void) {
 
 	ImGui::ColorEdit3("Background", glm::value_ptr(bgColor));
 
-	static bool Which = false;
-	if (ImGui::Button("Which"))
-		Which = !Which;
+	static bool Attach = false;
+	if (ImGui::Button("Switch attachment"))
+		Attach = !Attach;
 
 	ImGui::End();
 	
 
-	//////////////////////////////////////////////////////////////////////////////
-	/// Updating viewport
-	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0f, 0.0f });
-	ImGui::Begin("Viewport", NULL, ImGuiWindowFlags_NoTitleBar);
-	viewport_hover = ImGui::IsWindowHovered();
+	// Show viewport
+	view.display("Viewport", Attach);
 
-	// Check if it needs to resize
-	ImVec2 port = ImGui::GetContentRegionAvail();
-	ImGui::Image((void *)(uintptr_t)fbuffer.texture(Which).id(), port, {0.0f, 1.0f}, {1.0f, 0.0f});
-
-	glm::uvec2 view = fbuffer.size();
-	glm::uvec2 uport{ uint32_t(port.x), uint32_t(port.y) };
-
-	if (uport.x != view.x || uport.y != view.y) {
-		fbuffer.resize(uport);
-		camera.setAspectRatio(port.x / port.y);
-	}
-	
-	// In case the windows moved
-	ImVec2 ps = ImGui::GetWindowPos();
-	fbuffer.position() = { ps.x,ps.y };
-
-	ImGui::End();
-	ImGui::PopStyleVar();
+	// Update camera aspect ratio in case viewport changed
+	glm::vec2 vsz= view.size();
+	camera.setAspectRatio(vsz.x / vsz.y);
 }
 
 void Sandbox::ImGuiMenuLayer(void) {

@@ -23,6 +23,7 @@ add_library(GRender STATIC
 	"src/fonts.cpp"           
 	"src/application.cpp"
 	"src/mailbox.cpp"
+	"src/viewport.cpp"
 
 	"src/internal/dialogImpl.cpp"
 	"src/internal/fontsImpl.cpp"

@@ -1,16 +1,8 @@
 #pragma once
 
 #include "core.h"
-#include "table.h"
 
-#include "quad.h"
-#include "shader.h"
-#include "framebuffer.h"
-#include "texture.h"
 #include "events.h"
-#include "camera.h"
-#include "camera2D.h"
-
 #include "fonts.h"
 #include "dialog.h"
 #include "mailbox.h"

@@ -5,9 +5,6 @@
 namespace GRender {
 using TexSpec = texture::Specification;
 
-Framebuffer::Framebuffer(const glm::uvec2& size, const TexSpec& spec, bool createDepthBuf)
-    : Framebuffer(size, std::vector<TexSpec>{ spec }, createDepthBuf) {}
-
 Framebuffer::Framebuffer(const glm::uvec2& size, const std::vector<TexSpec>& vSpecs,  bool createDepthBuf)
     : m_HasDepthBuffer(createDepthBuf), m_Size(size) {
 
@@ -54,7 +51,6 @@ Framebuffer::Framebuffer(Framebuffer&& fBuffer) noexcept {
     std::swap(m_DepthID, fBuffer.m_DepthID);
     std::swap(m_Textures, fBuffer.m_Textures);
     std::swap(m_Size, fBuffer.m_Size);
-    std::swap(m_Position, fBuffer.m_Position);
 }
 
 Framebuffer& Framebuffer::operator=(Framebuffer&& fBuffer) noexcept {
@@ -69,13 +65,13 @@ const Texture& Framebuffer::texture(uint32_t id) const {
     return m_Textures[id];
 }
 
-void Framebuffer::bind(void) {
+void Framebuffer::bind(void) const {
     ASSERT(*this, "Framebuffer not defined!");
     glBindFramebuffer(GL_FRAMEBUFFER, m_BufferID);
     glViewport(0, 0, m_Size.x, m_Size.y);
 }
 
-void Framebuffer::unbind(void) {
+void Framebuffer::unbind(void) const {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
