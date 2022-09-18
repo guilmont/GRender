@@ -36,9 +36,8 @@ public:
     Quad(Quad&&) noexcept;
     Quad& operator=(Quad&&) noexcept;
 
-
-    void draw(const quad::Specification& spec = quad::Specification());
-    void submit(void);
+    void submit(const quad::Specification& spec = quad::Specification());
+    void draw(void);
 
 private:
     uint32_t

@@ -28,6 +28,9 @@ add_library(GRender STATIC
 	"src/internal/dialogImpl.cpp"
 	"src/internal/fontsImpl.cpp"
 	"src/internal/OpenSans.cpp"
+
+	"src/objects/object.cpp"
+	"src/objects/cube.cpp"
 )
 
 target_include_directories(GRender PUBLIC "${PROJECT_SOURCE_DIR}/include")
@@ -41,7 +44,5 @@ if (GRENDER_IMPLOT)
 	set(DEPENDENCIES ${DEPENDENCIES} implot)
 endif()
 
-
 target_link_libraries(GRender PUBLIC ${DEPENDENCIES})
 target_precompile_headers(GRender PUBLIC "include/GRender/core.h")
-

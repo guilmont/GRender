@@ -11,6 +11,7 @@
 #include "GRender/viewport.h"
 
 #include "polymer.h"
+#include "GRender/objects/cube.h"
 
 
 namespace fs = std::filesystem;
@@ -45,6 +46,8 @@ private:
 
 	GRender::Quad quad;
 	polymer::Polymer poly;
+
+	GRender::Cube cube;
 
 	glm::vec3 bgColor = { 0.3f, 0.3f, 0.3f };
 
@@ -102,6 +105,7 @@ Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../a
 	shader.insert("polyBlobs",       { assets / "polyBlobs.vtx.glsl",       assets / "polyShader.frag.glsl" });
 	shader.insert("polyConnections", { assets / "polyConnections.vtx.glsl", assets / "polyShader.frag.glsl" });
 	shader.insert("quad",            { assets / "quad.vtx.glsl",            assets / "quad.frag.glsl"       });
+	shader.insert("objects",         { assets / "objects.vtx.glsl",         assets / "objects.frag.glsl"    });
 
 	TexSpecification defSpec;
 	view = GRender::Viewport({ 1200, 800 }, { defSpec, defSpec }, true);
@@ -109,6 +113,7 @@ Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../a
 	camera.open();
 
 	quad = GRender::Quad(1);
+	cube = GRender::Cube(2);
 
 	using namespace GRender::texture;
 	Specification spec;
@@ -195,9 +200,16 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	spec.size = glm::vec2{ float(sz.x) / float(sz.y), 1.0f };
 	spec.texCoord = glm::vec4{ 0.0f, 0.0f, 2.0f, 2.0f };
 	spec.texID = texture.id();
-	quad.draw(spec);
+	quad.submit(spec);
+	quad.draw();
 
-	quad.submit();
+	// Drawing cube
+	Shader& osh = shader["objects"].bind();
+	osh.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
+	cube.submit(glm::vec3{0.0f, cos(tt), 0.0f}, glm::vec3{1.0, 0.5, 0.3});
+	cube.submit(glm::vec3{cos(tt), 2.0f, 0.0f}, glm::vec3{1.0, 0.5, 0.3});
+	cube.draw();
+
 #endif 
 
 	view.unbind();

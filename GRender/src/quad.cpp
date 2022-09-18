@@ -73,7 +73,7 @@ Quad& Quad::operator=(Quad&& rhs) noexcept {
     return *this;
 }
 
-void Quad::draw(const Specification& spec) {
+void Quad::submit(const Specification& spec) {
     ASSERT(maxVertices > 0, "Quad class was not initialized");
     ASSERT(vertices.size() < maxVertices, "Quad class maximum number of vertices was exceeded");
 
@@ -97,7 +97,7 @@ void Quad::draw(const Specification& spec) {
     }
 }
 
-void Quad::submit(void) {
+void Quad::draw(void) {
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER, vtxBuffer);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, idxBuffer);
