@@ -3,7 +3,7 @@
 namespace GRender {
 
 Cube::Cube(const uint32_t maxNumCubes) : Object(maxNumCubes) {
-    const std::vector<Vertex> vtxBuffer = {
+    const std::vector<object::Vertex> vtxBuffer = {
         // LEFT
         {{-0.5f, -0.5, -0.5f}, {-1.0f, +0.0f, +0.0f}, {0.0f, 0.0f}}, // 0
         {{-0.5f, +0.5, -0.5f}, {-1.0f, +0.0f, +0.0f}, {1.0f, 0.0f}}, // 1

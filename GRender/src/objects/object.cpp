@@ -4,24 +4,34 @@
 
 namespace GRender {
 
-Object::Object(uint32_t maxNumber) : m_MaxNumber(maxNumber) {
-    m_VecPosition.reserve(maxNumber);
-    m_VecColor.reserve(maxNumber);
-}
+using Vertex = object::Vertex;
+using Specification = object::Specification;
 
+Object::Object(uint32_t maxNumber) : m_MaxNumber(maxNumber) {
+    m_Position.reserve(maxNumber);
+    m_Rotation.reserve(maxNumber);
+    m_Scale.reserve(maxNumber);
+    m_Color.reserve(maxNumber);
+}
 
 Object::~Object(void) {
     glDeleteBuffers(1, &m_VTX);
     glDeleteBuffers(1, &m_IDX);
+    glDeleteBuffers(1, &m_POS);
+    glDeleteBuffers(1, &m_ROT);
+    glDeleteBuffers(1, &m_SCL);
+    glDeleteBuffers(1, &m_CLR);
     
-    glDeleteBuffers(1, &m_Position);
-    glDeleteBuffers(1, &m_Color);
-
     glDeleteVertexArrays(1, &m_VAO);
 
     m_MaxNumber = 0;
     m_VTX = m_IDX = m_VAO = 0;
-    m_Position = m_Color = 0;
+    m_POS = m_ROT = m_SCL = m_CLR = 0;
+
+    m_Position.clear();
+    m_Rotation.clear();
+    m_Scale.clear();
+    m_Color.clear();
 }
 
 Object::Object(Object&& obj) noexcept {
@@ -29,13 +39,14 @@ Object::Object(Object&& obj) noexcept {
     std::swap(m_VAO, obj.m_VAO);
     std::swap(m_VTX, obj.m_VTX);
     std::swap(m_IDX, obj.m_IDX);
-
-    std::swap(m_Position, obj.m_Position);
-    std::swap(m_Color, obj.m_Color);
-
+    std::swap(m_POS, obj.m_POS);
+    std::swap(m_ROT, obj.m_ROT);
+    std::swap(m_SCL, obj.m_SCL);
+    std::swap(m_CLR, obj.m_CLR);
     std::swap(m_NumIndices, obj.m_NumIndices);
-    m_VecPosition.clear();
-    m_VecColor.clear();
+
+    // Better to start fresh
+    obj.~Object();
 }
 
 Object& Object::operator=(Object&& obj) noexcept {
@@ -72,23 +83,20 @@ void Object::initialize(const std::vector<Vertex>& vtxBuffer, const std::vector<
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, idxBuffer.size() * sizeof(glm::uvec3), idxBuffer.data(), GL_STATIC_DRAW);
  
     // INSTANCING ///////////////////////////////////////////////////////////////////////
-    // Position
-    glGenBuffers(1, &m_Position);
-    glBindBuffer(GL_ARRAY_BUFFER, m_Position);
-    glBufferData(GL_ARRAY_BUFFER, m_MaxNumber * sizeof(glm::vec3), nullptr, GL_DYNAMIC_DRAW);
+    
+    auto foo = [](uint32_t& bufID, uint32_t id, uint32_t size,  uint32_t maxNumber, size_t bytes) -> void {
+        glGenBuffers(1, &bufID);
+        glBindBuffer(GL_ARRAY_BUFFER, bufID);
+        glBufferData(GL_ARRAY_BUFFER, maxNumber * bytes, nullptr, GL_DYNAMIC_DRAW);
+        glVertexAttribPointer(id, size, GL_FLOAT, GL_FALSE, bytes, nullptr);
+        glEnableVertexAttribArray(id);
+        glVertexAttribDivisor(id, 1);
+    };
 
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
-    glEnableVertexAttribArray(3);
-    glVertexAttribDivisor(3, 1);
-
-    // Color
-    glGenBuffers(1, &m_Color);
-    glBindBuffer(GL_ARRAY_BUFFER, m_Color);
-    glBufferData(GL_ARRAY_BUFFER, m_MaxNumber * sizeof(glm::vec3), nullptr, GL_DYNAMIC_DRAW);
-
-    glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), nullptr);
-    glEnableVertexAttribArray(4);
-    glVertexAttribDivisor(4, 1);
+    foo(m_POS, 3, 3, m_MaxNumber, sizeof(glm::vec3));
+    foo(m_ROT, 4, 3, m_MaxNumber, sizeof(glm::vec3));
+    foo(m_SCL, 5, 3, m_MaxNumber, sizeof(glm::vec3));
+    foo(m_CLR, 6, 4, m_MaxNumber, sizeof(glm::vec4));
 }
 
 void Object::draw(void) {
@@ -96,23 +104,36 @@ void Object::draw(void) {
     glBindBuffer(GL_ARRAY_BUFFER, m_VTX);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IDX);
     
-    glBindBuffer(GL_ARRAY_BUFFER, m_Position);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_VecPosition.size() * sizeof(glm::vec3), m_VecPosition.data());
-    
-    glBindBuffer(GL_ARRAY_BUFFER, m_Color);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, m_VecColor.size() * sizeof(glm::vec3), m_VecColor.data());
+    const uint32_t numBodies = static_cast<uint32_t>(m_Position.size());
 
-    glDrawElementsInstanced(GL_TRIANGLES, m_NumIndices, GL_UNSIGNED_INT, nullptr, static_cast<int32_t>(m_VecPosition.size()));
+    glBindBuffer(GL_ARRAY_BUFFER, m_POS);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, numBodies * sizeof(glm::vec3), m_Position.data());
+    
+    glBindBuffer(GL_ARRAY_BUFFER, m_ROT);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, numBodies * sizeof(glm::vec3), m_Rotation.data());
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_SCL);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, numBodies * sizeof(glm::vec3), m_Scale.data());
+
+    glBindBuffer(GL_ARRAY_BUFFER, m_CLR);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, numBodies * sizeof(glm::vec4), m_Color.data());
+
+
+    glDrawElementsInstanced(GL_TRIANGLES, m_NumIndices, GL_UNSIGNED_INT, nullptr, numBodies);
 
     // Clearing up for next round
-    m_VecPosition.clear();
-    m_VecColor.clear();
+    m_Position.clear();
+    m_Rotation.clear();
+    m_Scale.clear();
+    m_Color.clear();
 }
 
-void Object::submit(const glm::vec3& position, const glm::vec3& color) {
-    m_VecPosition.push_back(position);
-    m_VecColor.push_back(color);
-    ASSERT(m_VecPosition.size() <= m_MaxNumber, "More cubes submitted than allocated!");
+void Object::submit(const Specification& specs) {
+    m_Position.push_back(specs.position);
+    m_Rotation.push_back(specs.rotation);
+    m_Scale.push_back(specs.scale);
+    m_Color.push_back(specs.color);
+    ASSERT(m_Position.size() <= m_MaxNumber, "More cubes submitted than allocated!");
 }
 
 } // namespace GRender

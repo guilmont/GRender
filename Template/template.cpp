@@ -109,7 +109,7 @@ Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../a
 
 	TexSpecification defSpec;
 	view = GRender::Viewport({ 1200, 800 }, { defSpec, defSpec }, true);
-	camera = GRender::Camera({ 0.0f, 0.0f, -10.0f });
+	camera = GRender::Camera({ 0.0f, 5.0f, 20.0f }, -0.18f, -1.5708f);
 	camera.open();
 
 	quad = GRender::Quad(1);
@@ -206,8 +206,17 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	// Drawing cube
 	Shader& osh = shader["objects"].bind();
 	osh.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
-	cube.submit(glm::vec3{0.0f, cos(tt), 0.0f}, glm::vec3{1.0, 0.5, 0.3});
-	cube.submit(glm::vec3{cos(tt), 2.0f, 0.0f}, glm::vec3{1.0, 0.5, 0.3});
+
+	object::Specification obj;
+	obj.position = { 0.0f, cos(tt), 0.0f };
+	obj.rotation.z = 0.5f * tt;
+	obj.color = { 1.0f, 0.5f, 0.3f, 1.0f };
+	cube.submit(obj);
+
+	obj.rotation = { 0.0f, tt, 0.0f };
+	obj.position = {cos(tt), 2.0f, 0.0f };
+	obj.scale.x = 1.0 + 0.7f * cos(tt);
+	cube.submit(obj);
 	cube.draw();
 
 #endif 

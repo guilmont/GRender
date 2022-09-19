@@ -4,10 +4,22 @@
 
 namespace GRender {
 
+namespace object {
+
 struct Vertex {
     glm::vec3 position, normal;
     glm::vec2 texCoord;
 };
+
+struct Specification {
+    glm::vec3 position{1.0f};
+    glm::vec3 rotation{0.0f};
+    glm::vec3 scale{1.0f};
+    glm::vec4 color{1.0f};
+};
+
+}; // namespace object
+
 
 class Object {
 public:
@@ -23,20 +35,21 @@ public:
     Object(const Object&) noexcept = delete;
     Object& operator=(const Object*) noexcept = delete;
 
-    void submit(const glm::vec3& position, const glm::vec3& color = {1.0f, 1.0f, 1.0f});
+    void submit(const object::Specification& specs);
     void draw(void);
 
 protected:
-    void initialize(const std::vector<Vertex>& vtxBuffer,
+    void initialize(const std::vector<object::Vertex>& vtxBuffer,
                     const std::vector<glm::uvec3>& idxBuffer);
 
 private:
-    uint32_t m_MaxNumber;
-    uint32_t m_VAO, m_VTX, m_IDX;
-    uint32_t m_Position, m_Color;
+    uint32_t m_MaxNumber = 0;
+    uint32_t m_VAO = 0, m_VTX = 0, m_IDX = 0;
+    uint32_t m_POS = 0, m_ROT = 0, m_SCL = 0, m_CLR = 0;
 
     GLsizei m_NumIndices = 0;
-    std::vector<glm::vec3> m_VecPosition, m_VecColor;
+    std::vector<glm::vec3> m_Position, m_Rotation, m_Scale;
+    std::vector<glm::vec4> m_Color;
 };
 
 } //namespace GRender
