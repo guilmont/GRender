@@ -203,7 +203,7 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	spec.texID = 0;
 
 	auto& qsh = shader["quad"].bind();
-	texture.bind(qsh, spec.texID);
+	qsh.setTexture(texture, spec.texID);
 	qsh.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
 
 	quad.submit(spec);

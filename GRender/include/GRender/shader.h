@@ -3,6 +3,7 @@
 #include "core.h"
 
 namespace GRender {
+class Texture;
 
 class Shader {
 public:
@@ -20,6 +21,8 @@ public:
 
     // Return a reference to current object for easier handling
     const Shader& bind(void);
+
+    void setTexture(const Texture& tex, uint32_t slot = 0) const;
 
     void setInteger(const std::string&, int) const;
     void setFloat(const std::string&, float) const;

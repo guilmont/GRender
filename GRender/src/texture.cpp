@@ -1,4 +1,3 @@
-#include "shader.h"
 #include "texture.h"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -75,14 +74,11 @@ Texture& Texture::operator=(Texture&& tex) noexcept {
     return *this;
 }
 
-void Texture::bind(const Shader& shader, uint32_t slot) const {
+void Texture::bind(uint32_t slot) const {
     ASSERT(*this, "Texture not initialized!!");
     ASSERT(slot < 32, "Maximum gpu texture slot exceeded");
     glActiveTexture(GL_TEXTURE0 + slot);
     glBindTexture(GL_TEXTURE_2D, m_TexID);
-
-    // Automatically setting shader
-    shader.setInteger("texSampler[" + std::to_string(slot) + "]", slot);
 }
 
 

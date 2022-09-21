@@ -1,4 +1,5 @@
 #include "shader.h"
+#include "texture.h"
 
 namespace fs = std::filesystem;
 
@@ -91,6 +92,16 @@ Shader& Shader::operator=(Shader&& shader) noexcept {
 const Shader& Shader::bind() {
     glUseProgram(programID);
     return *this;
+}
+
+
+void Shader::setTexture(const Texture& tex, uint32_t slot) const {
+
+    tex.bind(slot);
+
+    const std::string name = "texSampler[" + std::to_string(slot) + "]";
+    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
+    glad_glUniform1i(loc, slot);
 }
 
 void Shader::setInteger(const std::string &name, int val) const {

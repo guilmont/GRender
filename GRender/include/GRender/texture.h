@@ -3,7 +3,6 @@
 #include "core.h"
 
 namespace GRender {
-class Shader;
 
 namespace texture {
 enum class Format : uint8_t {
@@ -59,7 +58,7 @@ public:
     Specification specification(void) const { return m_Spec;  }
 
 
-    void bind(const Shader& shader, uint32_t slot = 0) const;
+    void bind(uint32_t slot = 0) const;
     void update(const void* data);
     void resize(const glm::uvec2& size);
 
