@@ -12,26 +12,31 @@ Object::Object(uint32_t maxNumber) : m_MaxNumber(maxNumber) {
     m_Rotation.reserve(maxNumber);
     m_Scale.reserve(maxNumber);
     m_Color.reserve(maxNumber);
+    m_Texture.reserve(maxNumber);
 }
 
 Object::~Object(void) {
+    if (m_VAO == 0) { return; } // nothing to do
+
     glDeleteBuffers(1, &m_VTX);
     glDeleteBuffers(1, &m_IDX);
     glDeleteBuffers(1, &m_POS);
     glDeleteBuffers(1, &m_ROT);
     glDeleteBuffers(1, &m_SCL);
     glDeleteBuffers(1, &m_CLR);
+    glDeleteBuffers(1, &m_TEX);
     
     glDeleteVertexArrays(1, &m_VAO);
 
     m_MaxNumber = 0;
     m_VTX = m_IDX = m_VAO = 0;
-    m_POS = m_ROT = m_SCL = m_CLR = 0;
+    m_POS = m_ROT = m_SCL = m_CLR = m_TEX = 0;
 
     m_Position.clear();
     m_Rotation.clear();
     m_Scale.clear();
     m_Color.clear();
+    m_Texture.clear();
 }
 
 Object::Object(Object&& obj) noexcept {
@@ -43,10 +48,8 @@ Object::Object(Object&& obj) noexcept {
     std::swap(m_ROT, obj.m_ROT);
     std::swap(m_SCL, obj.m_SCL);
     std::swap(m_CLR, obj.m_CLR);
+    std::swap(m_TEX, obj.m_TEX);
     std::swap(m_NumIndices, obj.m_NumIndices);
-
-    // Better to start fresh
-    obj.~Object();
 }
 
 Object& Object::operator=(Object&& obj) noexcept {
@@ -97,6 +100,7 @@ void Object::initialize(const std::vector<Vertex>& vtxBuffer, const std::vector<
     foo(m_ROT, 4, 3, m_MaxNumber, sizeof(glm::vec3));
     foo(m_SCL, 5, 3, m_MaxNumber, sizeof(glm::vec3));
     foo(m_CLR, 6, 4, m_MaxNumber, sizeof(glm::vec4));
+    foo(m_TEX, 7, 1, m_MaxNumber, sizeof(int32_t));
 }
 
 void Object::draw(void) {
@@ -118,6 +122,9 @@ void Object::draw(void) {
     glBindBuffer(GL_ARRAY_BUFFER, m_CLR);
     glBufferSubData(GL_ARRAY_BUFFER, 0, numBodies * sizeof(glm::vec4), m_Color.data());
 
+    glBindBuffer(GL_ARRAY_BUFFER, m_TEX);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, numBodies * sizeof(int32_t), m_Texture.data());
+
 
     glDrawElementsInstanced(GL_TRIANGLES, m_NumIndices, GL_UNSIGNED_INT, nullptr, numBodies);
 
@@ -126,6 +133,7 @@ void Object::draw(void) {
     m_Rotation.clear();
     m_Scale.clear();
     m_Color.clear();
+    m_Texture.clear();
 }
 
 void Object::submit(const Specification& specs) {
@@ -133,7 +141,8 @@ void Object::submit(const Specification& specs) {
     m_Rotation.push_back(specs.rotation);
     m_Scale.push_back(specs.scale);
     m_Color.push_back(specs.color);
-    ASSERT(m_Position.size() <= m_MaxNumber, "More cubes submitted than allocated!");
+    m_Texture.push_back(specs.textureID);
+    ASSERT(m_Position.size() <= m_MaxNumber, "More cubes submitted than allocated :: " + std::to_string(m_Position.size()) + " > " + std::to_string(m_MaxNumber));
 }
 
 } // namespace GRender

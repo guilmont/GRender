@@ -1,5 +1,6 @@
 #include <random>
 #include <thread>
+#include <algorithm>
 
 #include "GRender/application.h"
 #include "GRender/entryPoint.h"
@@ -13,6 +14,11 @@
 #include "polymer.h"
 #include "GRender/objects/cube.h"
 
+
+static std::ostream& operator<<(std::ostream& out, const glm::vec3& v) {
+	out << v.x << ", " << v.y << ", " << v.z;
+	return out;
+}
 
 namespace fs = std::filesystem;
 
@@ -109,11 +115,11 @@ Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../a
 
 	TexSpecification defSpec;
 	view = GRender::Viewport({ 1200, 800 }, { defSpec, defSpec }, true);
-	camera = GRender::Camera({ 0.0f, 5.0f, 20.0f }, -0.18f, -1.5708f);
+	camera = GRender::Camera({ 0.0f, 0.0f, 20.0f }, 0.0f, -1.5708f);
 	camera.open();
 
 	quad = GRender::Quad(1);
-	cube = GRender::Cube(2);
+	cube = GRender::Cube(6*11*11);
 
 	using namespace GRender::texture;
 	Specification spec;
@@ -185,7 +191,7 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	shader["polyBlobs"].setFloat("u_radius", radius);
 	poly.submitBlobs();
 
-#if true
+	// QUAD ///////////////////////////////////////////////
 	auto& qsh = shader["quad"].bind();
 	texture.bind();
 	qsh.setInteger("texSampler", 0);
@@ -197,29 +203,70 @@ void Sandbox::onUserUpdate(float deltaTime) {
 
 	quad::Specification spec;
 	spec.position = { 5.0f, cos(tt), 0.0f};
-	spec.size = glm::vec2{ float(sz.x) / float(sz.y), 1.0f };
+	spec.size = 1.5f * glm::vec2{ float(sz.x) / float(sz.y), 1.0f };
 	spec.texCoord = glm::vec4{ 0.0f, 0.0f, 2.0f, 2.0f };
 	spec.texID = texture.id();
 	quad.submit(spec);
 	quad.draw();
 
-	// Drawing cube
+
+	// CUBE ///////////////////////////////////////////////
 	Shader& osh = shader["objects"].bind();
 	osh.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
 
 	object::Specification obj;
-	obj.position = { 0.0f, cos(tt), 0.0f };
-	obj.rotation.z = 0.5f * tt;
+	obj.rotation = { 0.0f, tt, 0.2f * tt };
+	obj.position = {cos(tt), 5.0f, 0.0f };
+	obj.scale.x = 1.0 + 0.7f * cos(tt);
 	obj.color = { 1.0f, 0.5f, 0.3f, 1.0f };
 	cube.submit(obj);
 
-	obj.rotation = { 0.0f, tt, 0.0f };
-	obj.position = {cos(tt), 2.0f, 0.0f };
-	obj.scale.x = 1.0 + 0.7f * cos(tt);
-	cube.submit(obj);
-	cube.draw();
 
-#endif 
+	// Sphere of cube
+	obj.scale = glm::vec3{0.2f};
+	float osc = 4.0f * (1.0f + 0.5f * cos(tt));
+
+	const size_t N = 7;
+	const size_t NY = N + 2 * (N >> 1);
+	float dTheta = M_PI / (NY - 1);
+
+	object::Vertex v;
+	v.normal = {0.0f, 1.0f, 0.0f};
+	v.position = {0.0f, 0.5f, 0.0f};
+	v.texCoord = {1.0f, 1.0f};
+
+	obj.position = osc * v.position;
+	obj.color = glm::vec4{v.texCoord, 0.0f, 1.0f};
+	cube.submit(obj);
+
+	for (size_t k = 0; k < NY; k++) {
+		float theta = k * dTheta;
+		size_t NX = k < (N + (N>>1)) ? std::min(2*k+1, N) : 2 * (NY - k - 1) + 1;
+
+		float dPhi = 0.5f * M_PI / (NX - 1);
+
+		for (size_t l = 0; l < 4*(NX-1); l++) {
+			float phi = l * dPhi;
+
+			v.normal = {cos(phi) * sin(theta), cos(theta), sin(phi) * sin(theta)};
+			v.position = 0.5f * v.normal;
+			v.texCoord = {1.0f - 0.5f * phi / M_PI, 1.0f - theta / M_PI};
+
+			obj.position = osc * v.position;
+			obj.color = glm::vec4{v.texCoord, 0.0f, 1.0f};
+			cube.submit(obj);
+		}
+	}
+
+	v.normal = {0.0f, -1.0f, 0.0f};
+	v.position = {0.0f, -0.5f, 0.0f};
+	v.texCoord = {0.0f, 0.0f};
+
+	obj.position = osc * v.position;
+	obj.color = glm::vec4{v.texCoord, 0.0f, 1.0f};
+	cube.submit(obj);
+
+	cube.draw();
 
 	view.unbind();
 }

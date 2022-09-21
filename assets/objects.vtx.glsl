@@ -7,12 +7,15 @@ layout(location = 3) in vec3 bPosition;
 layout(location = 4) in vec3 bRotate;
 layout(location = 5) in vec3 bScale;
 layout(location = 6) in vec4 bColor;
+layout(location = 7) in int bTexID;
 
 uniform mat4 u_transform;
 
+out flat int  fTexID;
 out vec4 fColor;
 out vec3 fNormal;
 out vec3 fPos;
+
 
 mat2 Rotate(float angle) {
     float c = cos(angle), s = sin(angle);
@@ -22,7 +25,8 @@ mat2 Rotate(float angle) {
 void main() {
     mat2 rot;
 
-    // Setup color
+    // Setup color and texture
+    fTexID = bTexID;
     fColor = bColor;
 
     // Working on position and normal

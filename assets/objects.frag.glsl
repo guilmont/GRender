@@ -1,8 +1,9 @@
 #version 450 core
 
-in vec3 fPos;
-in vec3 fNormal;
+in flat int fTexID;
 in vec4 fColor;
+in vec3 fNormal;
+in vec3 fPos;
 
 layout(location = 0) out vec4 fragColor;
 
