@@ -230,13 +230,8 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	const size_t NY = N + 2 * (N >> 1);
 	float dTheta = M_PI / (NY - 1);
 
-	object::Vertex v;
-	v.normal = {0.0f, 1.0f, 0.0f};
-	v.position = {0.0f, 0.5f, 0.0f};
-	v.texCoord = {1.0f, 1.0f};
-
-	obj.position = osc * v.position;
-	obj.color = glm::vec4{v.texCoord, 0.0f, 1.0f};
+	obj.position = osc * glm::vec3{0.0f, 0.5f, 0.0f};
+	obj.color = {1.0f, 1.0f, 0.0f, 1.0f};
 	cube.submit(obj);
 
 	for (size_t k = 0; k < NY; k++) {
@@ -248,22 +243,14 @@ void Sandbox::onUserUpdate(float deltaTime) {
 		for (size_t l = 0; l < 4*(NX-1); l++) {
 			float phi = l * dPhi;
 
-			v.normal = {cos(phi) * sin(theta), cos(theta), sin(phi) * sin(theta)};
-			v.position = 0.5f * v.normal;
-			v.texCoord = {1.0f - 0.5f * phi / M_PI, 1.0f - theta / M_PI};
-
-			obj.position = osc * v.position;
-			obj.color = glm::vec4{v.texCoord, 0.0f, 1.0f};
+			obj.position = osc * 0.5f * glm::vec3{cos(phi) * sin(theta), cos(theta), sin(phi) * sin(theta)};
+			obj.color = {1.0f - 0.5f * phi / M_PI, 1.0f - theta / M_PI, 0.0f, 1.0f};
 			cube.submit(obj);
 		}
 	}
 
-	v.normal = {0.0f, -1.0f, 0.0f};
-	v.position = {0.0f, -0.5f, 0.0f};
-	v.texCoord = {0.0f, 0.0f};
-
-	obj.position = osc * v.position;
-	obj.color = glm::vec4{v.texCoord, 0.0f, 1.0f};
+	obj.position = osc * glm::vec3{0.0f, -0.5f, 0.0f};
+	obj.color = {0.0f, 0.0f, 0.0f, 1.0f};
 	cube.submit(obj);
 
 	cube.draw();
