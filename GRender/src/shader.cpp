@@ -88,67 +88,67 @@ Shader& Shader::operator=(Shader&& shader) noexcept {
     return *this;
 }
 
-Shader& Shader::bind() {
+const Shader& Shader::bind() {
     glUseProgram(programID);
     return *this;
 }
 
-void Shader::setInteger(const std::string &name, int val) {
+void Shader::setInteger(const std::string &name, int val) const {
     int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform1i(loc, val);
 }
 
-void Shader::setFloat(const std::string &name, float val) {
+void Shader::setFloat(const std::string &name, float val) const {
     int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform1f(loc, val);
 }
 
-void Shader::setVec2f(const std::string &name, const float *v) {
+void Shader::setVec2f(const std::string &name, const float *v) const {
     int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform2f(loc, v[0], v[1]);
 }
 
-void Shader::setVec3f(const std::string &name, const float *v) {
+void Shader::setVec3f(const std::string &name, const float *v) const {
     int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform3f(loc, v[0], v[1], v[2]);
 }
 
-void Shader::setVec4f(const std::string &name, const float *v) {
+void Shader::setVec4f(const std::string &name, const float *v) const {
     int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform4f(loc, v[0], v[1], v[2], v[3]);
 }
 
-void Shader::setMatrix3f(const std::string &name, const float *mat) {
+void Shader::setMatrix3f(const std::string &name, const float *mat) const {
     int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniformMatrix3fv(loc, 1, GL_FALSE, mat);
 }
 
-void Shader::setMatrix4f(const std::string &name, const float *mat) {
+void Shader::setMatrix4f(const std::string &name, const float *mat) const {
     int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniformMatrix4fv(loc, 1, GL_FALSE, mat);
 }
 
-void Shader::setIntArray(const std::string &name, const int *ptr, int32_t N) {
+void Shader::setIntArray(const std::string &name, const int *ptr, int32_t N) const {
     int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform1iv(loc, N, ptr);
 }
 
-void Shader::setFloatArray(const std::string &name, const float *ptr, int32_t N) {
+void Shader::setFloatArray(const std::string &name, const float *ptr, int32_t N) const {
     int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform1fv(loc, N, ptr);
 }
 
-void Shader::setVec2fArray(const std::string &name, const float *ptr, int32_t N) {
+void Shader::setVec2fArray(const std::string &name, const float *ptr, int32_t N) const {
     int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform2fv(loc, N, ptr);
 }
 
-void Shader::setVec3fArray(const std::string &name, const float *ptr, int32_t N) {
+void Shader::setVec3fArray(const std::string &name, const float *ptr, int32_t N) const {
     int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniform3fv(loc, N, ptr);
 }
 
-void Shader::setMat3Array(const std::string &name, const float *ptr, int32_t N) {
+void Shader::setMat3Array(const std::string &name, const float *ptr, int32_t N) const {
     int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
     glad_glUniformMatrix3fv(loc, N, true, ptr);
 }

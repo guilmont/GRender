@@ -181,7 +181,7 @@ void Sandbox::onUserUpdate(float deltaTime) {
 
 	// Drawing polymer
 	float radius = poly.getRadius();
-	GRender::Shader& sCnt = shader["polyConnections"].bind();
+	const GRender::Shader& sCnt = shader["polyConnections"].bind();
 	sCnt.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
 	sCnt.setFloat("u_radius", 0.5f*radius);
 	poly.submitConnections();
@@ -192,11 +192,6 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	poly.submitBlobs();
 
 	// QUAD ///////////////////////////////////////////////
-	auto& qsh = shader["quad"].bind();
-	texture.bind();
-	qsh.setInteger("texSampler", 0);
-	qsh.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
-
 	static float tt = 0;
 	tt += deltaTime;
 	auto sz = texture.size();
@@ -205,13 +200,18 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	spec.position = { 5.0f, cos(tt), 0.0f};
 	spec.size = 1.5f * glm::vec2{ float(sz.x) / float(sz.y), 1.0f };
 	spec.texCoord = glm::vec4{ 0.0f, 0.0f, 2.0f, 2.0f };
-	spec.texID = texture.id();
+	spec.texID = 0;
+
+	auto& qsh = shader["quad"].bind();
+	texture.bind(qsh, spec.texID);
+	qsh.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
+
 	quad.submit(spec);
 	quad.draw();
 
 
 	// CUBE ///////////////////////////////////////////////
-	Shader& osh = shader["objects"].bind();
+	const Shader& osh = shader["objects"].bind();
 	osh.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
 
 	object::Specification obj;

@@ -93,7 +93,7 @@ void Quad::submit(const Specification& spec) {
 
     for (uint32_t k = 0; k < 4; k++) {
         glm::vec4 vec = transform * pos[k];
-        vertices.emplace_back(Vertex{{ vec.x, vec.y, vec.z }, spec.color, tCoord[k], float(spec.texID) });
+        vertices.emplace_back(Vertex{{ vec.x, vec.y, vec.z }, spec.color, tCoord[k], spec.texID });
     }
 }
 

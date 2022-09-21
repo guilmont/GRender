@@ -8,10 +8,10 @@ namespace GRender {
 namespace quad {
 struct Specification {
     glm::vec3 position = { 0.0f, 0.0f, 0.0f }; // center of mass
-    glm::vec2 size = { 1.0f, 1.0f };
-    float angle = 0.0f;
-    uint32_t texID = 0;
-    glm::vec4 color = { 1.0f, 1.0f, 1.0f, 1.0f };
+    glm::vec2 size     = { 1.0f, 1.0f };
+    float angle        = 0.0f;
+    int32_t texID      = -1;  // -1 for no texture
+    glm::vec4 color    = { 1.0f, 1.0f, 1.0f, 1.0f };
     glm::vec4 texCoord = { 0.0f, 0.0f, 1.0f, 1.0f };
 };
 
@@ -19,7 +19,7 @@ struct Vertex {
     glm::vec3 pos;
     glm::vec4 color;
     glm::vec2 texCoord;
-    float texID;
+    int texID;
 };
 } // namespace quad
 

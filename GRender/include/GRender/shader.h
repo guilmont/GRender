@@ -19,22 +19,22 @@ public:
     Shader& operator=(Shader&&) noexcept;
 
     // Return a reference to current object for easier handling
-    Shader& bind(void);
+    const Shader& bind(void);
 
-    void setInteger(const std::string&, int);
-    void setFloat(const std::string&, float);
-    void setVec2f(const std::string&, const float *);
-    void setVec3f(const std::string&, const float *);
-    void setVec4f(const std::string&, const float *);
-    void setMatrix3f(const std::string&, const float *);
-    void setMatrix4f(const std::string&, const float *);
+    void setInteger(const std::string&, int) const;
+    void setFloat(const std::string&, float) const;
+    void setVec2f(const std::string&, const float *) const;
+    void setVec3f(const std::string&, const float *) const;
+    void setVec4f(const std::string&, const float *) const;
+    void setMatrix3f(const std::string&, const float *) const;
+    void setMatrix4f(const std::string&, const float *) const;
 
-    void setIntArray(const std::string&, const int *, int);
+    void setIntArray(const std::string&, const int *, int) const;
 
-    void setFloatArray(const std::string&, const float *, int);
-    void setVec2fArray(const std::string&, const float *, int);
-    void setVec3fArray(const std::string&, const float *, int);
-    void setMat3Array(const std::string&, const float *, int);
+    void setFloatArray(const std::string&, const float *, int) const;
+    void setVec2fArray(const std::string&, const float *, int) const;
+    void setVec3fArray(const std::string&, const float *, int) const;
+    void setMat3Array(const std::string&, const float *, int) const;
 
 private:
     uint32_t programID = 0;
