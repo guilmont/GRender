@@ -217,7 +217,7 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	object::Specification obj;
 	obj.rotation = { 0.0f, tt, 0.2f * tt };
 	obj.position = {cos(tt), 5.0f, 0.0f };
-	obj.scale.x = 1.0 + 0.7f * cos(tt);
+	obj.scale.x = 1.0f + 0.7f * cos(tt);
 	obj.color = { 1.0f, 0.5f, 0.3f, 1.0f };
 	cube.submit(obj);
 
@@ -226,9 +226,11 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	obj.scale = glm::vec3{0.2f};
 	float osc = 4.0f * (1.0f + 0.5f * cos(tt));
 
+	constexpr float PI = 3.14159265358979323846f;
+
 	const size_t N = 7;
 	const size_t NY = N + 2 * (N >> 1);
-	float dTheta = M_PI / (NY - 1);
+	float dTheta = PI / (NY - 1);
 
 	obj.position = osc * glm::vec3{0.0f, 0.5f, 0.0f};
 	obj.color = {1.0f, 1.0f, 0.0f, 1.0f};
@@ -238,13 +240,13 @@ void Sandbox::onUserUpdate(float deltaTime) {
 		float theta = k * dTheta;
 		size_t NX = k < (N + (N>>1)) ? std::min(2*k+1, N) : 2 * (NY - k - 1) + 1;
 
-		float dPhi = 0.5f * M_PI / (NX - 1);
+		float dPhi = 0.5f * PI / (NX - 1);
 
 		for (size_t l = 0; l < 4*(NX-1); l++) {
 			float phi = l * dPhi;
 
 			obj.position = osc * 0.5f * glm::vec3{cos(phi) * sin(theta), cos(theta), sin(phi) * sin(theta)};
-			obj.color = {1.0f - 0.5f * phi / M_PI, 1.0f - theta / M_PI, 0.0f, 1.0f};
+			obj.color = {1.0f - 0.5f * phi / PI, 1.0f - theta / PI, 0.0f, 1.0f};
 			cube.submit(obj);
 		}
 	}
