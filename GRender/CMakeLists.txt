@@ -31,6 +31,7 @@ add_library(GRender STATIC
 
 	"src/objects/object.cpp"
 	"src/objects/cube.cpp"
+	"src/objects/sphere.cpp"
 )
 
 target_include_directories(GRender PUBLIC "${PROJECT_SOURCE_DIR}/include")

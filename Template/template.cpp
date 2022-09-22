@@ -13,6 +13,7 @@
 
 #include "polymer.h"
 #include "GRender/objects/cube.h"
+#include "GRender/objects/sphere.h"
 
 
 static std::ostream& operator<<(std::ostream& out, const glm::vec3& v) {
@@ -54,6 +55,7 @@ private:
 	polymer::Polymer poly;
 
 	GRender::Cube cube;
+	GRender::Sphere sphere;
 
 	glm::vec3 bgColor = { 0.3f, 0.3f, 0.3f };
 
@@ -119,7 +121,8 @@ Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../a
 	camera.open();
 
 	quad = GRender::Quad(1);
-	cube = GRender::Cube(6*11*11);
+	cube = GRender::Cube(6 * 11 * 11);
+	sphere = GRender::Sphere(1);
 
 	using namespace GRender::texture;
 	Specification spec;
@@ -197,7 +200,7 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	auto sz = texture.size();
 
 	quad::Specification spec;
-	spec.position = { 5.0f, cos(tt), 0.0f};
+	spec.position = { 5.0f, 2+cos(tt), 0.0f};
 	spec.size = 1.5f * glm::vec2{ float(sz.x) / float(sz.y), 1.0f };
 	spec.texCoord = glm::vec4{ 0.0f, 0.0f, 2.0f, 2.0f };
 	spec.texID = 0;
@@ -256,6 +259,14 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	cube.submit(obj);
 
 	cube.draw();
+
+	// SPHERE ////////////////////////////////////////////////
+	object::Specification obj2;
+	obj2.position = { 5.0f, -3.0f, 0.0f };
+	obj2.color = { 0.1f, 0.3f, 0.8f, 1.0f };
+	obj2.scale = glm::vec3{ 4.0f };
+	sphere.submit(obj2);
+	sphere.draw();
 
 	view.unbind();
 }
