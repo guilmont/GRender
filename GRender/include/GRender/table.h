@@ -18,7 +18,15 @@ public:
 
 	void insert(const std::string& name, T&& obj) {
 		ASSERT(!contains(name), "Table already contains -> " + name);
-		table[name] = std::move(obj);
+		table.emplace(name, std::move(obj));
+	}
+
+	template<typename ...ARGS>
+	void emplace(const std::string& name, ARGS&& ...args) {
+		ASSERT(!contains(name), "Table already contains -> " + name);
+		table.emplace(std::piecewise_construct,
+					  std::forward_as_tuple(name),
+					  std::forward_as_tuple(std::forward<ARGS>(args)...));
 	}
 
 	T& operator[](const std::string& name) {

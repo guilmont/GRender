@@ -49,7 +49,7 @@ private:
 	GRender::Camera camera;
 	GRender::Viewport view;
 	GRender::Table<GRender::Shader> shader;
-	GRender::Texture texture;
+	GRender::Table<GRender::Texture> texture;
 
 	GRender::Quad quad;
 	polymer::Polymer poly;
@@ -128,8 +128,9 @@ Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../a
 	Specification spec;
 	spec.wrap.x = Wrap::MIRRORED;
 	spec.wrap.y = Wrap::REPEAT;
-	texture = GRender::utils::createTextureFromRGBAFile("../assets/space.jpg", spec);
-
+	texture.insert("space", GRender::utils::createTextureFromRGBAFile("../assets/space.jpg", spec));
+	texture.insert("earth", GRender::utils::createTextureFromRGBAFile("../assets/earth.jpg", spec));
+	
 	glEnable(GL_DEPTH_TEST);
 	poly = polymer::Polymer(128, 1.0f);
 }
@@ -197,7 +198,7 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	// QUAD ///////////////////////////////////////////////
 	static float tt = 0;
 	tt += deltaTime;
-	auto sz = texture.size();
+	auto sz = texture["space"].size();
 
 	quad::Specification spec;
 	spec.position = { 5.0f, 2+cos(tt), 0.0f};
@@ -206,7 +207,7 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	spec.texID = 0;
 
 	auto& qsh = shader["quad"].bind();
-	qsh.setTexture(texture, spec.texID);
+	qsh.setTexture(texture["space"], spec.texID);
 	qsh.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
 
 	quad.submit(spec);
@@ -263,8 +264,10 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	// SPHERE ////////////////////////////////////////////////
 	object::Specification obj2;
 	obj2.position = { 5.0f, -3.0f, 0.0f };
-	obj2.color = { 0.1f, 0.3f, 0.8f, 1.0f };
+	obj2.rotation = { 0.0f, -0.5f*tt, 0.0f };
 	obj2.scale = glm::vec3{ 4.0f };
+	obj2.textureID = 0;
+	qsh.setTexture(texture["earth"], 0);
 	sphere.submit(obj2);
 	sphere.draw();
 

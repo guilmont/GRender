@@ -12,6 +12,7 @@ layout(location = 7) in int bTexID;
 uniform mat4 u_transform;
 
 out flat int  fTexID;
+out vec2 fTexCoord;
 out vec4 fColor;
 out vec3 fNormal;
 out vec3 fPos;
@@ -27,6 +28,7 @@ void main() {
 
     // Setup color and texture
     fTexID = bTexID;
+    fTexCoord = vTexCoord;
     fColor = bColor;
 
     // Working on position and normal
