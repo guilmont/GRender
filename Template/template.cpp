@@ -14,6 +14,7 @@
 #include "polymer.h"
 #include "GRender/objects/cube.h"
 #include "GRender/objects/sphere.h"
+#include "GRender/objects/cylinder.h"
 
 
 static std::ostream& operator<<(std::ostream& out, const glm::vec3& v) {
@@ -56,6 +57,7 @@ private:
 
 	GRender::Cube cube;
 	GRender::Sphere sphere;
+	GRender::Cylinder cylinder;
 
 	glm::vec3 bgColor = { 0.3f, 0.3f, 0.3f };
 
@@ -123,6 +125,7 @@ Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../a
 	quad = GRender::Quad(1);
 	cube = GRender::Cube(6 * 11 * 11);
 	sphere = GRender::Sphere(1);
+	cylinder = GRender::Cylinder(1);
 
 	using namespace GRender::texture;
 	Specification spec;
@@ -266,10 +269,19 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	obj2.position = { 5.0f, -3.0f, 0.0f };
 	obj2.rotation = { 0.0f, -0.5f*tt, 0.0f };
 	obj2.scale = glm::vec3{ 4.0f };
-	obj2.textureID = 0;
-	qsh.setTexture(texture["earth"], 0);
+	obj2.textureID = 1;
+	osh.setTexture(texture["earth"], 1);
 	sphere.submit(obj2);
 	sphere.draw();
+
+	// CYLINDER ///////////////////////////////////////////
+	object::Specification obj3;
+	obj3.position = {-5.0f, 3.0f, 0.0f};
+	obj3.scale = glm::vec3(2.0f);
+	obj3.rotation = {tt, tt, tt};
+	obj3.textureID = 0;
+	cylinder.submit(obj3);
+	cylinder.draw();
 
 	view.unbind();
 }
