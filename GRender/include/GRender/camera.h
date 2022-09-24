@@ -8,7 +8,7 @@ class Camera {
 public:
     // x: left to right; y: bottom to top; z: positive axis into screen
     // yaw (x): 0..2pi; pitch(bot->top): -pi/2..pi/2
-    Camera(const glm::vec3& defPosition = {0.0f, 0.0f, 0.0f}, float defPitch = 0.0f, float defYaw = 1.5708f);
+    Camera(const glm::vec3& defPosition = {0.0f, 0.0f, 0.0f}, float defPitch = 0.0f, float defYaw = -1.5708f);
     ~Camera(void) = default;
 
     // displaying showing camera data and parameters

@@ -143,7 +143,7 @@ void Object::submit(const Specification& specs) {
     m_Scale.push_back(specs.scale);
     m_Color.push_back(specs.color);
     m_Texture.push_back(specs.textureID);
-    ASSERT(m_Position.size() <= m_MaxNumber, "More cubes submitted than allocated :: " + std::to_string(m_Position.size()) + " > " + std::to_string(m_MaxNumber));
+    ASSERT(m_Position.size() <= m_MaxNumber, "More objects submitted than allocated :: " + std::to_string(m_Position.size()) + " > " + std::to_string(m_MaxNumber));
 }
 
 } // namespace GRender
