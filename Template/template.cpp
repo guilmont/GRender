@@ -105,8 +105,6 @@ static void testTimer(GRender::Timer* timer) {
 
 Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../assets/layout.ini") {
 	fs::path assets("../assets");
-	shader.insert("polyBlobs",       { assets / "polyBlobs.vtx.glsl",       assets / "polyShader.frag.glsl" });
-	shader.insert("polyConnections", { assets / "polyConnections.vtx.glsl", assets / "polyShader.frag.glsl" });
 	shader.insert("quad",            { assets / "quad.vtx.glsl",            assets / "quad.frag.glsl"       });
 	shader.insert("objects",         { assets / "objects.vtx.glsl",         assets / "objects.frag.glsl"    });
 
