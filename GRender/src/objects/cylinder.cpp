@@ -72,10 +72,18 @@ Cylinder::Cylinder(Cylinder&& obj) noexcept : Object(std::move(obj)) {}
 
 Cylinder& Cylinder::operator=(Cylinder&& obj) noexcept {
     if (&obj != this) {
+        this->~Cylinder();
         new (this) Cylinder(std::move(obj));
     }
     return *this;
 }
 
+glm::vec3 Cylinder::calcAnglesFromDirection(const glm::vec3& direction) {
+    glm::vec3 rx = glm::normalize(direction);
+    glm::vec3 ry = glm::normalize(glm::vec3(-(rx.y + rx.z + 2e-5)/(rx.x + 1e-5), 1.0f, 1.0f));
+    glm::vec3 rz = glm::cross(rx, ry);
+
+    return { atan2(ry.z, rz.z), glm::two_pi<float>() + asin(rx.z), atan2(rx.y, rx.x) };
+}
 
 } // namespace GRender

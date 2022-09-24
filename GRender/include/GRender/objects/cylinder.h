@@ -14,6 +14,9 @@ struct Cylinder : public Object {
 
     Cylinder(Cylinder&&) noexcept;
     Cylinder& operator=(Cylinder&&) noexcept;
+
+    // Utility function to calculate angles to rotate cylinder into a certain direction
+    static glm::vec3 calcAnglesFromDirection(const glm::vec3& direction);
 };
 
 } // namespace GRender
