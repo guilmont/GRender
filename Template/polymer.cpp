@@ -35,15 +35,8 @@ Polymer::Polymer(uint32_t numBeads, float kuhn) : m_NumBeads(numBeads), m_Kuhn(k
     for (size_t k = 0; k < numBeads - 1; k++) {
         CData dt;
         dt.position = 0.5f * (m_Position[k] + m_Position[k+1]);
+        dt.angle = GRender::Cylinder::calcAnglesFromDirection(m_Position[k+1] - m_Position[k]);
         dt.height = glm::distance(m_Position[k], m_Position[k+1]);
-
-        glm::vec3 rx = (m_Position[k+1] - m_Position[k]) / dt.height;
-        glm::vec3 ry = glm::normalize(glm::vec3(-(rx.y + rx.z + 2e-5)/(rx.x + 1e-5), 1.0f, 1.0f));
-        glm::vec3 rz = glm::cross(rx, ry);
-
-        dt.angle.x = atan2(ry.z, rz.z);
-        dt.angle.y = glm::two_pi<float>() + asin(rx.z);
-        dt.angle.z = atan2(rx.y, rx.x);
 
         m_Tubes.emplace_back(dt);
     }
@@ -60,12 +53,11 @@ Polymer::Polymer(Polymer&& poly) noexcept {
     std::swap(m_Tubes, poly.m_Tubes);
     std::swap(m_Sphere, poly.m_Sphere);
     std::swap(m_Cylinder, poly.m_Cylinder);
-
-    poly.~Polymer();
 }
 
 Polymer& Polymer::operator=(Polymer&& poly) noexcept {
     if (&poly != this) {
+        this->~Polymer();
         new(this) Polymer(std::move(poly));
     }
     return *this;

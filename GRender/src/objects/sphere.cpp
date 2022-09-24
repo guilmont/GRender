@@ -122,6 +122,7 @@ Sphere::Sphere(Sphere&& obj) noexcept : Object(std::move(obj)) {}
 
 Sphere& Sphere::operator=(Sphere&& obj) noexcept {
     if (&obj != this) {
+        this->~Sphere();
         new (this) Sphere(std::move(obj));
     }
     return *this;

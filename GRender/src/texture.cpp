@@ -69,6 +69,7 @@ Texture::Texture(Texture&& tex) noexcept {
 
 Texture& Texture::operator=(Texture&& tex) noexcept {
     if (this != &tex) {
+        this->~Texture();
         new(this) Texture(std::move(tex));
     }
     return *this;

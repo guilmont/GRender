@@ -14,6 +14,7 @@ Viewport::Viewport(Viewport&& vp) noexcept {
 
 Viewport& Viewport::operator=(Viewport&& vp) noexcept {
 	if (&vp != this) {
+		this->~Viewport();
 		new(this) Viewport(std::move(vp));
 	}
 	return *this;

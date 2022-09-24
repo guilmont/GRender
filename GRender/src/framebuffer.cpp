@@ -55,6 +55,7 @@ Framebuffer::Framebuffer(Framebuffer&& fBuffer) noexcept {
 
 Framebuffer& Framebuffer::operator=(Framebuffer&& fBuffer) noexcept {
     if (&fBuffer != this) {
+        this->~Framebuffer();
         new(this) Framebuffer(std::move(fBuffer));
     }
     return *this;

@@ -52,6 +52,7 @@ Cube::Cube(Cube&& obj) noexcept : Object(std::move(obj)) {}
 
 Cube& Cube::operator=(Cube&& obj) noexcept {
     if (&obj != this) {
+        this->~Cube();
         new (this) Cube(std::move(obj));
     }
     return *this;

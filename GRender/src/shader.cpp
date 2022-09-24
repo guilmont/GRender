@@ -83,8 +83,9 @@ Shader::Shader(Shader&& shader) noexcept {
 }
 
 Shader& Shader::operator=(Shader&& shader) noexcept {
-    if (programID != shader.programID) {
-        std::swap(programID, shader.programID);
+    if (this != &shader) {
+        this->~Shader();
+        new (this) Shader(std::move(shader));
     }
     return *this;
 }

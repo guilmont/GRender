@@ -68,6 +68,7 @@ Quad::Quad(Quad&& rhs) noexcept {
 
 Quad& Quad::operator=(Quad&& rhs) noexcept {
     if (&rhs != this) {
+        this->~Quad();
         new(this) Quad(std::move(rhs));
     }
     return *this;

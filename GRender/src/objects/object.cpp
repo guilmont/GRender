@@ -54,6 +54,7 @@ Object::Object(Object&& obj) noexcept {
 
 Object& Object::operator=(Object&& obj) noexcept {
     if (&obj != this) {
+        this->~Object();
         new (this) Object(std::move(obj));
     }
     return *this;
