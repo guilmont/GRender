@@ -2,30 +2,16 @@
 
 #include <vector>
 
-#include "glm/glm.hpp"
-#include "glad/glad.h"
+#include "GRender/objects/sphere.h"
+#include "GRender/objects/cylinder.h"
 
 namespace polymer {
-
-struct Vertex {
-    Vertex(void) = default;
-    Vertex(const glm::vec3& pos, const glm::vec3& normal, const glm::vec3& cor); 
-
-    glm::vec3 pos, normal, color;
-};
-
-struct Object3D {
-    uint32_t vao, vtx, idx, com, dir;
-    std::vector<Vertex> vtxBuffer;
-    std::vector<glm::uvec3> idxBuffer;
-    glm::vec3 color;
-};
 
 class Polymer {
 public:
     Polymer(uint32_t numBeads, float kuhn);
     Polymer(void) = default;
-    ~Polymer(void);
+    ~Polymer(void) = default;
 
     // We have some GPU data we don't want to copy
     Polymer(const Polymer&) = delete;
@@ -34,29 +20,34 @@ public:
     Polymer(Polymer&&) noexcept;
     Polymer& operator=(Polymer&&) noexcept;
 
-    uint32_t getNumBeads(void) const;
-    float getKuhn(void) const;
-    float& getRadius(void);
+    uint32_t numBeads(void) const { return m_NumBeads; }
+    float kuhn(void) const { return m_Kuhn; }
+    float& radius(void) { return m_Radius; }
 
-    glm::vec3 getSphereColor(void) const;
-    glm::vec3 getCylinderColor(void) const;
-    
-    void submitBlobs(void);
-    void submitConnections(void);
+    glm::vec4& sphereColor(void) { return m_SphereColor; }
+    glm::vec4& cylinderColor(void) { return m_CylinderColor; }
 
-    void updateSphereColor(const glm::vec3&);
-    void updateCylinderColor(const glm::vec3&);
+    void draw(void);
 
 private:
-    void createSphere(const glm::vec3& color, uint32_t divisions);
-    void createCylinder(const glm::vec3& color, uint32_t divisions);
+    struct CData {
+        glm::vec3 position, angle;
+        float height;
+    };
 
 private:
-    uint32_t numBeads = 1;   // number of beads in polymer
-    float kuhn = 1.0f;       // defines polymer structure
-    float radius = 0.5f;     // drawing radius
+    uint32_t m_NumBeads = 1;   // number of beads in polymer
+    float m_Kuhn = 1.0f;       // defines polymer structure
+    float m_Radius = 0.5f;     // drawing radius
     
-    Object3D sphere, cylinder;
+    glm::vec4 m_SphereColor = { 0.2f, 0.5f, 0.8f, 1.0f },
+              m_CylinderColor = { 0.9f, 0.9f, 0.9f, 1.0f };
+
+    std::vector<glm::vec3> m_Position;
+    std::vector<CData> m_Tubes;
+
+    GRender::Sphere m_Sphere;
+    GRender::Cylinder m_Cylinder;
 };
 
 } // namespace polymer

@@ -3,8 +3,6 @@
 #include "GRender/objects/sphere.h"
 namespace GRender {
 
-constexpr float PI = 3.14159265358979323846f;
-
 inline size_t startIndex(size_t k) { return 9 + (4*k + 1) * (k -1); }
 
 Sphere::Sphere(const uint32_t maxNumSpheres) : Object(maxNumSpheres) {
@@ -13,14 +11,14 @@ Sphere::Sphere(const uint32_t maxNumSpheres) : Object(maxNumSpheres) {
 
     const size_t N = 13;  // must be >= 3 and odd
     const size_t NY = N + 2 * (N >> 1);
-    float dTheta = PI / (NY - 1);
+    float dTheta = glm::pi<float>() / float(NY - 1);
 
     // Creating vertices
     for (size_t k = 1; k < NY-1; k++) {
         size_t NX = k < (N + (N>>1)) ? std::min(2*k+1, N) : 2 * (NY - k - 1) + 1;
 
         float theta = k * dTheta,
-              dPhi = 0.5f * PI / (NX - 1);
+              dPhi = glm::half_pi<float>() / (NX - 1);
 
         size_t maxL = 4 * (NX-1) + 1;
 
@@ -31,7 +29,7 @@ Sphere::Sphere(const uint32_t maxNumSpheres) : Object(maxNumSpheres) {
                 float phi = l * dPhi;
                 v.position = {0.0f, 0.5f, 0.0f};
                 v.normal   = {0.0f, 1.0f, 0.0f};
-                v.texCoord = {1.0f - 0.5f * phi / PI, 1.0f};
+                v.texCoord = {1.0f -  phi / glm::two_pi<float>(), 1.0f};
                 vtxBuffer.emplace_back(v);
             }
         }
@@ -42,7 +40,7 @@ Sphere::Sphere(const uint32_t maxNumSpheres) : Object(maxNumSpheres) {
             object::Vertex v;
             v.normal = {cos(phi) * sin(theta), cos(theta), sin(phi) * sin(theta)};
             v.position = 0.5f * v.normal;
-            v.texCoord = {1.0f - 0.5f * phi / PI, 1.0f - theta / PI};
+            v.texCoord = {1.0f - phi / glm::two_pi<float>(), 1.0f - theta / glm::pi<float>() };
             vtxBuffer.emplace_back(v);
         }
 
@@ -53,7 +51,7 @@ Sphere::Sphere(const uint32_t maxNumSpheres) : Object(maxNumSpheres) {
                 float phi = l * dPhi;
                 v.position = {0.0f, -0.5f, 0.0f};
                 v.normal   = {0.0f, -1.0f, 0.0f};
-                v.texCoord = {1.0f - 0.5f * phi / PI, 0.0f};
+                v.texCoord = {1.0f - phi / glm::two_pi<float>(), 0.0f};
                 vtxBuffer.emplace_back(v);
             }   
         }

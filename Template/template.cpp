@@ -11,20 +11,13 @@
 #include "GRender/table.h"
 #include "GRender/viewport.h"
 
-#include "polymer.h"
 #include "GRender/objects/cube.h"
 #include "GRender/objects/sphere.h"
 #include "GRender/objects/cylinder.h"
 
-
-static std::ostream& operator<<(std::ostream& out, const glm::vec3& v) {
-	out << v.x << ", " << v.y << ", " << v.z;
-	return out;
-}
+#include "polymer.h"
 
 namespace fs = std::filesystem;
-
-using TexSpecification = GRender::texture::Specification;
 
 class Sandbox : public GRender::Application
 {
@@ -117,9 +110,9 @@ Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../a
 	shader.insert("quad",            { assets / "quad.vtx.glsl",            assets / "quad.frag.glsl"       });
 	shader.insert("objects",         { assets / "objects.vtx.glsl",         assets / "objects.frag.glsl"    });
 
-	TexSpecification defSpec;
+	GRender::texture::Specification defSpec;
 	view = GRender::Viewport({ 1200, 800 }, { defSpec, defSpec }, true);
-	camera = GRender::Camera({ 0.0f, 0.0f, 20.0f }, 0.0f, -1.5708f);
+	camera = GRender::Camera({ 0.0f, 0.0f, 25.0f }, 0.0f, -glm::half_pi<float>());
 	camera.open();
 
 	quad = GRender::Quad(1);
@@ -186,25 +179,13 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(bgColor.r, bgColor.g, bgColor.b, 1.0f);
 
-	// Drawing polymer
-	float radius = poly.getRadius();
-	const GRender::Shader& sCnt = shader["polyConnections"].bind();
-	sCnt.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
-	sCnt.setFloat("u_radius", 0.5f*radius);
-	poly.submitConnections();
-	
-	shader["polyBlobs"].bind();
-	shader["polyBlobs"].setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
-	shader["polyBlobs"].setFloat("u_radius", radius);
-	poly.submitBlobs();
-
 	// QUAD ///////////////////////////////////////////////
 	static float tt = 0;
 	tt += deltaTime;
 	auto sz = texture["space"].size();
 
 	quad::Specification spec;
-	spec.position = { 5.0f, 2+cos(tt), 0.0f};
+	spec.position = { 6.0f + sin(tt), 7.0f, 0.0f};
 	spec.size = 1.5f * glm::vec2{ float(sz.x) / float(sz.y), 1.0f };
 	spec.texCoord = glm::vec4{ 0.0f, 0.0f, 2.0f, 2.0f };
 	spec.texID = 0;
@@ -216,30 +197,36 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	quad.submit(spec);
 	quad.draw();
 
-
-	// CUBE ///////////////////////////////////////////////
+	///////////////////////////////////////////////////////
+	// OBJECTS ////////////////////////////////////////////
 	const Shader& osh = shader["objects"].bind();
 	osh.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
+	osh.setTexture(texture["space"], 0);
+	osh.setTexture(texture["earth"], 1);
 
+	// POLYMER ////////////////////////////////////////////
+	poly.draw();
+
+	// CUBE ///////////////////////////////////////////////
 	object::Specification obj;
+	obj.position = {cos(tt), 7.0f + sin(tt), 0.0f };
 	obj.rotation = { 0.0f, tt, 0.2f * tt };
-	obj.position = {cos(tt), 5.0f, 0.0f };
 	obj.scale.x = 1.0f + 0.7f * cos(tt);
-	obj.color = { 1.0f, 0.5f, 0.3f, 1.0f };
+	obj.textureID = 1;
 	cube.submit(obj);
 
-
-	// Sphere of cube
-	obj.scale = glm::vec3{0.2f};
+	// SPHERE OF CUBES ////////////////////////////////////
 	float osc = 4.0f * (1.0f + 0.5f * cos(tt));
+	glm::vec3 com = { -7.0f, 6.0f, 0.0f };
 
-	constexpr float PI = 3.14159265358979323846f;
+	obj.scale = glm::vec3{0.2f};
+	obj.textureID = -1;
 
 	const size_t N = 7;
 	const size_t NY = N + 2 * (N >> 1);
-	float dTheta = PI / (NY - 1);
+	float dTheta = glm::pi<float>() / float(NY - 1);
 
-	obj.position = osc * glm::vec3{0.0f, 0.5f, 0.0f};
+	obj.position = com + osc * glm::vec3{0.0f, 0.5f, 0.0f};
 	obj.color = {1.0f, 1.0f, 0.0f, 1.0f};
 	cube.submit(obj);
 
@@ -247,18 +234,18 @@ void Sandbox::onUserUpdate(float deltaTime) {
 		float theta = k * dTheta;
 		size_t NX = k < (N + (N>>1)) ? std::min(2*k+1, N) : 2 * (NY - k - 1) + 1;
 
-		float dPhi = 0.5f * PI / (NX - 1);
+		float dPhi = glm::half_pi<float>() / float(NX - 1);
 
 		for (size_t l = 0; l < 4*(NX-1); l++) {
 			float phi = l * dPhi;
 
-			obj.position = osc * 0.5f * glm::vec3{cos(phi) * sin(theta), cos(theta), sin(phi) * sin(theta)};
-			obj.color = {1.0f - 0.5f * phi / PI, 1.0f - theta / PI, 0.0f, 1.0f};
+			obj.position = com + osc * 0.5f * glm::vec3{cos(phi) * sin(theta), cos(theta), sin(phi) * sin(theta)};
+			obj.color = {1.0f - phi / glm::two_pi<float>(), 1.0f - theta / glm::pi<float>(), 0.0f, 1.0f};
 			cube.submit(obj);
 		}
 	}
 
-	obj.position = osc * glm::vec3{0.0f, -0.5f, 0.0f};
+	obj.position = com + osc * glm::vec3{0.0f, -0.5f, 0.0f};
 	obj.color = {0.0f, 0.0f, 0.0f, 1.0f};
 	cube.submit(obj);
 
@@ -266,19 +253,18 @@ void Sandbox::onUserUpdate(float deltaTime) {
 
 	// SPHERE ////////////////////////////////////////////////
 	object::Specification obj2;
-	obj2.position = { 5.0f, -3.0f, 0.0f };
+	obj2.position = { 7.0f, -5.0f, 0.0f };
 	obj2.rotation = { 0.0f, -0.5f*tt, 0.0f };
 	obj2.scale = glm::vec3{ 4.0f };
 	obj2.textureID = 1;
-	osh.setTexture(texture["earth"], 1);
 	sphere.submit(obj2);
 	sphere.draw();
 
 	// CYLINDER ///////////////////////////////////////////
 	object::Specification obj3;
-	obj3.position = {-5.0f, 3.0f, 0.0f};
+	obj3.position = {-8.0f, -6.0f, 0.0f};
 	obj3.scale = glm::vec3(2.0f);
-	obj3.rotation = {tt, tt, tt};
+	obj3.rotation = { tt, 0.5f*cos(tt), 0.5f * 3.1415f };
 	obj3.textureID = 0;
 	cylinder.submit(obj3);
 	cylinder.draw();
@@ -343,24 +329,19 @@ void Sandbox::ImGuiLayer(void) {
 
 	ImGui::Begin("Polymer");
 
-	int32_t numBeads = (int32_t) poly.getNumBeads();
+	int32_t numBeads = (int32_t) poly.numBeads();
 	if (ImGui::DragInt("numBeads", &numBeads, 1.0f, 1, 8192) && numBeads > 0) {
-		float kuhn = poly.getKuhn();
-		float radius = poly.getRadius();
+		float kuhn = poly.kuhn();
+		float radius = poly.radius();
 		poly = polymer::Polymer(uint32_t(numBeads), kuhn);
-		poly.getRadius() = radius;
+		poly.radius() = radius;
 	}
 
-	float& radius = poly.getRadius();
-	ImGui::DragFloat("radius", &radius, 0.1f, 0.1f, 5.0f, "%.2f");
+	ImGui::DragFloat("Radius", &poly.radius(), 0.1f, 0.1f, 5.0f, "%.2f");
 
-	glm::vec3 color = poly.getSphereColor();
-	if (ImGui::ColorEdit3("Spheres", glm::value_ptr(color)))
-		poly.updateSphereColor(color);
+	ImGui::ColorEdit3("Spheres", glm::value_ptr(poly.sphereColor()));
 
-	color = poly.getCylinderColor();
-	if (ImGui::ColorEdit3("Connections", glm::value_ptr(color)))
-		poly.updateCylinderColor(color);
+	ImGui::ColorEdit3("Connections", glm::value_ptr(poly.cylinderColor()));
 
 	ImGui::ColorEdit3("Background", glm::value_ptr(bgColor));
 

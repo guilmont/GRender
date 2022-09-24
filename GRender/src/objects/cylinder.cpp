@@ -3,17 +3,16 @@
 #include "GRender/objects/cylinder.h"
 
 namespace GRender {
-constexpr float PI = 3.14159265358979323846f;
 
 Cylinder::Cylinder(const uint32_t maxNumCylinders) : Object(maxNumCylinders) {
 
     const size_t N = 30;
-    const float dPhi = 2.0f * PI / (N-1);
+    const float dPhi = glm::two_pi<float>() / float(N-1);
     
     std::vector<glm::vec3> vecData;
     for (size_t k = 0; k < N; k++) {
         float phi  = k * dPhi;
-        vecData.emplace_back(cos(phi), sin(phi), 0.5f * phi / PI);
+        vecData.emplace_back(cos(phi), sin(phi), phi / glm::two_pi<float>());
     }
 
     // Creating vertices
@@ -24,8 +23,8 @@ Cylinder::Cylinder(const uint32_t maxNumCylinders) : Object(maxNumCylinders) {
     // Top
     for (float r : {0.0f, 0.5f}) {
         for (const glm::vec3& val : vecData) {
-            v.position = { r * val.x, 0.5f, r * val.y }; 
-            v.normal =   { 0.0f, 1.0f, 0.0f };
+            v.position = { 0.5f, r * val.x, r * val.y }; 
+            v.normal =   { 1.0f, 0.0f, 0.0f };
             v.texCoord = { val.z, h};
             vtxBuffer.push_back(v);
         }
@@ -35,8 +34,8 @@ Cylinder::Cylinder(const uint32_t maxNumCylinders) : Object(maxNumCylinders) {
     // Sides
     for (float y : {1.0f, 0.0f}) {
         for (const glm::vec3& val : vecData) {
-            v.position = { 0.5f * val.x, -0.5 + y, 0.5f * val.y };
-            v.normal = { val.x, 0.0f, val.y };
+            v.position = {  -0.5 + y, 0.5f * val.x, 0.5f * val.y };
+            v.normal = { 0.0f, val.x, val.y };
             v.texCoord = { val.z, h };
             vtxBuffer.push_back(v);
         }
@@ -46,8 +45,8 @@ Cylinder::Cylinder(const uint32_t maxNumCylinders) : Object(maxNumCylinders) {
     // Bottom
     for (float r : {0.5f, 0.0f}) {
         for (const glm::vec3& val : vecData) {
-            v.position = { r * val.x, -0.5f, r * val.y };
-            v.normal = { 0.0f, -1.0f, 0.0f };
+            v.position = { -0.5f, r * val.x, r * val.y };
+            v.normal = { -1.0f, 0.0f, 0.0f };
             v.texCoord = { val.z, h };
             vtxBuffer.push_back(v);
         }
