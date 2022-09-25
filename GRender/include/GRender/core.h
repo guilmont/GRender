@@ -36,11 +36,13 @@ namespace fs = std::filesystem;
 inline float DPI_FACTOR = 1;  // Used to rescale sizes for HIDPI screens
 
 #if defined(_DEBUG)
-	#define ASSERT(EXPR, MSG) if (!(EXPR)) { std::cerr << "ERROR (" << __FUNCTION__ << "): "<< (MSG) << std::endl; std::abort(); }
-	#define WARN(MSG)         std::cout << "WARN (" << __FUNCTION__ << "): "<< (MSG) << std::endl;
+	#define ASSERT(EXPR, MSG) if (!(EXPR)) { std::cerr << "\e[1;31mERROR (\e[0m\e[1m" << __FUNCTION__ << "\e[1;31m):\e[0m "<< (MSG) << std::endl; std::abort(); }
+	#define WARN(MSG) std::cout << "\e[1;33mWARN (\e[0m\e[1m" << __FUNCTION__ << "\e[1;33m):\e[0m "<< (MSG) << std::endl
+	#define INFO(MSG) std::cout << "\e[1;32mINFO (\e[0m\e[1m" << __FUNCTION__ << "\e[1;32m):\e[0m "<< (MSG) << std::endl
 #else 
 	#define ASSERT(EXPR, MSG) {}
 	#define WARN(MSG)         {}
+	#define INFO(MSG)         {}
 #endif
 
 #if defined(_DEBUG) && !defined(__APPLE__) // Apple is stuck with openGL 4.1
