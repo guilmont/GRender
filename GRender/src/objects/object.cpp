@@ -92,7 +92,7 @@ void Object::initialize(const std::vector<Vertex>& vtxBuffer, const std::vector<
         glGenBuffers(1, &bufID);
         glBindBuffer(GL_ARRAY_BUFFER, bufID);
         glBufferData(GL_ARRAY_BUFFER, maxNumber * bytes, nullptr, GL_DYNAMIC_DRAW);
-        glVertexAttribPointer(id, size, GL_FLOAT, GL_FALSE, bytes, nullptr);
+        glVertexAttribPointer(id, size, GL_FLOAT, GL_FALSE, static_cast<GLsizei>(bytes), nullptr);
         glEnableVertexAttribArray(id);
         glVertexAttribDivisor(id, 1);
     };
