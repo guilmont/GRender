@@ -110,6 +110,7 @@ Shader::~Shader(void) {
 
 Shader::Shader(Shader&& shader) noexcept {
     std::swap(programID, shader.programID);
+    std::swap(type, shader.type);
 }
 
 Shader& Shader::operator=(Shader&& shader) noexcept {
