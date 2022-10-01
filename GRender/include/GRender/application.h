@@ -27,6 +27,9 @@ namespace GRender {
 
         void scaleSizes(void); // Toggles the scaling for HIDPI screens
 
+        static void EnableVSync(void);  // Default on
+        static void DisableVSync(void);
+
     private:
         GLFWwindow* window = nullptr;
         float deltaTime = 0.1f;   // This value is going to be uploaded by main loop

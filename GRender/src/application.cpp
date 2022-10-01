@@ -10,6 +10,9 @@ void winResize_callback(GLFWwindow* window, int width, int height) {
 /*****************************************************************************/
 
 
+void Application::EnableVSync() { glfwSwapInterval(1); }
+void Application::DisableVSync() { glfwSwapInterval(0); }
+
 Application::Application(const std::string& name, uint32_t width, uint32_t height,
                          const std::filesystem::path& layout) {
 
