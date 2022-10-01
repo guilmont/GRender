@@ -8,6 +8,7 @@ class Texture;
 class Shader {
 public:
     Shader(const std::filesystem::path& vtxPath, const std::filesystem::path& frgPath);
+    Shader(const std::filesystem::path& computePath);
     Shader(void) = default;
     ~Shader(void);
 
@@ -21,6 +22,9 @@ public:
 
     // Return a reference to current object for easier handling
     const Shader& bind(void);
+
+    // Used to dispatch compute shader programs
+    void dispatch(uint32_t numGroupsX, uint32_t numGroupsY = 1, uint32_t numGroupsZ = 1) const;
 
     void setTexture(const Texture& tex, uint32_t slot = 0) const;
 
@@ -40,7 +44,13 @@ public:
     void setMat3Array(const std::string&, const float *, int) const;
 
 private:
+    enum class Type : uint8_t {
+        RENDER = 0,
+        COMPUTE = 1,
+    };
+
     uint32_t programID = 0;
+    Type type = Type::RENDER;
 };
 
 } // namespace GRender

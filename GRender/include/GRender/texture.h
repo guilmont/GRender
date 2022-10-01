@@ -8,6 +8,7 @@ namespace texture {
 enum class Format : uint8_t {
     NONE,
     RGBA8,
+    RGBA32,
     INTEGER,
     UNSIGNED_INTEGER,
     FLOAT
