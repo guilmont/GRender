@@ -24,8 +24,8 @@ public:
     float kuhn(void) const { return m_Kuhn; }
     float& radius(void) { return m_Radius; }
 
-    glm::vec4& sphereColor(void) { return m_SphereColor; }
-    glm::vec4& cylinderColor(void) { return m_CylinderColor; }
+    glm::vec3& sphereColor(void) { return m_SphereColor; }
+    glm::vec3& cylinderColor(void) { return m_CylinderColor; }
 
     void draw(void);
 
@@ -40,8 +40,8 @@ private:
     float m_Kuhn = 1.0f;       // defines polymer structure
     float m_Radius = 0.5f;     // drawing radius
     
-    glm::vec4 m_SphereColor = { 0.2f, 0.5f, 0.8f, 1.0f },
-              m_CylinderColor = { 0.9f, 0.9f, 0.9f, 1.0f };
+    glm::vec3 m_SphereColor = { 0.2f, 0.5f, 0.8f },
+              m_CylinderColor = { 0.9f, 0.9f, 0.9f };
 
     std::vector<glm::vec3> m_Position;
     std::vector<CData> m_Tubes;

@@ -12,27 +12,29 @@ add_subdirectory(vendor)
 
 # Create library
 add_library(GRender STATIC 
-	"src/events.cpp"
-	"src/dialog.cpp"
-	"src/shader.cpp"
-	"src/texture.cpp"
+	"src/application.cpp"
 	"src/camera.cpp"
 	"src/camera2D.cpp"
-	"src/quad.cpp"
-	"src/framebuffer.cpp"
+	"src/dialog.cpp"
+	"src/events.cpp"
 	"src/fonts.cpp"           
-	"src/application.cpp"
+	"src/framebuffer.cpp"
 	"src/mailbox.cpp"
+	"src/orbitalCamera.cpp"
+	"src/quad.cpp"
+	"src/shader.cpp"
+	"src/texture.cpp"
+	"src/utils.cpp"
 	"src/viewport.cpp"
 
 	"src/internal/dialogImpl.cpp"
 	"src/internal/fontsImpl.cpp"
 	"src/internal/OpenSans.cpp"
 
-	"src/objects/object.cpp"
 	"src/objects/cube.cpp"
-	"src/objects/sphere.cpp"
 	"src/objects/cylinder.cpp"
+	"src/objects/object.cpp"
+	"src/objects/sphere.cpp"
 )
 
 target_include_directories(GRender PUBLIC "${PROJECT_SOURCE_DIR}/include")

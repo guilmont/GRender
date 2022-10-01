@@ -66,7 +66,7 @@ Polymer& Polymer::operator=(Polymer&& poly) noexcept {
 
 void Polymer::draw(void) {
     GRender::object::Specification obj;
-    obj.color = m_SphereColor;
+    obj.color = glm::vec4{m_SphereColor, 1.0f};
     obj.scale = glm::vec3(2.0f * m_Radius);
     for (const glm::vec3& pos : m_Position) {
         obj.position = pos;
@@ -74,7 +74,7 @@ void Polymer::draw(void) {
     }
     m_Sphere.draw();
 
-    obj.color = m_CylinderColor;
+    obj.color = glm::vec4{m_CylinderColor, 1.0f};
     obj.scale = {  1.0f, m_Radius, m_Radius };
     for (const CData& dt : m_Tubes) {
         obj.position = dt.position;

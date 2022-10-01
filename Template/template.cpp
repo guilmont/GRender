@@ -6,9 +6,12 @@
 #include "GRender/entryPoint.h"
 
 #include "GRender/camera.h"
+#include "GRender/orbitalCamera.h"
+
 #include "GRender/quad.h"
 #include "GRender/shader.h"
 #include "GRender/table.h"
+#include "GRender/utils.h"
 #include "GRender/viewport.h"
 
 #include "GRender/objects/cube.h"
@@ -40,10 +43,13 @@ private:
 	bool view_implotdemo = false;
 #endif
 
-	GRender::Camera camera;
 	GRender::Viewport view;
 	GRender::Table<GRender::Shader> shader;
 	GRender::Table<GRender::Texture> texture;
+
+	bool useOrbitalCamera = true;
+	GRender::Camera camera;
+	GRender::OrbitalCamera orbital;
 
 	GRender::Quad quad;
 	polymer::Polymer poly;
@@ -109,8 +115,12 @@ Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../a
 
 	GRender::texture::Specification defSpec;
 	view = GRender::Viewport({ 1200, 800 }, { defSpec, defSpec }, true);
-	camera = GRender::Camera({ 0.0f, 0.0f, 25.0f }, 0.0f, -glm::half_pi<float>());
+
+	camera = GRender::Camera({ 0.0f, 0.0f, 25.0f });
 	camera.open();
+
+	orbital = GRender::OrbitalCamera({0.0f, 0.0f, 0.0f}, 25.0f);
+	orbital.open();
 
 	quad = GRender::Quad(1);
 	cube = GRender::Cube(6 * 11 * 11);
@@ -166,8 +176,10 @@ void Sandbox::onUserUpdate(float deltaTime) {
 
 	///////////////////////////////////////////////////////////////////////////
 	// Camera
-	if (view.hovered() && !ctrl)  // !ctrl not to interfere with commands used above
-		camera.controls(deltaTime);
+	if (view.hovered() && !ctrl) { // !ctrl not to interfere with commands used above
+		if (useOrbitalCamera) { orbital.controls(deltaTime); }
+		else                  { camera.controls(deltaTime);  }
+	}
 	
 	///////////////////////////////////////////////////////////////////////////
 
@@ -189,7 +201,11 @@ void Sandbox::onUserUpdate(float deltaTime) {
 
 	auto& qsh = shader["quad"].bind();
 	qsh.setTexture(texture["space"], spec.texID);
-	qsh.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
+	if (useOrbitalCamera) {
+		qsh.setMatrix4f("u_transform", glm::value_ptr(orbital.getViewMatrix()));
+	} else {
+		qsh.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
+	}
 
 	quad.submit(spec);
 	quad.draw();
@@ -197,7 +213,11 @@ void Sandbox::onUserUpdate(float deltaTime) {
 	///////////////////////////////////////////////////////
 	// OBJECTS ////////////////////////////////////////////
 	const Shader& osh = shader["objects"].bind();
-	osh.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
+	if (useOrbitalCamera) {
+		osh.setMatrix4f("u_transform", glm::value_ptr(orbital.getViewMatrix()));
+	} else {
+		osh.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
+	}
 	osh.setTexture(texture["space"], 0);
 	osh.setTexture(texture["earth"], 1);
 
@@ -272,21 +292,12 @@ void Sandbox::onUserUpdate(float deltaTime) {
 void Sandbox::ImGuiLayer(void) {
 	using namespace GRender;
 
-	if (view_specs) {
-		ImGui::Begin("Specs", &view_specs);
-		ImGui::Text("FT: %.3f ms", 1000.0 * double(ImGui::GetIO().DeltaTime));
-		ImGui::Text("FPS: %.0f", ImGui::GetIO().Framerate);
-		ImGui::Text("Vendor: %s", glad_glGetString(GL_VENDOR));
-		ImGui::Text("Graphics card: %s", glad_glGetString(GL_RENDERER));
-		ImGui::Text("OpenGL version: %s", glad_glGetString(GL_VERSION));
-		ImGui::Text("GLSL version: %s", glad_glGetString(GL_SHADING_LANGUAGE_VERSION));
-		ImGui::End();
-	}
+	utils::PerformanceDisplay(view_specs);
+	utils::ViewWidgetsDemo(view_imguidemo);
 
-	camera.display();
+	if (useOrbitalCamera) { orbital.display(); }
+	else                  { camera.display(); }
 
-	if (view_imguidemo)
-		ImGui::ShowDemoWindow(&view_imguidemo);
 
 #ifdef BUILD_IMPLOT
 	if (view_implotdemo)
@@ -326,35 +337,34 @@ void Sandbox::ImGuiLayer(void) {
 
 	ImGui::Begin("Polymer");
 
-	int32_t numBeads = (int32_t) poly.numBeads();
-	if (ImGui::DragInt("numBeads", &numBeads, 1.0f, 1, 8192) && numBeads > 0) {
+	const float split = 0.3f;
+	const float width = 0.43f;
+
+	uint32_t numBeads = poly.numBeads();
+	if (utils::Drag<uint32_t>("NumBeads:", numBeads, split, width, 1.0f, 1, 8192) && numBeads > 0) {
 		float kuhn = poly.kuhn();
 		float radius = poly.radius();
-		poly = polymer::Polymer(uint32_t(numBeads), kuhn);
+		poly = polymer::Polymer(numBeads, kuhn);
 		poly.radius() = radius;
 	}
 
-	ImGui::DragFloat("Radius", &poly.radius(), 0.1f, 0.1f, 5.0f, "%.2f");
+	utils::Drag("Radius:", poly.radius(), split, width, 0.1f, 0.1f, 5.0f, "%.2f");
 
-	ImGui::ColorEdit3("Spheres", glm::value_ptr(poly.sphereColor()));
+	utils::RGB_Edit("Spheres", poly.sphereColor(), split);
+	utils::RGB_Edit("Connections", poly.cylinderColor(), split);
+	utils::RGB_Edit("Background", bgColor, split);
 
-	ImGui::ColorEdit3("Connections", glm::value_ptr(poly.cylinderColor()));
-
-	ImGui::ColorEdit3("Background", glm::value_ptr(bgColor));
-
-	static bool Attach = false;
-	if (ImGui::Button("Switch attachment"))
-		Attach = !Attach;
+	utils::Checkbox("Orbital camera:", useOrbitalCamera, split);
 
 	ImGui::End();
-	
 
 	// Show viewport
-	view.display("Viewport", Attach);
+	view.display("Viewport");
 
 	// Update camera aspect ratio in case viewport changed
-	glm::vec2 vsz= view.size();
-	camera.setAspectRatio(vsz.x / vsz.y);
+	glm::vec2 vsz = view.size();
+	orbital.aspectRatio() = vsz.x / vsz.y;
+	camera.aspectRatio() = vsz.x / vsz.y;
 }
 
 void Sandbox::ImGuiMenuLayer(void) {
@@ -398,9 +408,12 @@ void Sandbox::ImGuiMenuLayer(void) {
 				scaleSizes(); // Toggle sizes
 		}
 
-		if (ImGui::MenuItem("Camera controls"))
-			camera.open();
-
+		if (ImGui::BeginMenu("Camera controls")) {
+			if (ImGui::MenuItem("Free")) { useOrbitalCamera = false; camera.open(); }
+			if (ImGui::MenuItem("Orbital")) { useOrbitalCamera = true; orbital.open(); }
+			ImGui::EndMenu();
+		}
+		
 		ImGui::EndMenu();
 	}
 

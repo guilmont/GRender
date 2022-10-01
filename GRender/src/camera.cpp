@@ -4,66 +4,44 @@
 
 #include "events.h"
 #include "fonts.h"
+#include "utils.h"
 
 namespace GRender {
 
-Camera::Camera(const glm::vec3& defPos, float defPitch, float defYaw) : 
-    mDefPosition(defPos), mPosition(defPos),
-    mDefPitch(defPitch), mPitch(defPitch),
-    mDefYaw(defYaw), mYaw(defYaw) {
-
+Camera::Camera(const glm::vec3& defPos, float defPitch, float defYaw)
+: m_DefPosition(defPos), m_Position(defPos), m_Angles({defYaw, defPitch}), m_DefAngles(m_Angles) {
     calculateFront();
 }
 
-void Camera::open() {
-    active = true;
-}
-
-void Camera::close() {
-    active = false;
-}
+void Camera::open()  { m_Active = true;  }
+void Camera::close() { m_Active = false; }
 
 void Camera::display(void) {
-    if (!active) {
-        return;
-    }
+    if (!m_Active) { return; }
 
-    ImGui::Begin("Camera info", &active);
+    ImGui::Begin("Camera info", &m_Active);
     ImGui::SetWindowSize({ DPI_FACTOR * 500.0f, DPI_FACTOR * 225.0f }, ImGuiCond_FirstUseEver);
     
-    float space = 0.7f * ImGui::GetContentRegionAvail().x;
-    float drag = 0.33f * space;
+    float space = 0.25f;
+    float drag = 0.333f;
 
+    utils::Drag<float,3>("Position:", m_Position, space, 3.08f * drag, 0.1f);
 
-    auto spaceWidth = [](float space, float width) {
-        ImGui::SameLine(ImGui::GetContentRegionAvail().x - space);
-        ImGui::SetNextItemWidth(width);
-    };
-
-    fonts::Text("Position:", "bold");
-    spaceWidth(space, 3.03f * drag);
-    ImGui::DragFloat3("##Position", &mPosition[0], 0.1f);
-
-    float value = glm::degrees(mPitch);
-    fonts::Text("Pitch:", "bold");
-    spaceWidth(space, drag);
-    if (ImGui::DragFloat("##Pitch", &value, 0.25f, -89.0f, 89.0f, "%.f")) {
+    float value = glm::degrees(m_Angles.y);
+    if (utils::Drag("Pitch:", value, space, drag, 0.25f, -89.0f, 89.0f, "%.f")) {
         value = std::max(std::min(value, 89.0f), -89.0f);
-        setPitch(glm::radians(value));
+        m_Angles.y = glm::radians(value);
     }
 
-    value = glm::degrees(mYaw);
-    fonts::Text("Yaw:", "bold");
-    spaceWidth(space, drag);
-    if (ImGui::DragFloat("##Yaw", &value, 0.25f, -180.0f, 180.0f, "%.f")) {
-        setYaw(glm::radians(value));
+    value = glm::degrees(m_Angles.x);
+    if (utils::Drag("Yaw:", value, space, drag, 0.25f, -180.0f, 180.0f, "%.f")) {
+        m_Angles.x = glm::radians(value);
     }
 
     ImGui::Dummy({0.0f, 5.0f * DPI_FACTOR});
     if (ImGui::Button("Set defaults")) {
-        mDefPosition = mPosition;
-        mDefPitch = mPitch;
-        mDefYaw = mYaw;
+        m_DefPosition = m_Position;
+        m_DefAngles = m_Angles;
     }
     ImGui::SameLine();
     if (ImGui::Button("Reset"))
@@ -71,7 +49,7 @@ void Camera::display(void) {
 
     ///////////////////////////////////////////////////////
 
-    space = 0.65f * ImGui::GetContentRegionAvail().x;
+    space += 0.1f; // To account for indentation
 
     ImGui::Dummy({ 0.0f, 10.0f * DPI_FACTOR });
  
@@ -80,44 +58,34 @@ void Camera::display(void) {
     //nodeFlags |= ImGuiTreeNodeFlags_AllowItemOverlap;
 
     if (ImGui::TreeNodeEx("Configurations", nodeFlags)) {
-        ImGui::Text("Sensitivity:");
-        spaceWidth(space, drag);
-        ImGui::DragFloat("##Sensitivity", &mSensitivity, 0.01f, 0.01f, 2.0f, "%.2f");
+        utils::Drag("Sensitivity:", m_Sensitivity, space, drag, 0.01f, 0.01f, 2.0f, "%.2f");
 
-        ImGui::Text("Speed:");
-        spaceWidth(space, drag);
-        ImGui::DragFloat("##Speed", &mSpeed, 1.0f, 1.0f, 50.0f, "%.1f");
+        utils::Drag("Speed:", m_Speed, space, drag, 1.0f, 1.0f, 50.0f, "%.1f");
 
-        value = glm::degrees(mFOV);
-        ImGui::Text("FOV:");
-        spaceWidth(space, drag);
-        if (ImGui::DragFloat("##FOV", &value, 0.5f, 15.0f, 60.0f, "%.f"))
-            mFOV = glm::radians(value);
+        value = glm::degrees(m_FOV);
+        if (utils::Drag("FOV:", value, space, drag, 0.5f, 15.0f, 60.0f, "%.f"))
+            m_FOV = glm::radians(value);
         
         ImGui::Dummy({ 0.0f, 5.0f * DPI_FACTOR });
     
         ImGui::Unindent();
         if (ImGui::TreeNode("Defaults")) {
             ImGui::Dummy({0.0f, 5.0f * DPI_FACTOR});
+            ImGui::PushID("defaults");
 
-            ImGui::Text("Position:");
-            spaceWidth(space, 3.05f * drag);
-            ImGui::DragFloat3("##defPosition", &mDefPosition[0], 0.1f);
+            utils::Drag<float, 3>("Position:", m_DefPosition, space, 3.08f * drag, 0.1f);
 
-            value = glm::degrees(mDefPitch);
-            ImGui::Text("Pitch:");
-            spaceWidth(space, drag);
-            if (ImGui::DragFloat("##defPitch", &value, 0.25f, -89.0f, 89.0f, "%.f")) {
-                mDefPitch = glm::radians(value);
+            value = glm::degrees(m_DefAngles.y);
+            if (utils::Drag("Pitch:", value, space, drag, 0.25f, -89.0f, 89.0f, "%.f")) {
+                m_DefAngles.y = glm::radians(value);
             }
 
-            value = glm::degrees(mDefYaw);
-            ImGui::Text("Yaw:");
-            spaceWidth(space, drag);
-            if (ImGui::DragFloat("##defYaw", &value, 0.25f, -180.0f, 180.0f, "%.f")) {
-                mDefYaw = glm::radians(value);
+            value = glm::degrees(m_DefAngles.x);
+            if (utils::Drag("Yaw:", value,  space, drag, 0.25f, -180.0f, 180.0f, "%.f")) {
+                m_DefAngles.x = glm::radians(value);
             }
             
+            ImGui::PopID();
             ImGui::Dummy({ 0.0f, 10.0f * DPI_FACTOR });
             ImGui::TreePop();
         }
@@ -125,117 +93,49 @@ void Camera::display(void) {
         ImGui::TreePop();
     }
 
-
     ImGui::End();
 }
 
 glm::mat4 Camera::getViewMatrix(void) {
-    glm::mat4 proj = glm::perspective(mFOV, mRatio, mNear, mFar);
-    glm::mat4 view = glm::lookAt(mPosition, mPosition + mFront, {0.0f, 1.0f, 0.0f });
+    glm::mat4 proj = glm::perspective(m_FOV, m_Ratio, m_Near, m_Far);
+    glm::mat4 view = glm::lookAt(m_Position, m_Position + m_Front, {0.0f, 1.0f, 0.0f });
     return proj * view;
 }
 
 void Camera::reset() {
-    mPosition = mDefPosition;
-    mPitch = mDefPitch;
-    mYaw = mDefYaw;
-
+    m_Position = m_DefPosition;
+    m_Angles = m_DefAngles;
     calculateFront();
 }
 
 void Camera::controls(float deltaTime) {
-    if (keyboard::IsDown('W') || (mouse::Wheel() > 0.0f))
-        moveFront(deltaTime);
+    if (keyboard::IsDown('W') || (mouse::Wheel() > 0.0f)) { m_Position += m_Front * m_Speed * deltaTime; } 
+    if (keyboard::IsDown('S') || (mouse::Wheel() < 0.0f)) { m_Position -= m_Front * m_Speed * deltaTime; }
 
-    if (keyboard::IsDown('S') || (mouse::Wheel() < 0.0f))
-        moveBack(deltaTime);
+    if (keyboard::IsDown('E')) { m_Position.y += m_Speed * deltaTime; }
+    if (keyboard::IsDown('Q')) { m_Position.y -= m_Speed * deltaTime; }
 
-    if (keyboard::IsDown('D'))
-        moveRight(deltaTime);
+    if (keyboard::IsDown('D')) { m_Position += m_Side * m_Speed * deltaTime; }
+    if (keyboard::IsDown('A')) { m_Position -= m_Side * m_Speed * deltaTime; }
 
-    if (keyboard::IsDown('A'))
-        moveLeft(deltaTime);
-
-    if (keyboard::IsDown('E'))
-        moveUp(deltaTime);
-
-    if (keyboard::IsDown('Q'))
-        moveDown(deltaTime);
-
-    if (mouse::IsClicked(GRender::MouseButton::MIDDLE))
-        reset();
-
-    if (mouse::IsDown(GRender::MouseButton::LEFT))
-        lookAround(mouse::Delta(), deltaTime);
+    if (mouse::IsClicked(MouseButton::MIDDLE)) { reset(); }
+    if (mouse::IsDown(MouseButton::LEFT)) { lookAround(mouse::Delta() * m_Sensitivity * deltaTime); }
 }
 
-void Camera::moveFront(float elapsed) {
-    mPosition += mFront * mSpeed * elapsed;
-}
-
-void Camera::moveBack(float elapsed) {
-    mPosition -= mFront * mSpeed * elapsed;
-}
-
-void Camera::moveUp(float elapsed) {
-    mPosition.y += mSpeed * elapsed;
-}
-
-void Camera::moveDown(float elapsed) {
-    mPosition.y -= mSpeed * elapsed;
-}
-    
-void Camera::moveLeft(float elapsed) {
-    mPosition -= mSpeed * elapsed * glm::vec3{ -mFront.z, 0.0f, mFront.x };
-}
-
-void Camera::moveRight(float elapsed) {
-    mPosition += mSpeed * elapsed * glm::vec3{ -mFront.z, 0.0f, mFront.x };
-}
 
 void Camera::calculateFront() {
-    mFront = glm::normalize(glm::vec3{ cos(mYaw) * cos(mPitch), sin(mPitch), sin(mYaw) * cos(mPitch) });
+    m_Front = { cos(m_Angles.x) * cos(m_Angles.y), sin(m_Angles.y), sin(m_Angles.x) * cos(m_Angles.y) };
+    m_Side = { -m_Front.z, 0.0f, m_Front.x };
 }
 
-void Camera::lookAround(const glm::vec2& offset, float elapsed) {
-    mYaw -= offset.x * mSensitivity * elapsed;
+void Camera::lookAround(const glm::vec2& offset) {
+    m_Angles.x -= offset.x;
+    m_Angles.y += offset.y;
 
-    float lim = 89.0f / 180.0f * 3.1415926f;
-    mPitch += offset.y * mSensitivity * elapsed;
-    mPitch = std::max(std::min(mPitch, lim), - lim);
+    const float lim = glm::radians(89.0f);
+    m_Angles.y = std::max(std::min(m_Angles.y, lim), - lim);
 
     calculateFront();
 }
-
-const glm::vec3& Camera::getPosition() const { return mPosition; }
-void Camera::setPosition(const glm::vec3& pos) { mPosition = pos; }
-
-float Camera::getFOV() const { return mFOV; }
-void Camera::setFOV(float fov) { mFOV = fov; }
-
-float Camera::getSensitivity() const { return mSensitivity; }
-void Camera::setSensitivity(float sensitivity) { mSensitivity = sensitivity; }
-
-float Camera::getSpeed() const { return mSpeed; }
-void Camera::setSpeed(float speed) { mSpeed = speed; }
-
-float Camera::getAspectRatio() const { return mRatio; }
-void Camera::setAspectRatio(float aRatio) { mRatio = aRatio; }
-
-float Camera::getYaw() const { return mYaw; }
-void Camera::setYaw(float value) { mYaw = value; calculateFront(); }
-
-float Camera::getPitch() const { return mPitch; }
-void Camera::setPitch(float value) { mPitch = value; calculateFront(); }
-
-
-const glm::vec3& Camera::getDefaultPosition() const { return mDefPosition; }
-void Camera::setDefaultPosition(const glm::vec3& pos) { mDefPosition = pos; }
-
-float Camera::getDefaultPitch() const { return mDefPitch; }
-void Camera::setDefaultPitch(float pitch) { mDefPitch = pitch; }
-
-float Camera::getDefaultYaw() const { return mDefYaw; }
-void Camera::setDefaultYaw(float yaw) { mDefYaw = yaw; }
 
 } // namespace GRender
