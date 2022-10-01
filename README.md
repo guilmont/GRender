@@ -5,6 +5,6 @@ GRender is an utility that wraps ImGui, ImPlot and other OpenGL features for a q
 
 ## Template
 
-An old polymer prototype that I extended to show some features available and how one can use GRender. Under the hood, it creates a Gaussian chain and batch spheres and cylinders using OpenGL.
+Template contains all the necessary information to get any project started. It uses some of the main features available in the package.
 
 <img src="./screenshot.png" alt="demo" width="98%">

@@ -114,7 +114,7 @@ Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../a
 	shader.emplace("objects",  "../assets/objects.vtx.glsl", "../assets/objects.frag.glsl");
 
 	GRender::texture::Specification defSpec;
-	view = GRender::Viewport({ 1200, 800 }, { defSpec, defSpec }, true);
+	view = GRender::Viewport({ 1200, 800 }, { defSpec }, true);
 
 	camera = GRender::Camera({ 0.0f, 0.0f, 25.0f });
 	camera.open();
@@ -143,11 +143,9 @@ void Sandbox::onUserUpdate(float deltaTime) {
 
 	bool ctrl = keyboard::IsDown(Key::LEFT_CONTROL) || keyboard::IsDown(Key::RIGHT_CONTROL);
 
-	if (ctrl && keyboard::IsPressed('H'))
-		view_specs = true;
+	if (ctrl && keyboard::IsPressed('H')) { view_specs = true; }
 
-	if (ctrl && keyboard::IsPressed('I'))
-		view_imguidemo = true;
+	if (ctrl && keyboard::IsPressed('I')) { view_imguidemo = true; }
 
 	if (ctrl && keyboard::IsPressed('O')) {
 		auto callback = [](const fs::path& path, void*) -> void { mailbox::CreateInfo("Selected file: " + path.string()); };
@@ -306,17 +304,11 @@ void Sandbox::ImGuiLayer(void) {
 
 	if (view_messages) {
 		ImGui::Begin("Messages", &view_messages);
-		if (ImGui::Button("Info")) {
-			mailbox::CreateInfo("Information");
-		}
+		if (ImGui::Button("Info")) { mailbox::CreateInfo("Information"); }
 		ImGui::SameLine();
-		if (ImGui::Button("Warn")) {
-			mailbox::CreateWarn("Warning");
-		}
+		if (ImGui::Button("Warn")) { mailbox::CreateWarn("Warning"); }
 		ImGui::SameLine();
-		if (ImGui::Button("Error")) {
-			mailbox::CreateError("There was an error!");
-		}
+		if (ImGui::Button("Error")) { mailbox::CreateError("There was an error!"); }
 		ImGui::SameLine();
 		if (ImGui::Button("Progress")) {
 			GRender::Progress* prog = mailbox::CreateProgress("Running...", cancelFunction);
@@ -350,9 +342,9 @@ void Sandbox::ImGuiLayer(void) {
 
 	utils::Drag("Radius:", poly.radius(), split, width, 0.1f, 0.1f, 5.0f, "%.2f");
 
-	utils::RGB_Edit("Spheres", poly.sphereColor(), split);
-	utils::RGB_Edit("Connections", poly.cylinderColor(), split);
-	utils::RGB_Edit("Background", bgColor, split);
+	utils::RGB_Edit("Spheres:", poly.sphereColor(), split);
+	utils::RGB_Edit("Connections:", poly.cylinderColor(), split);
+	utils::RGB_Edit("Background:", bgColor, split);
 
 	utils::Checkbox("Orbital camera:", useOrbitalCamera, split);
 
