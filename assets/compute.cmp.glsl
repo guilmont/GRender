@@ -2,7 +2,7 @@
 
 layout (local_size_x = 32, local_size_y = 32) in;
 
-layout (rgba32f, binding = 0) uniform image2D img_output;
+layout (rgba8, binding = 0) uniform image2D img_output;
 
 uniform float time;
 
