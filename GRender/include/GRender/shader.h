@@ -28,20 +28,10 @@ public:
 
     void setTexture(const Texture& tex, uint32_t slot = 0) const;
 
-    void setInteger(const std::string&, int) const;
-    void setFloat(const std::string&, float) const;
-    void setVec2f(const std::string&, const float *) const;
-    void setVec3f(const std::string&, const float *) const;
-    void setVec4f(const std::string&, const float *) const;
-    void setMatrix3f(const std::string&, const float *) const;
-    void setMatrix4f(const std::string&, const float *) const;
 
-    void setIntArray(const std::string&, const int *, int) const;
+    template<typename TP>
+    void setUniform(const std::string&, const TP&) const;
 
-    void setFloatArray(const std::string&, const float *, int) const;
-    void setVec2fArray(const std::string&, const float *, int) const;
-    void setVec3fArray(const std::string&, const float *, int) const;
-    void setMat3Array(const std::string&, const float *, int) const;
 
 private:
     enum class Type : uint8_t {

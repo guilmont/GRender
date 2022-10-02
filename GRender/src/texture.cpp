@@ -96,6 +96,7 @@ void Texture::update(const void* data) {
 
 void Texture::resize(const glm::uvec2& size) {
     auto locSpec = m_Spec;
+    this->~Texture();
     new (this) Texture(size, locSpec);
 }
 

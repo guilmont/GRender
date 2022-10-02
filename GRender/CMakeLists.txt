@@ -23,6 +23,7 @@ add_library(GRender STATIC
 	"src/orbitalCamera.cpp"
 	"src/quad.cpp"
 	"src/shader.cpp"
+	"src/storageBuffer.cpp"
 	"src/texture.cpp"
 	"src/utils.cpp"
 	"src/viewport.cpp"

@@ -132,6 +132,9 @@ void Shader::dispatch(uint32_t numGroupsX, uint32_t numGroupsY, uint32_t numGrou
     glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 
+///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
+
 void Shader::setTexture(const Texture& tex, uint32_t slot) const {
     tex.bind(slot);
 
@@ -146,64 +149,103 @@ void Shader::setTexture(const Texture& tex, uint32_t slot) const {
     }
 }
 
-void Shader::setInteger(const std::string &name, int val) const {
+
+// SINGLE VALUES //////////////////////////////////////////
+template<>
+void Shader::setUniform(const std::string& name, const int32_t& val) const {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
     glUniform1i(loc, val);
+
 }
 
-void Shader::setFloat(const std::string &name, float val) const {
+template<>
+void Shader::setUniform(const std::string& name, const uint32_t& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniform1ui(loc, val);
+}
+
+template<>
+void Shader::setUniform(const std::string& name, const float& val) const {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
     glUniform1f(loc, val);
 }
 
-void Shader::setVec2f(const std::string &name, const float *v) const {
+
+// VECTORS TWO ////////////////////////////////////////////
+template<>
+void Shader::setUniform(const std::string& name, const glm::ivec2& val) const {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
-    glUniform2f(loc, v[0], v[1]);
+    glUniform2i(loc, val.x, val.y);
 }
 
-void Shader::setVec3f(const std::string &name, const float *v) const {
+template<>
+void Shader::setUniform(const std::string& name, const glm::uvec2& val) const {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
-    glUniform3f(loc, v[0], v[1], v[2]);
+    glUniform2ui(loc, val.x, val.y);
 }
 
-void Shader::setVec4f(const std::string &name, const float *v) const {
+template<>
+void Shader::setUniform(const std::string& name, const glm::vec2& val) const {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
-    glUniform4f(loc, v[0], v[1], v[2], v[3]);
+    glUniform2f(loc, val.x, val.y);
 }
 
-void Shader::setMatrix3f(const std::string &name, const float *mat) const {
+
+// VECTORS THREE //////////////////////////////////////////
+template<>
+void Shader::setUniform(const std::string& name, const glm::ivec3& val) const {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
-    glUniformMatrix3fv(loc, 1, GL_FALSE, mat);
+    glUniform3i(loc, val.x, val.y, val.z);
 }
 
-void Shader::setMatrix4f(const std::string &name, const float *mat) const {
+template<>
+void Shader::setUniform(const std::string& name, const glm::uvec3& val) const {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
-    glUniformMatrix4fv(loc, 1, GL_FALSE, mat);
+    glUniform3ui(loc, val.x, val.y, val.z);
 }
 
-void Shader::setIntArray(const std::string &name, const int *ptr, int32_t N) const {
+template<>
+void Shader::setUniform(const std::string& name, const glm::vec3& val) const {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
-    glUniform1iv(loc, N, ptr);
+    glUniform3f(loc, val.x, val.y, val.z);
 }
 
-void Shader::setFloatArray(const std::string &name, const float *ptr, int32_t N) const {
+// VECTORS FOUR ///////////////////////////////////////////
+template<>
+void Shader::setUniform(const std::string& name, const glm::ivec4& val) const {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
-    glUniform1fv(loc, N, ptr);
+    glUniform4i(loc, val.x, val.y, val.z, val.w);
 }
 
-void Shader::setVec2fArray(const std::string &name, const float *ptr, int32_t N) const {
+template<>
+void Shader::setUniform(const std::string& name, const glm::uvec4& val) const {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
-    glUniform2fv(loc, N, ptr);
+    glUniform4ui(loc, val.x, val.y, val.z, val.w);
 }
 
-void Shader::setVec3fArray(const std::string &name, const float *ptr, int32_t N) const {
+template<>
+void Shader::setUniform(const std::string& name, const glm::vec4& val) const {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
-    glUniform3fv(loc, N, ptr);
+    glUniform4f(loc, val.x, val.y, val.z, val.w);
 }
 
-void Shader::setMat3Array(const std::string &name, const float *ptr, int32_t N) const {
+// MATRICES ///////////////////////////////////////////////
+template<>
+void Shader::setUniform(const std::string& name, const glm::mat2& val) const {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
-    glUniformMatrix3fv(loc, N, true, ptr);
+    glUniformMatrix2fv(loc, 1, false, glm::value_ptr(val));
+}
+
+template<>
+void Shader::setUniform(const std::string& name, const glm::mat3& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniformMatrix3fv(loc, 1, false, glm::value_ptr(val));
+}
+
+template<>
+void Shader::setUniform(const std::string& name, const glm::mat4& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniformMatrix4fv(loc, 1, false, glm::value_ptr(val));
 }
 
 } // namespace GRender
