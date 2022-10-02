@@ -206,9 +206,9 @@ void Sandbox::onUserUpdate(float deltaTime) {
     auto& qsh = shader["quad"].bind();
     qsh.setTexture(texture["space"], spec.texID);
     if (useOrbitalCamera) {
-        qsh.setMatrix4f("u_transform", glm::value_ptr(orbital.getViewMatrix()));
+        qsh.setUniform("u_transform", orbital.getViewMatrix());
     } else {
-        qsh.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
+        qsh.setUniform("u_transform", camera.getViewMatrix());
     }
 
     quad.submit(spec);
@@ -218,9 +218,9 @@ void Sandbox::onUserUpdate(float deltaTime) {
     // OBJECTS ////////////////////////////////////////////
     const Shader& osh = shader["objects"].bind();
     if (useOrbitalCamera) {
-        osh.setMatrix4f("u_transform", glm::value_ptr(orbital.getViewMatrix()));
+        osh.setUniform("u_transform", orbital.getViewMatrix());
     } else {
-        osh.setMatrix4f("u_transform", glm::value_ptr(camera.getViewMatrix()));
+        osh.setUniform("u_transform", camera.getViewMatrix());
     }
     osh.setTexture(texture["space"], 0);
     osh.setTexture(texture["earth"], 1);
@@ -296,7 +296,7 @@ void Sandbox::onUserUpdate(float deltaTime) {
     // COMPUTE SHADER /////////////////////////////////////
 
     const Shader& cpshd = shader["compute"].bind();
-    cpshd.setFloat("time", tt);
+    cpshd.setUniform("time", tt);
     cpshd.setTexture(texture["image"]);
     cpshd.dispatch(25, 20);
 }
