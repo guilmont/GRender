@@ -7,9 +7,13 @@ namespace GRender {
 
 class InteractiveImage {
 public:
+	InteractiveImage(const glm::uvec2& size, const texture::Specification& spec = texture::Specification(), const void* data = nullptr);
 	InteractiveImage(const fs::path& filepath);
 	InteractiveImage(void) = default;
 	~InteractiveImage(void) = default;
+
+	Texture& texture() { return m_Texture; }
+	const Texture& texture() const { return m_Texture; }
 
 	// We don't want it to be copied
 	InteractiveImage(const InteractiveImage&) = delete;
@@ -25,14 +29,13 @@ public:
 	void open(void) { m_View = true; }
 	void close(void) { m_View = false; }
 
-
 	// Checks if the window is opened to view by user
 	bool isOpened(void) const { return m_View; }
 	bool isFocused(void) const { return m_IsFocused; }
 	bool isHovered(void) const { return m_IsHovered; }
 
 private:
-	bool m_View = false;
+	bool m_View = true;
 	bool m_IsFocused = false;
 	bool m_IsHovered = false;
 

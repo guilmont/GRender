@@ -7,8 +7,9 @@
 
 namespace GRender {
 
-InteractiveImage::InteractiveImage(const fs::path& filepath) :
-	m_Texture(utils::createTextureFromRGBAFile(filepath)) {}
+InteractiveImage::InteractiveImage(const glm::uvec2& size, const texture::Specification& spec, const void* data) : m_Texture(size, spec, data) {}
+
+InteractiveImage::InteractiveImage(const fs::path& filepath) : m_Texture(utils::createTextureFromRGBAFile(filepath)) {}
 
 
 InteractiveImage::InteractiveImage(InteractiveImage&& other) noexcept {
