@@ -198,12 +198,12 @@ void MailboxData::showMessages() {
     ImGui::PopStyleColor();
 
     ImGui::Spacing();
-    if (ImGui::Button("Clear"))
-        Clear();
-
-    ImGui::SameLine();
     if (ImGui::Button("Close"))
         Close();
+
+    ImGui::SameLine();
+    if (ImGui::Button("Clear"))
+        Clear();
 
     ImGui::End();
 }

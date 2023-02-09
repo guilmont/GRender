@@ -4,7 +4,7 @@
 
 namespace GRender::dialog {
 
-// local pointer for dialog implementaiont
+// local pointer for dialog implementation
 internal::DialogImpl* dialogData = nullptr;
 
 void Create() {
@@ -33,6 +33,11 @@ void SaveFile(const std::string& title, const std::vector<std::string>& extensio
 void ShowDialog() {
     ASSERT(dialogData, "Dialog module was not created!");
     dialogData->showDialog();
+}
+
+void SetDefaultPath(const fs::path& defaultPath) {
+    ASSERT(dialogData, "Dialog module was not created!");
+    dialogData->setMainPath(defaultPath);
 }
 
 } // namespace GRender

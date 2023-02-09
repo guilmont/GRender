@@ -4,24 +4,27 @@
 
 namespace GRender::dialog {
 
-// Creates dialog implementation
-void Create(void);
+    // Creates dialog implementation
+    void Create(void);
 
-// Destroys dialog implementation
-void Destroy();
+    // Destroys dialog implementation
+    void Destroy();
 
-// Opens a dialog allowing to seek a directory in the system
-void OpenDirectory(const std::string& title, void (*callback)(const std::filesystem::path&, void*), void* data = nullptr);
+    // Opens a dialog allowing to seek a directory in the system
+    void OpenDirectory(const std::string& title, void (*callback)(const std::filesystem::path&, void*), void* data = nullptr);
 
-// Opens a dialog allowing to seek files in the system
-void OpenFile(const std::string& title, const std::vector<std::string>& extensions,
-                void (*callback)(const std::filesystem::path&, void*), void* data = nullptr);
+    // Opens a dialog allowing to seek files in the system
+    void OpenFile(const std::string& title, const std::vector<std::string>& extensions,
+        void (*callback)(const std::filesystem::path&, void*), void* data = nullptr);
 
-// Opens a dialog allowing to choose a location and name for a file
-void SaveFile(const std::string& title, const std::vector<std::string>& extensions,
-                void (*callback)(const std::filesystem::path&, void*), void* data = nullptr);
+    // Opens a dialog allowing to choose a location and name for a file
+    void SaveFile(const std::string& title, const std::vector<std::string>& extensions,
+        void (*callback)(const std::filesystem::path&, void*), void* data = nullptr);
 
-// Internal use to display dialog
-void ShowDialog(void);
+    // Internal use to display dialog
+    void ShowDialog(void);
+
+    // Sets work default path when opening
+    void SetDefaultPath(const fs::path& defaultPath);
 
 } // namespace GRender::dialog
