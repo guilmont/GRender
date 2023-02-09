@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include "events.h"
+#include "mailbox.h"
 
 namespace fs = std::filesystem;
 
@@ -13,7 +14,7 @@ static fs::path getHomeDirectory(void) {
 #endif
 }
 
-static bool sortingFunction(const  fs::path &p1, const fs::path& p2) {
+static bool sortingFunction(const  fs::path& p1, const fs::path& p2) {
     // We want to sort paths so that directories are always on top, hence we have 3 options:
     // 1) Both paths are directories -> Sort alphabetically to lowercase
     // 2) Both paths are files -> Sort alphabetically to lowercase
@@ -25,11 +26,11 @@ static bool sortingFunction(const  fs::path &p1, const fs::path& p2) {
 
     // Case 3
     if (isDir1 && !isDir2) { return true; }
-    if (!isDir1 && isDir2) {return false; }
+    if (!isDir1 && isDir2) { return false; }
 
     // Case 1 and 2
     // Getting file names and converting to lowercase
-    std::string 
+    std::string
         str1 = p1.filename().string(),
         str2 = p2.filename().string();
 
@@ -43,8 +44,17 @@ namespace GRender::dialog::internal {
 
 DialogImpl::DialogImpl() : mainpath(getHomeDirectory()) {}
 
+void DialogImpl::setMainPath(const fs::path& _path) {
+    if (!fs::is_directory(_path)) {
+        mailbox::CreateError("Directory doesn't exist -> " + _path.string());
+        return;
+    }
+
+    mainpath = _path;
+}
+
 void DialogImpl::openDirectory(const std::string& title,
-                               void (*callback)(const fs::path&, void*), void* data) {
+    void (*callback)(const fs::path&, void*), void* data) {
     mActive = true;
     mTitle = title;
     mCallback = callback;
@@ -58,7 +68,7 @@ void DialogImpl::openDirectory(const std::string& title,
 }
 
 void DialogImpl::openFile(const std::string& title, const std::vector<std::string>& extensions,
-                          void (*callback)(const fs::path&, void*), void* data) {
+    void (*callback)(const fs::path&, void*), void* data) {
     mActive = true;
     mTitle = title;
     mCallback = callback;
@@ -72,7 +82,7 @@ void DialogImpl::openFile(const std::string& title, const std::vector<std::strin
 }
 
 void DialogImpl::saveFile(const std::string& title, const std::vector<std::string>& extensions,
-                          void (*callback)(const fs::path&, void*), void* data) {
+    void (*callback)(const fs::path&, void*), void* data) {
     mActive = true;
     mTitle = title;
     mCallback = callback;
@@ -184,7 +194,7 @@ void DialogImpl::showSaveFile(void) {
     ImGui::SameLine();
 
     bool check = ImGui::IsKeyDown(ImGuiKey_Enter);
-    ImVec2 btnSize = {ImGui::GetFontSize() * 6.0f, 0.0f };
+    ImVec2 btnSize = { ImGui::GetFontSize() * 6.0f, 0.0f };
     if ((ImGui::Button("Save", btnSize) || check) && filename.size() > 0) {
         mainpath /= (filename + mCurrentExt);
         status = true;
@@ -277,7 +287,7 @@ int inputCompletion(ImGuiInputTextCallbackData* data) {
     localPath = localPath.parent_path();
     diag->mainpath = localPath;
     diag->updateAvailablePaths();
-    
+
     ///////////////////////////////////////////////////////
     // Removing different paths
     //
@@ -286,10 +296,10 @@ int inputCompletion(ImGuiInputTextCallbackData* data) {
         [&partial](const fs::path& var) -> bool {
             std::string loc = var.filename().string();
 
-            for (size_t k = 0; k < partial.size(); k++) {
-                if (loc[k] != partial[k]) { return true; }
-            }
-            return false;
+    for (size_t k = 0; k < partial.size(); k++) {
+        if (loc[k] != partial[k]) { return true; }
+    }
+    return false;
         });
 
     // Actual removal
@@ -319,7 +329,7 @@ int inputCompletion(ImGuiInputTextCallbackData* data) {
 }
 
 bool DialogImpl::systemDisplay(void) {
-    // As this function runs to all dialogs, we can provide a shortcut to close dialogs on escape event 
+    // As this function runs to all dialogs, we can provide a shortcut to close dialogs on escape event
     if (keyboard::IsPressed(Key::ESCAPE)) {
         mActive = false;
     }
@@ -343,8 +353,8 @@ bool DialogImpl::systemDisplay(void) {
     std::copy(locMain.begin(), locMain.end(), loc);
     ImGui::PushItemWidth(0.97f * ImGui::GetWindowWidth());
     ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue
-                              | ImGuiInputTextFlags_CallbackCompletion;
-    
+        | ImGuiInputTextFlags_CallbackCompletion;
+
     if (ImGui::InputText("##MainAdress", loc, 512, flags, inputCompletion, this)) {
         fs::path var(loc);
         if (fs::is_regular_file(var)) {

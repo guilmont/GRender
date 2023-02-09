@@ -42,17 +42,36 @@ static uint32_t CreateShader(const fs::path& shaderPath, GLenum shaderType) {
     glShaderSource(shader, 1, &ptr, &length);
     glCompileShader(shader);
 
-    std::string type = shaderType == GL_VERTEX_SHADER ? "GL_VERTEX_SHADER" : "GL_FRAGMENT_SHADER";
+    std::string type;
+    switch (shaderType) {
+    case GL_VERTEX_SHADER:   type = "GL_VERTEX_SHADER"; break;
+    case GL_FRAGMENT_SHADER: type = "GL_FRAGMENT_SHADER"; break;
+    default:                 type = "GL_COMPUTE_SHADER"; break;
+    }
+    
     std::string error = "Shader compilation failed :: " + type + " => " + shaderPath.string();
     CheckShaderError(shader, GL_COMPILE_STATUS, false, error);
 
     return shader;
 }
 
+static GLenum convertToGLFormat(texture::Format fmt) {
+    switch (fmt) {
+    case texture::Format::RGBA8:             return GL_RGBA8;
+    case texture::Format::RGBA32:            return GL_RGBA32F;
+    case texture::Format::INTEGER:           return GL_R32I;
+    case texture::Format::UNSIGNED_INTEGER:  return GL_R32UI;
+    case texture::Format::FLOAT:             return GL_R32F;
+    default:
+        ASSERT(false, "Texture format not supported!!");
+        return GL_NONE;
+    }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-Shader::Shader(const fs::path& vtxPath, const fs::path& frgPath) {
+Shader::Shader(const fs::path& vtxPath, const fs::path& frgPath) : type(Type::RENDER) {
     ASSERT(fs::exists(vtxPath), "Shader not found! => " + vtxPath.string());
     ASSERT(fs::exists(frgPath), "Shader not found! => " + frgPath.string());
 
@@ -60,12 +79,12 @@ Shader::Shader(const fs::path& vtxPath, const fs::path& frgPath) {
     uint32_t frg = CreateShader(frgPath, GL_FRAGMENT_SHADER);
 
     // Create program
-    programID = glad_glCreateProgram();
+    programID = glCreateProgram();
     glAttachShader(programID, vtx);
     glAttachShader(programID, frg);
 
     // Link shaders to program
-    glad_glLinkProgram(programID);
+    glLinkProgram(programID);
 
     CheckShaderError(programID, GL_LINK_STATUS, true, 
                      "Cannot link shader programs => " + vtxPath.string() + " -- " + frgPath.string());
@@ -74,12 +93,24 @@ Shader::Shader(const fs::path& vtxPath, const fs::path& frgPath) {
     glDeleteShader(frg);
 }
 
+Shader::Shader(const fs::path& computePath) : type(Type::COMPUTE) {
+    ASSERT(fs::exists(computePath), "Compute shader not found! => " + computePath.string());
+    uint32_t cmp = CreateShader(computePath, GL_COMPUTE_SHADER);
+
+    programID = glCreateProgram();
+    glAttachShader(programID, cmp);
+    glLinkProgram(programID);
+
+    glDeleteShader(cmp);
+}
+
 Shader::~Shader(void) {
-    glad_glDeleteProgram(programID);
+    glDeleteProgram(programID);
 }
 
 Shader::Shader(Shader&& shader) noexcept {
     std::swap(programID, shader.programID);
+    std::swap(type, shader.type);
 }
 
 Shader& Shader::operator=(Shader&& shader) noexcept {
@@ -95,74 +126,126 @@ const Shader& Shader::bind() {
     return *this;
 }
 
+void Shader::dispatch(uint32_t numGroupsX, uint32_t numGroupsY, uint32_t numGroupsZ) const {
+    ASSERT(type == Type::COMPUTE, "Trying to dispatch a rendering shader!!");
+    glDispatchCompute(numGroupsX, numGroupsY, numGroupsZ);
+    glMemoryBarrier(GL_ALL_BARRIER_BITS);
+}
+
+///////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////
 
 void Shader::setTexture(const Texture& tex, uint32_t slot) const {
-
     tex.bind(slot);
 
-    const std::string name = "texSampler[" + std::to_string(slot) + "]";
-    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
-    glad_glUniform1i(loc, slot);
+    if (type == Type::RENDER) {
+        const std::string name = "texSampler[" + std::to_string(slot) + "]";
+        int32_t loc = glGetUniformLocation(programID, name.c_str());
+        glUniform1i(loc, slot);
+    }
+    else {
+        GLenum fmt = convertToGLFormat(tex.specification().fmt);
+        glBindImageTexture(slot, tex.id(), 0, GL_FALSE, 0, GL_READ_WRITE, fmt);
+    }
 }
 
-void Shader::setInteger(const std::string &name, int val) const {
-    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
-    glad_glUniform1i(loc, val);
+
+// SINGLE VALUES //////////////////////////////////////////
+template<>
+void Shader::setUniform(const std::string& name, const int32_t& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniform1i(loc, val);
+
 }
 
-void Shader::setFloat(const std::string &name, float val) const {
-    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
-    glad_glUniform1f(loc, val);
+template<>
+void Shader::setUniform(const std::string& name, const uint32_t& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniform1ui(loc, val);
 }
 
-void Shader::setVec2f(const std::string &name, const float *v) const {
-    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
-    glad_glUniform2f(loc, v[0], v[1]);
+template<>
+void Shader::setUniform(const std::string& name, const float& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniform1f(loc, val);
 }
 
-void Shader::setVec3f(const std::string &name, const float *v) const {
-    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
-    glad_glUniform3f(loc, v[0], v[1], v[2]);
+
+// VECTORS TWO ////////////////////////////////////////////
+template<>
+void Shader::setUniform(const std::string& name, const glm::ivec2& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniform2i(loc, val.x, val.y);
 }
 
-void Shader::setVec4f(const std::string &name, const float *v) const {
-    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
-    glad_glUniform4f(loc, v[0], v[1], v[2], v[3]);
+template<>
+void Shader::setUniform(const std::string& name, const glm::uvec2& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniform2ui(loc, val.x, val.y);
 }
 
-void Shader::setMatrix3f(const std::string &name, const float *mat) const {
-    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
-    glad_glUniformMatrix3fv(loc, 1, GL_FALSE, mat);
+template<>
+void Shader::setUniform(const std::string& name, const glm::vec2& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniform2f(loc, val.x, val.y);
 }
 
-void Shader::setMatrix4f(const std::string &name, const float *mat) const {
-    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
-    glad_glUniformMatrix4fv(loc, 1, GL_FALSE, mat);
+
+// VECTORS THREE //////////////////////////////////////////
+template<>
+void Shader::setUniform(const std::string& name, const glm::ivec3& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniform3i(loc, val.x, val.y, val.z);
 }
 
-void Shader::setIntArray(const std::string &name, const int *ptr, int32_t N) const {
-    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
-    glad_glUniform1iv(loc, N, ptr);
+template<>
+void Shader::setUniform(const std::string& name, const glm::uvec3& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniform3ui(loc, val.x, val.y, val.z);
 }
 
-void Shader::setFloatArray(const std::string &name, const float *ptr, int32_t N) const {
-    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
-    glad_glUniform1fv(loc, N, ptr);
+template<>
+void Shader::setUniform(const std::string& name, const glm::vec3& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniform3f(loc, val.x, val.y, val.z);
 }
 
-void Shader::setVec2fArray(const std::string &name, const float *ptr, int32_t N) const {
-    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
-    glad_glUniform2fv(loc, N, ptr);
+// VECTORS FOUR ///////////////////////////////////////////
+template<>
+void Shader::setUniform(const std::string& name, const glm::ivec4& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniform4i(loc, val.x, val.y, val.z, val.w);
 }
 
-void Shader::setVec3fArray(const std::string &name, const float *ptr, int32_t N) const {
-    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
-    glad_glUniform3fv(loc, N, ptr);
+template<>
+void Shader::setUniform(const std::string& name, const glm::uvec4& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniform4ui(loc, val.x, val.y, val.z, val.w);
 }
 
-void Shader::setMat3Array(const std::string &name, const float *ptr, int32_t N) const {
-    int32_t loc = glad_glGetUniformLocation(programID, name.c_str());
-    glad_glUniformMatrix3fv(loc, N, true, ptr);
+template<>
+void Shader::setUniform(const std::string& name, const glm::vec4& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniform4f(loc, val.x, val.y, val.z, val.w);
+}
+
+// MATRICES ///////////////////////////////////////////////
+template<>
+void Shader::setUniform(const std::string& name, const glm::mat2& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniformMatrix2fv(loc, 1, false, glm::value_ptr(val));
+}
+
+template<>
+void Shader::setUniform(const std::string& name, const glm::mat3& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniformMatrix3fv(loc, 1, false, glm::value_ptr(val));
+}
+
+template<>
+void Shader::setUniform(const std::string& name, const glm::mat4& val) const {
+    int32_t loc = glGetUniformLocation(programID, name.c_str());
+    glUniformMatrix4fv(loc, 1, false, glm::value_ptr(val));
 }
 
 } // namespace GRender

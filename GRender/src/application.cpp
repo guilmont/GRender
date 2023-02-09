@@ -1,14 +1,17 @@
 #include "application.h"
 
 namespace GRender {
-    
+
 void winResize_callback(GLFWwindow* window, int width, int height) {
     glad_glViewport(0, 0, width, height);
 }
-   
+
 /*****************************************************************************/
 /*****************************************************************************/
 
+
+void Application::EnableVSync() { glfwSwapInterval(1); }
+void Application::DisableVSync() { glfwSwapInterval(0); }
 
 Application::Application(const std::string& name, uint32_t width, uint32_t height,
                          const std::filesystem::path& layout) {
@@ -74,17 +77,20 @@ Application::Application(const std::string& name, uint32_t width, uint32_t heigh
 
     ImGui::StyleColorsClassic();
 
-
     // Floating windows off main windows
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
+    // So that windows can only be moved by draging by title bar.
+    // This avoids some interaction problems with certain widgets
+    io.ConfigWindowsMoveFromTitleBarOnly = true;
+
     // Setup path to layout
     layoutINI = layout.string();
     io.IniFilename = layoutINI.c_str();
-        
+
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
@@ -93,7 +99,7 @@ Application::Application(const std::string& name, uint32_t width, uint32_t heigh
     dialog::Create();
     mailbox::Create();
 
-} 
+}
 
 Application::~Application(void) {
     fonts::Destroy();
@@ -189,7 +195,7 @@ void Application::run(void) {
 
         // Here goes the implementation for user interface
         ImGui::PushStyleColor(ImGuiCol_WindowBg, { 0.0, 0.0, 0.0, 1.0 }); // solid background
-            
+
         // displaying dialog if active
         dialog::ShowDialog();
         mailbox::ShowMessages();

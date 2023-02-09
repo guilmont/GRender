@@ -63,6 +63,7 @@ void OrbitalCamera::display(void) {
         ImGui::Unindent();
         if (ImGui::TreeNode("Defaults")) {
             ImGui::Dummy({0.0f, 5.0f * DPI_FACTOR});
+            ImGui::PushID("defaults");
 
             utils::Drag<float, 3>("Center:", m_DefPosition, split, 3.08f * boxWidth, 0.1f);
             utils::Drag("Distance", m_DefDistance, split, boxWidth, 0.1f);
@@ -77,6 +78,7 @@ void OrbitalCamera::display(void) {
                 m_DefAngles.x = glm::radians(value);
             }
             
+            ImGui::PopID();
             ImGui::Dummy({ 0.0f, 10.0f * DPI_FACTOR });
             ImGui::TreePop();
         }

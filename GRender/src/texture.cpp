@@ -6,9 +6,10 @@
 namespace GRender {
 using namespace texture;
 
-static std::tuple<GLint, GLenum, GLenum> convertToGLFormat(Format fmt) {
+static std::tuple<GLenum, GLenum, GLenum> convertToGLFormat(Format fmt) {
     switch (fmt) {
     case Format::RGBA8:             return { GL_RGBA8, GL_RGBA, GL_UNSIGNED_BYTE };
+    case Format::RGBA32:             return { GL_RGBA32F, GL_RGBA, GL_FLOAT};
     case Format::INTEGER:           return { GL_R32I,  GL_RED_INTEGER, GL_INT };
     case Format::UNSIGNED_INTEGER:  return { GL_R32UI, GL_RED_INTEGER, GL_UNSIGNED_INT };
     case Format::FLOAT:             return { GL_R32F,  GL_RED, GL_FLOAT };
@@ -44,7 +45,8 @@ Texture::Texture(const glm::uvec2& size, const Specification& spec, const void* 
     glBindTexture(GL_TEXTURE_2D, m_TexID);
 
     auto [intFmt, fmt, tp] = convertToGLFormat(spec.fmt);
-    glTexImage2D(GL_TEXTURE_2D, 0, intFmt, size.x, size.y, 0, fmt, tp, data);
+    glTextureStorage2D(m_TexID, 1, intFmt, size.x, size.y);
+    if (data) { glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, size.x, size.y, fmt, tp, data); }
 
     // Wrap mode
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, convertToGLWrap(spec.wrap.x));
@@ -94,6 +96,7 @@ void Texture::update(const void* data) {
 
 void Texture::resize(const glm::uvec2& size) {
     auto locSpec = m_Spec;
+    this->~Texture();
     new (this) Texture(size, locSpec);
 }
 

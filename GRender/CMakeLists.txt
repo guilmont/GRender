@@ -11,21 +11,23 @@ option(GRENDER_IMPLOT "Build plotting utilities" ON)
 add_subdirectory(vendor)
 
 # Create library
-add_library(GRender STATIC 
+add_library(GRender STATIC
 	"src/application.cpp"
 	"src/camera.cpp"
 	"src/camera2D.cpp"
 	"src/dialog.cpp"
 	"src/events.cpp"
-	"src/fonts.cpp"           
+	"src/fonts.cpp"
 	"src/framebuffer.cpp"
 	"src/mailbox.cpp"
 	"src/orbitalCamera.cpp"
 	"src/quad.cpp"
 	"src/shader.cpp"
+	"src/storageBuffer.cpp"
 	"src/texture.cpp"
 	"src/utils.cpp"
 	"src/viewport.cpp"
+	"src/interactiveImage.cpp"
 
 	"src/internal/dialogImpl.cpp"
 	"src/internal/fontsImpl.cpp"
