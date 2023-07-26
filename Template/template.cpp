@@ -70,7 +70,7 @@ GRender::Application* GRender::createApplication(int argc, char** argv) {
     if (fs::exists(exe))
         fs::current_path(exe);
 
-    WARN("Current path: " + fs::current_path().string());
+    INFO("Current path: " + fs::current_path().string());
 
     if (argc == 1)
         return new Sandbox;
@@ -154,19 +154,17 @@ void Sandbox::onUserUpdate(float deltaTime) {
     if (ctrl && keyboard::IsPressed('I')) { view_imguidemo = true; }
 
     if (ctrl && keyboard::IsPressed('O')) {
-        auto callback = [](const fs::path& path, void*) -> void { mailbox::CreateInfo("Selected file: " + path.string()); };
+        auto callback = [](const fs::path& path) -> void { mailbox::CreateInfo("Selected file: " + path.string()); };
         dialog::OpenFile("Open file...", { "txt", "json" }, callback);
     }
 
     if (ctrl && keyboard::IsPressed('S')) {
-        auto callback = [](const fs::path& path, void*) -> void { mailbox::CreateInfo("Save file: " + path.string()); };
+        auto callback = [](const fs::path& path) -> void { mailbox::CreateInfo("Save file: " + path.string()); };
         dialog::SaveFile("Save file...", {"txt", "json"}, callback);
     }
 
     if (ctrl && keyboard::IsPressed('D')) {
-        auto callback = [](const fs::path& path, void*) -> void {
-            mailbox::CreateInfo("Open directory: " + path.string());
-        };
+        auto callback = [](const fs::path& path) -> void { mailbox::CreateInfo("Open directory: " + path.string()); };
         dialog::OpenDirectory("Open directory...", callback);
     }
 
@@ -383,23 +381,17 @@ void Sandbox::ImGuiLayer(void) {
 void Sandbox::ImGuiMenuLayer(void) {
     if (ImGui::BeginMenu("File")) {
         if (ImGui::MenuItem("Open...", "Ctrl+O")) {
-            auto callback = [](const fs::path& path, void* ptr) -> void {
-                GRender::mailbox::CreateInfo("Selected file: " + path.string()); 
-            };
+            auto callback = [](const fs::path& path) -> void { GRender::mailbox::CreateInfo("Selected file: " + path.string()); };
             GRender::dialog::OpenFile("Open file...", { "txt", "json" }, callback);
         }
 
         if (ImGui::MenuItem("Save...", "Ctrl+S")) {
-            auto callback = [](const fs::path& path, void* ptr) -> void {
-                GRender::mailbox::CreateInfo("Save file: " + path.string());
-            };
+            auto callback = [](const fs::path& path) -> void { GRender::mailbox::CreateInfo("Save file: " + path.string()); };
             GRender::dialog::SaveFile("Save file...", {"txt", "json"}, callback);
         }
 
         if (ImGui::MenuItem("Open directory...", "Ctrl+D")) {
-            auto callback = [](const fs::path& path, void* ptr) -> void {
-                GRender::mailbox::CreateInfo("Open directory: " + path.string());
-            };
+            auto callback = [](const fs::path& path) -> void { GRender::mailbox::CreateInfo("Open directory: " + path.string()); };
             GRender::dialog::OpenDirectory("Open directory...", callback);
         }
 

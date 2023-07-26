@@ -11,15 +11,13 @@ namespace GRender::dialog {
     void Destroy();
 
     // Opens a dialog allowing to seek a directory in the system
-    void OpenDirectory(const std::string& title, void (*callback)(const std::filesystem::path&, void*), void* data = nullptr);
+    void OpenDirectory(const std::string& title, const std::function<void(const std::filesystem::path&)>& callback);
 
     // Opens a dialog allowing to seek files in the system
-    void OpenFile(const std::string& title, const std::vector<std::string>& extensions,
-        void (*callback)(const std::filesystem::path&, void*), void* data = nullptr);
+    void OpenFile(const std::string& title, const std::vector<std::string>& extensions, const std::function<void(const std::filesystem::path&)>& callback);
 
     // Opens a dialog allowing to choose a location and name for a file
-    void SaveFile(const std::string& title, const std::vector<std::string>& extensions,
-        void (*callback)(const std::filesystem::path&, void*), void* data = nullptr);
+    void SaveFile(const std::string& title, const std::vector<std::string>& extensions, const std::function<void(const std::filesystem::path&)>& callback);
 
     // Internal use to display dialog
     void ShowDialog(void);

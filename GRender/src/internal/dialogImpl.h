@@ -12,9 +12,9 @@ namespace GRender::dialog::internal {
 
         void setMainPath(const fs::path& mainPath);
 
-        void openDirectory(const std::string& title, void (*callback)(const fs::path&, void*), void* data);
-        void openFile(const std::string& title, const std::vector<std::string>& extensions, void (*callback)(const fs::path&, void*), void* data);
-        void saveFile(const std::string& title, const std::vector<std::string>& extensions, void (*callback)(const fs::path&, void*), void* data);
+        void openDirectory(const std::string& title, const std::function<void(const fs::path&)>& callback);
+        void openFile(const std::string& title, const std::vector<std::string>& extensions, const std::function<void(const fs::path&)>& callback);
+        void saveFile(const std::string& title, const std::vector<std::string>& extensions, const std::function<void(const fs::path&)>& callback);
 
         void showDialog();
 
@@ -46,8 +46,7 @@ namespace GRender::dialog::internal {
         std::string mCurrentExt = "";
 
         // callback info
-        void* mCallbackData = nullptr;
-        void (*mCallback)(const std::filesystem::path&, void*) = nullptr;
+        std::function<void(const std::filesystem::path&)> mCallback = nullptr;
 
         // filepaths variables
         std::string filename = "";

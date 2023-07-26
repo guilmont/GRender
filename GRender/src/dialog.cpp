@@ -15,19 +15,19 @@ void Destroy() {
     delete dialogData;
 }
 
-void OpenDirectory(const std::string& title, void (*callback)(const std::filesystem::path&, void*), void* data) {
+void OpenDirectory(const std::string& title, const std::function<void(const std::filesystem::path&)>& callback) {
     ASSERT(dialogData, "Dialog module was not created!");
-    dialogData->openDirectory(title, callback, data);
+    dialogData->openDirectory(title, callback);
 }
 
-void OpenFile(const std::string& title, const std::vector<std::string>& extensions, void (*callback)(const std::filesystem::path&, void*), void* data) {
+void OpenFile(const std::string& title, const std::vector<std::string>& extensions, const std::function<void(const std::filesystem::path&)>& callback) {
     ASSERT(dialogData, "Dialog module was not created!");
-    dialogData->openFile(title, extensions, callback, data);
+    dialogData->openFile(title, extensions, callback);
 }
 
-void SaveFile(const std::string& title, const std::vector<std::string>& extensions, void (*callback)(const std::filesystem::path&, void*), void* data) {
+void SaveFile(const std::string& title, const std::vector<std::string>& extensions, const std::function<void(const std::filesystem::path&)>& callback) {
     ASSERT(dialogData, "Dialog module was not created!");
-    dialogData->saveFile(title, extensions, callback, data);
+    dialogData->saveFile(title, extensions, callback);
 }
 
 void ShowDialog() {

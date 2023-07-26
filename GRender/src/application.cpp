@@ -77,8 +77,10 @@ Application::Application(const std::string& name, uint32_t width, uint32_t heigh
 
     ImGui::StyleColorsClassic();
 
+    // Floating windows off main windows                                                                                                                                                                                                     
+    ImGuiIO& io = ImGui::GetIO();                                                                                                                                                                                                             
+    io.ConfigViewportsNoAutoMerge = true;
     // Floating windows off main windows
-    ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
