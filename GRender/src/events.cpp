@@ -39,11 +39,12 @@ bool IsReleased(MouseButton btn) {
 namespace GRender::keyboard::internal {
 
 ImGuiKey convertLetter(char key) {
-    return key - 'A' + ImGuiKey_A;
+    return static_cast<ImGuiKey>(key);
 }
 
 ImGuiKey convertNumber(int32_t key) {
-    return key + ImGuiKey_0;
+    key += static_cast<int32_t>('0');
+    return static_cast<ImGuiKey>(key);
 }
 
 } // namespace GRender::keyboard::internal
