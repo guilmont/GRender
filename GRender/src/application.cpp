@@ -85,7 +85,7 @@ Application::Application(const std::string& name, uint32_t width, uint32_t heigh
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-    // So that windows can only be moved by draging by title bar.
+    // So that windows can only be moved by dragging by title bar.
     // This avoids some interaction problems with certain widgets
     io.ConfigWindowsMoveFromTitleBarOnly = true;
 
@@ -96,18 +96,11 @@ Application::Application(const std::string& name, uint32_t width, uint32_t heigh
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    // Setup fonts
-    fonts::Create();
-    dialog::Create();
-    mailbox::Create();
-
+    // Initializing fonts to regular
+    GRender::fonts::SetDefault("regular");
 }
 
 Application::~Application(void) {
-    fonts::Destroy();
-    dialog::Destroy();
-    mailbox::Destroy();
-
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
 

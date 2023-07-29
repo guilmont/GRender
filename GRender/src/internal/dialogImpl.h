@@ -7,8 +7,13 @@ namespace GRender::dialog::internal {
 
     class DialogImpl {
     public:
-        DialogImpl(void);
-        ~DialogImpl(void) = default;
+        static DialogImpl* Instance() {
+            static DialogImpl dialog;
+            return &dialog;
+        }
+
+        DialogImpl(const DialogImpl&) = delete;
+        DialogImpl& operator=(const DialogImpl&) = delete;
 
         void setMainPath(const fs::path& mainPath);
 
@@ -19,10 +24,13 @@ namespace GRender::dialog::internal {
         void showDialog();
 
     private:
+        DialogImpl();
+        ~DialogImpl(void) = default;
+
         // Gets all directories and files available at current path.
         void updateAvailablePaths(void);
 
-        // Specialied windows
+        // Specialized windows
         void showOpenDirectory(void);
         void showOpenFile(void);
         void showSaveFile(void);
@@ -48,7 +56,7 @@ namespace GRender::dialog::internal {
         // callback info
         std::function<void(const std::filesystem::path&)> mCallback = nullptr;
 
-        // filepaths variables
+        // File path variables
         std::string filename = "";
         std::filesystem::path mainpath;
         std::vector<std::filesystem::path> availablePaths;

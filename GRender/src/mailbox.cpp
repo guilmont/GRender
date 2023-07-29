@@ -136,53 +136,55 @@ void Timer::stop(void) {
 
 namespace mailbox::internal {
 
-struct MailboxData {
-    bool active;
-    std::list<Message*> messages;
+class MailboxData {
+public:
+    static MailboxData* Instance() {
+        static MailboxData data;
+        return &data;
+    }
 
-    MailboxData(void) = default;
-    ~MailboxData(void);
+    MailboxData(const MailboxData&) = delete;
+    MailboxData& operator=(const MailboxData&) = delete;
 
     template <typename TP, typename... Args>
     TP* createMessage(Args... args);
 
-    void open(void);
-    void close(void);
+    void open(void) { m_Active = true; }
+    void close(void) { m_Active = false; }
 
     void showMessages();
     void clear();
+
+private:
+    MailboxData(void) = default;
+    ~MailboxData(void);
+
+    bool m_Active = false;
+    std::list<Message*> m_Messages;
 
 };
 
 /////////////////////////////
 
 MailboxData::~MailboxData() {
-    for (Message* msg : messages) {
+    for (Message* msg : m_Messages) {
         delete msg;
     }
-    messages.clear();
-}
-
-void MailboxData::open() {
-    active = true;
-}
-
-void MailboxData::close() {
-    active = false;
+    m_Messages.clear();
 }
 
 template <typename TP, typename... Args>
 TP* MailboxData::createMessage(Args... args) {
     open();
-    messages.emplace_back(new TP(args...));
-    return reinterpret_cast<TP*>(messages.back());
+    m_Messages.emplace_back(new TP(args...));
+    return reinterpret_cast<TP*>(m_Messages.back());
 }
 
 void MailboxData::showMessages() {
-    if (!active)
+    if (!m_Active)
         return;
 
-    ImGui::Begin("Mailbox", &active);
+    ImGui::Begin("Mailbox", &m_Active);
     const ImVec2 workpos = ImGui::GetMainViewport()->WorkPos;
     ImGui::SetWindowSize({ DPI_FACTOR * 720.0f, DPI_FACTOR * 405.0f });
 
@@ -191,8 +193,9 @@ void MailboxData::showMessages() {
     ImVec2 size = { 0.98f * ImGui::GetWindowWidth(), 0.82f * ImGui::GetWindowHeight() };
     ImGui::BeginChild("mail_child", size, true, ImGuiWindowFlags_HorizontalScrollbar);
 
-    for (Message* msg : messages)
+    for (Message* msg : m_Messages) {
         msg->show();
+    }
 
     ImGui::EndChild();
     ImGui::PopStyleColor();
@@ -209,7 +212,7 @@ void MailboxData::showMessages() {
 }
 
 void MailboxData::clear() {
-    messages.remove_if(
+    m_Messages.remove_if(
         [](Message* msg) -> bool {
             if (msg->is_read) {
                 delete msg;
@@ -229,52 +232,40 @@ void MailboxData::clear() {
 
 namespace mailbox {
 
-// Global parameter in the GRender context
-internal::MailboxData* mail = nullptr;
-
-void Create() {
-    mail = new internal::MailboxData();
-}
-
-void Destroy(void) {
-    delete mail;
-}
-
 void Open() {
-    mail->open();
+    internal::MailboxData::Instance()->open();
 }
 
 void Close() {
-    mail->close();
+    internal::MailboxData::Instance()->close();
 }
 
 Info* CreateInfo(const std::string& msg) {
-    return mail->createMessage<Info>(msg);
+    return internal::MailboxData::Instance()->createMessage<Info>(msg);
 }
 
 Warn* CreateWarn(const std::string& msg) {
-    return mail->createMessage<Warn>(msg);
+    return internal::MailboxData::Instance()->createMessage<Warn>(msg);
 }
 
 Error* CreateError(const std::string& msg) {
-    return mail->createMessage<Error>(msg);
+    return internal::MailboxData::Instance()->createMessage<Error>(msg);
 }
 
 Progress* CreateProgress(const std::string& msg, void (*function)(void*), void* ptr) {
-    return mail->createMessage<Progress>(msg, function, ptr);
+    return internal::MailboxData::Instance()->createMessage<Progress>(msg, function, ptr);
 }
 
 Timer* CreateTimer(const std::string& msg, void(*function)(void*), void* ptr) {
-    return mail->createMessage<Timer>(msg, function, ptr);
+    return internal::MailboxData::Instance()->createMessage<Timer>(msg, function, ptr);
 }
 
 void ShowMessages(void) {
-    ASSERT(mail, "Mailbox module was not created!");
-    mail->showMessages();
+    internal::MailboxData::Instance()->showMessages();
 }
 
 void Clear() {
-    mail->clear();
+    internal::MailboxData::Instance()->clear();
 }
 
 } // namespace mailbox

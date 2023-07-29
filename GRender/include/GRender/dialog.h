@@ -3,13 +3,6 @@
 #include "core.h"
 
 namespace GRender::dialog {
-
-    // Creates dialog implementation
-    void Create(void);
-
-    // Destroys dialog implementation
-    void Destroy();
-
     // Opens a dialog allowing to seek a directory in the system
     void OpenDirectory(const std::string& title, const std::function<void(const std::filesystem::path&)>& callback);
 
