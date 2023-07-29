@@ -53,12 +53,10 @@ void DialogImpl::setMainPath(const fs::path& _path) {
     mainpath = _path;
 }
 
-void DialogImpl::openDirectory(const std::string& title,
-    void (*callback)(const fs::path&, void*), void* data) {
+void DialogImpl::openDirectory(const std::string& title, const std::function<void(const fs::path&)>& callback) {
     mActive = true;
     mTitle = title;
     mCallback = callback;
-    mCallbackData = data;
     mExtensions = {};
     mCurrentExt = "";
     filename = "";
@@ -67,12 +65,10 @@ void DialogImpl::openDirectory(const std::string& title,
     updateAvailablePaths();
 }
 
-void DialogImpl::openFile(const std::string& title, const std::vector<std::string>& extensions,
-    void (*callback)(const fs::path&, void*), void* data) {
+void DialogImpl::openFile(const std::string& title, const std::vector<std::string>& extensions, const std::function<void(const fs::path&)>& callback) {
     mActive = true;
     mTitle = title;
     mCallback = callback;
-    mCallbackData = data;
     mExtensions = extensions;
     mCurrentExt = "." + extensions.front();
     filename = "";
@@ -81,12 +77,10 @@ void DialogImpl::openFile(const std::string& title, const std::vector<std::strin
     updateAvailablePaths();
 }
 
-void DialogImpl::saveFile(const std::string& title, const std::vector<std::string>& extensions,
-    void (*callback)(const fs::path&, void*), void* data) {
+void DialogImpl::saveFile(const std::string& title, const std::vector<std::string>& extensions, const std::function<void(const fs::path&)>& callback) {
     mActive = true;
     mTitle = title;
     mCallback = callback;
-    mCallbackData = data;
     mExtensions = extensions;
     mCurrentExt = "." + extensions.front();
     filename = "";
@@ -105,7 +99,7 @@ void DialogImpl::showDialog() {
 
 void DialogImpl::showOpenDirectory(void) {
     ImGui::Begin(mTitle.c_str(), &mActive);
-    ImGui::SetWindowSize({ DPI_FACTOR * mSize.x, DPI_FACTOR * mSize.y });
+    ImGui::SetWindowSize({ mSize.x, mSize.y });
 
     bool status = systemDisplay();
 
@@ -121,13 +115,13 @@ void DialogImpl::showOpenDirectory(void) {
 
     if (status) {
         mActive = false;
-        mCallback(mainpath, mCallbackData);
+        mCallback(mainpath);
     }
 }
 
 void DialogImpl::showOpenFile(void) {
     ImGui::Begin(mTitle.c_str(), &mActive);
-    ImGui::SetWindowSize({ DPI_FACTOR * mSize.x, DPI_FACTOR * mSize.y });
+    ImGui::SetWindowSize({ mSize.x, mSize.y });
 
     bool status = systemDisplay();
 
@@ -155,7 +149,7 @@ void DialogImpl::showOpenFile(void) {
     ImGui::End();
 
     if (status) {
-        mCallback(mainpath, mCallbackData);
+        mCallback(mainpath);
         mActive = false;
         mainpath = mainpath.parent_path(); // going back to parent directory
     }
@@ -163,7 +157,7 @@ void DialogImpl::showOpenFile(void) {
 
 void DialogImpl::showSaveFile(void) {
     ImGui::Begin(mTitle.c_str(), &mActive);
-    ImGui::SetWindowSize({ DPI_FACTOR * mSize.x, DPI_FACTOR * mSize.y });
+    ImGui::SetWindowSize({ mSize.x, mSize.y });
 
     bool status = systemDisplay();
 
@@ -211,7 +205,7 @@ void DialogImpl::showSaveFile(void) {
         mExistsPopup = fs::is_regular_file(mainpath);
 
         if (!mExistsPopup) {
-            mCallback(mainpath, mCallbackData);
+            mCallback(mainpath);
             mainpath = mainpath.parent_path();
         }
     }
@@ -222,7 +216,7 @@ void DialogImpl::fileExistsPopup(void) {
     const std::string& name = mainpath.filename().string();
 
     ImGui::Begin("File exists");
-    ImGui::SetWindowSize({ 0.0f, DPI_FACTOR * 100.0f });
+    ImGui::SetWindowSize({ 0.0f, 100.0f });
 
     ImGui::Text("'%s' already exists. Replace?", name.c_str());
 
@@ -240,7 +234,7 @@ void DialogImpl::fileExistsPopup(void) {
     ImGui::End();
 
     if (status) {
-        mCallback(mainpath, mCallbackData);
+        mCallback(mainpath);
     }
 
     if (!mExistsPopup) {

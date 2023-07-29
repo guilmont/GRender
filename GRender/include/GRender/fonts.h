@@ -4,12 +4,8 @@
 
 namespace GRender::fonts {
 
-void Create(void);
-void Destroy(void);
-
-void SetDefault(const std::string &name);
-
 void LoadFont(const std::string &fontname, const std::string &path, float size);
+void SetDefault(const std::string &name);
 
 // Used for DPI switching
 void Swap(const std::string& name1, const std::string& name2);

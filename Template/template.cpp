@@ -63,19 +63,23 @@ private:
 };
 
 GRender::Application* GRender::createApplication(int argc, char** argv) {
-    // Setup program to use executable path as reference
     namespace fs = std::filesystem;
+    // Processing inputs to use current path
+    const fs::path pwd = fs::current_path();
+    GRender::dialog::SetDefaultPath(pwd);
 
-    fs::path exe = fs::path{ argv[0] }.parent_path();
-    if (fs::exists(exe))
-        fs::current_path(exe);
+    // Setup program to use install path as reference
+    const fs::path projPath = fs::path{ argv[0] }.parent_path().parent_path();
+    fs::current_path(projPath);
 
-    WARN("Current path: " + fs::current_path().string());
+    INFO("Project path: " + fs::current_path().string());
 
-    if (argc == 1)
+    if (argc == 1) {
         return new Sandbox;
-    else
-        return new Sandbox(argv[1]);
+    }
+    else {
+        return new Sandbox((pwd / fs::path{argv[1]}).string());
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -109,10 +113,10 @@ static void testTimer(GRender::Timer* timer) {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../assets/layout.ini") {
-    shader.emplace("quad",     "../assets/quad.vtx.glsl",    "../assets/quad.frag.glsl"   );
-    shader.emplace("objects",  "../assets/objects.vtx.glsl", "../assets/objects.frag.glsl");
-    shader.emplace("compute",  "../assets/compute.cmp.glsl");
+Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "assets/layout.ini") {
+    shader.emplace("quad",     "assets/quad.vtx.glsl",    "assets/quad.frag.glsl"   );
+    shader.emplace("objects",  "assets/objects.vtx.glsl", "assets/objects.frag.glsl");
+    shader.emplace("compute",  "assets/compute.cmp.glsl");
 
     GRender::texture::Specification defSpec;
     view = GRender::Viewport({ 1200, 800 }, { defSpec }, true);
@@ -132,8 +136,8 @@ Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../a
     Specification spec;
     spec.wrap.x = Wrap::MIRRORED;
     spec.wrap.y = Wrap::REPEAT;
-    texture.insert("space", GRender::utils::createTextureFromRGBAFile("../assets/space.jpg", spec));
-    texture.insert("earth", GRender::utils::createTextureFromRGBAFile("../assets/earth.jpg", spec));
+    texture.insert("space", GRender::utils::createTextureFromRGBAFile("assets/space.jpg", spec));
+    texture.insert("earth", GRender::utils::createTextureFromRGBAFile("assets/earth.jpg", spec));
     
     spec.fmt = Format::RGBA8;
     spec.wrap.x = Wrap::BORDER;
@@ -154,19 +158,17 @@ void Sandbox::onUserUpdate(float deltaTime) {
     if (ctrl && keyboard::IsPressed('I')) { view_imguidemo = true; }
 
     if (ctrl && keyboard::IsPressed('O')) {
-        auto callback = [](const fs::path& path, void*) -> void { mailbox::CreateInfo("Selected file: " + path.string()); };
+        auto callback = [](const fs::path& path) -> void { mailbox::CreateInfo("Selected file: " + path.string()); };
         dialog::OpenFile("Open file...", { "txt", "json" }, callback);
     }
 
     if (ctrl && keyboard::IsPressed('S')) {
-        auto callback = [](const fs::path& path, void*) -> void { mailbox::CreateInfo("Save file: " + path.string()); };
+        auto callback = [](const fs::path& path) -> void { mailbox::CreateInfo("Save file: " + path.string()); };
         dialog::SaveFile("Save file...", {"txt", "json"}, callback);
     }
 
     if (ctrl && keyboard::IsPressed('D')) {
-        auto callback = [](const fs::path& path, void*) -> void {
-            mailbox::CreateInfo("Open directory: " + path.string());
-        };
+        auto callback = [](const fs::path& path) -> void { mailbox::CreateInfo("Open directory: " + path.string()); };
         dialog::OpenDirectory("Open directory...", callback);
     }
 
@@ -383,23 +385,17 @@ void Sandbox::ImGuiLayer(void) {
 void Sandbox::ImGuiMenuLayer(void) {
     if (ImGui::BeginMenu("File")) {
         if (ImGui::MenuItem("Open...", "Ctrl+O")) {
-            auto callback = [](const fs::path& path, void* ptr) -> void {
-                GRender::mailbox::CreateInfo("Selected file: " + path.string()); 
-            };
+            auto callback = [](const fs::path& path) -> void { GRender::mailbox::CreateInfo("Selected file: " + path.string()); };
             GRender::dialog::OpenFile("Open file...", { "txt", "json" }, callback);
         }
 
         if (ImGui::MenuItem("Save...", "Ctrl+S")) {
-            auto callback = [](const fs::path& path, void* ptr) -> void {
-                GRender::mailbox::CreateInfo("Save file: " + path.string());
-            };
+            auto callback = [](const fs::path& path) -> void { GRender::mailbox::CreateInfo("Save file: " + path.string()); };
             GRender::dialog::SaveFile("Save file...", {"txt", "json"}, callback);
         }
 
         if (ImGui::MenuItem("Open directory...", "Ctrl+D")) {
-            auto callback = [](const fs::path& path, void* ptr) -> void {
-                GRender::mailbox::CreateInfo("Open directory: " + path.string());
-            };
+            auto callback = [](const fs::path& path) -> void { GRender::mailbox::CreateInfo("Open directory: " + path.string()); };
             GRender::dialog::OpenDirectory("Open directory...", callback);
         }
 
@@ -409,18 +405,7 @@ void Sandbox::ImGuiMenuLayer(void) {
         ImGui::EndMenu();
     }
 
-    if (ImGui::BeginMenu("Edit"))
-    {
-        // TODO: Do I really need this?
-        if (GRender::DPI_FACTOR == 1) {
-            if (ImGui::MenuItem("Set HIDPI"))
-                scaleSizes(); // Toggle sizes
-        } 
-        else {
-            if (ImGui::MenuItem("* Set HIDPI"))
-                scaleSizes(); // Toggle sizes
-        }
-
+    if (ImGui::BeginMenu("Edit")) {
         if (ImGui::BeginMenu("Camera controls")) {
             if (ImGui::MenuItem("Free")) { useOrbitalCamera = false; camera.open(); }
             if (ImGui::MenuItem("Orbital")) { useOrbitalCamera = true; orbital.open(); }

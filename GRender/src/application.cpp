@@ -16,14 +16,10 @@ void Application::DisableVSync() { glfwSwapInterval(0); }
 Application::Application(const std::string& name, uint32_t width, uint32_t height,
                          const std::filesystem::path& layout) {
 
-    // Hack to corrent for HiDPI screens
-    width = static_cast<uint32_t>(DPI_FACTOR * width);
-    height = static_cast<uint32_t>(DPI_FACTOR * height);
-
     // Setup window
     glfwSetErrorCallback([](int error, const char* description) -> void {
         ASSERT(false, "(glfw) -> " + std::to_string(error) + " :: " + std::string(description));
-        });
+    });
 
     int success = glfwInit();
     ASSERT(success, "(glfw) -> Couldn't start glfw!!!");
@@ -77,13 +73,15 @@ Application::Application(const std::string& name, uint32_t width, uint32_t heigh
 
     ImGui::StyleColorsClassic();
 
+    // Floating windows off main windows                                                                                                                                                                                                     
+    ImGuiIO& io = ImGui::GetIO();                                                                                                                                                                                                             
+    io.ConfigViewportsNoAutoMerge = true;
     // Floating windows off main windows
-    ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
-    // So that windows can only be moved by draging by title bar.
+    // So that windows can only be moved by dragging by title bar.
     // This avoids some interaction problems with certain widgets
     io.ConfigWindowsMoveFromTitleBarOnly = true;
 
@@ -94,18 +92,11 @@ Application::Application(const std::string& name, uint32_t width, uint32_t heigh
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    // Setup fonts
-    fonts::Create();
-    dialog::Create();
-    mailbox::Create();
-
+    // Initializing fonts to regular
+    GRender::fonts::SetDefault("regular");
 }
 
 Application::~Application(void) {
-    fonts::Destroy();
-    dialog::Destroy();
-    mailbox::Destroy();
-
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();
 
@@ -119,25 +110,6 @@ Application::~Application(void) {
 
 void Application::closeApp(void) {
     glfwSetWindowShouldClose(window, 1);
-}
-
-void Application::scaleSizes() {
-    // Rescaling all sizes to account for HIDPI screens
-    ImGuiStyle& style = ImGui::GetStyle();
-
-    if (DPI_FACTOR == 2) {
-        style.ScaleAllSizes(0.5f);
-        DPI_FACTOR = 1.0f;
-    }
-    else {
-        style.ScaleAllSizes(2.0f);
-        DPI_FACTOR = 2.0f;
-    }
-
-    fonts::Swap("regular", "regularDPI");
-    fonts::Swap("bold",    "boldDPI");
-    fonts::Swap("italic",  "italicDPI");
-    fonts::SetDefault("regular");
 }
 
 void Application::setAppTitle(const std::string& title) {

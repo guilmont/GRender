@@ -4,40 +4,24 @@
 
 namespace GRender::dialog {
 
-// local pointer for dialog implementation
-internal::DialogImpl* dialogData = nullptr;
-
-void Create() {
-    dialogData = new internal::DialogImpl();
+void OpenDirectory(const std::string& title, const std::function<void(const std::filesystem::path&)>& callback) {
+    internal::DialogImpl::Instance()->openDirectory(title, callback);
 }
 
-void Destroy() {
-    delete dialogData;
+void OpenFile(const std::string& title, const std::vector<std::string>& extensions, const std::function<void(const std::filesystem::path&)>& callback) {
+    internal::DialogImpl::Instance()->openFile(title, extensions, callback);
 }
 
-void OpenDirectory(const std::string& title, void (*callback)(const std::filesystem::path&, void*), void* data) {
-    ASSERT(dialogData, "Dialog module was not created!");
-    dialogData->openDirectory(title, callback, data);
-}
-
-void OpenFile(const std::string& title, const std::vector<std::string>& extensions, void (*callback)(const std::filesystem::path&, void*), void* data) {
-    ASSERT(dialogData, "Dialog module was not created!");
-    dialogData->openFile(title, extensions, callback, data);
-}
-
-void SaveFile(const std::string& title, const std::vector<std::string>& extensions, void (*callback)(const std::filesystem::path&, void*), void* data) {
-    ASSERT(dialogData, "Dialog module was not created!");
-    dialogData->saveFile(title, extensions, callback, data);
+void SaveFile(const std::string& title, const std::vector<std::string>& extensions, const std::function<void(const std::filesystem::path&)>& callback) {
+    internal::DialogImpl::Instance()->saveFile(title, extensions, callback);
 }
 
 void ShowDialog() {
-    ASSERT(dialogData, "Dialog module was not created!");
-    dialogData->showDialog();
+    internal::DialogImpl::Instance()->showDialog();
 }
 
 void SetDefaultPath(const fs::path& defaultPath) {
-    ASSERT(dialogData, "Dialog module was not created!");
-    dialogData->setMainPath(defaultPath);
+    internal::DialogImpl::Instance()->setMainPath(defaultPath);
 }
 
 } // namespace GRender

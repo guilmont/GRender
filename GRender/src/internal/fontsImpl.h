@@ -6,8 +6,13 @@ namespace GRender::fonts::internal {
 
 class FontsImpl {
 public:
-	FontsImpl(void);
-	~FontsImpl(void) = default;
+	static FontsImpl* Instance() {
+		static FontsImpl impl;
+		return &impl;
+	}
+
+	FontsImpl(const FontsImpl&) = delete;
+	FontsImpl& operator=(const FontsImpl&) = delete;
 
 	void loadFont(const std::string& fontname, const std::string& path, float size);
 	void setDefault(const std::string& name);
@@ -20,6 +25,9 @@ public:
 	void pop(void);
 
 private:
+	FontsImpl(void);
+	~FontsImpl(void) = default;
+
 	std::unordered_map<std::string, ImFont*> mFonts;
 };
 

@@ -7,22 +7,30 @@ namespace GRender::dialog::internal {
 
     class DialogImpl {
     public:
-        DialogImpl(void);
-        ~DialogImpl(void) = default;
+        static DialogImpl* Instance() {
+            static DialogImpl dialog;
+            return &dialog;
+        }
+
+        DialogImpl(const DialogImpl&) = delete;
+        DialogImpl& operator=(const DialogImpl&) = delete;
 
         void setMainPath(const fs::path& mainPath);
 
-        void openDirectory(const std::string& title, void (*callback)(const fs::path&, void*), void* data);
-        void openFile(const std::string& title, const std::vector<std::string>& extensions, void (*callback)(const fs::path&, void*), void* data);
-        void saveFile(const std::string& title, const std::vector<std::string>& extensions, void (*callback)(const fs::path&, void*), void* data);
+        void openDirectory(const std::string& title, const std::function<void(const fs::path&)>& callback);
+        void openFile(const std::string& title, const std::vector<std::string>& extensions, const std::function<void(const fs::path&)>& callback);
+        void saveFile(const std::string& title, const std::vector<std::string>& extensions, const std::function<void(const fs::path&)>& callback);
 
         void showDialog();
 
     private:
+        DialogImpl();
+        ~DialogImpl(void) = default;
+
         // Gets all directories and files available at current path.
         void updateAvailablePaths(void);
 
-        // Specialied windows
+        // Specialized windows
         void showOpenDirectory(void);
         void showOpenFile(void);
         void showSaveFile(void);
@@ -46,10 +54,9 @@ namespace GRender::dialog::internal {
         std::string mCurrentExt = "";
 
         // callback info
-        void* mCallbackData = nullptr;
-        void (*mCallback)(const std::filesystem::path&, void*) = nullptr;
+        std::function<void(const std::filesystem::path&)> mCallback = nullptr;
 
-        // filepaths variables
+        // File path variables
         std::string filename = "";
         std::filesystem::path mainpath;
         std::vector<std::filesystem::path> availablePaths;

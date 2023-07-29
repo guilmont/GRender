@@ -25,8 +25,6 @@ namespace GRender {
         virtual void ImGuiLayer(void) {}
         virtual void ImGuiMenuLayer(void) {}
 
-        void scaleSizes(void); // Toggles the scaling for HIDPI screens
-
         static void EnableVSync(void);  // Default on
         static void DisableVSync(void);
 
