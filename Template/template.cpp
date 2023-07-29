@@ -66,6 +66,7 @@ GRender::Application* GRender::createApplication(int argc, char** argv) {
     namespace fs = std::filesystem;
     // Processing inputs to use current path
     const fs::path pwd = fs::current_path();
+    GRender::dialog::SetDefaultPath(pwd);
 
     // Setup program to use install path as reference
     const fs::path projPath = fs::path{ argv[0] }.parent_path().parent_path();
@@ -404,18 +405,7 @@ void Sandbox::ImGuiMenuLayer(void) {
         ImGui::EndMenu();
     }
 
-    if (ImGui::BeginMenu("Edit"))
-    {
-        // TODO: Do I really need this?
-        if (GRender::DPI_FACTOR == 1) {
-            if (ImGui::MenuItem("Set HIDPI"))
-                scaleSizes(); // Toggle sizes
-        } 
-        else {
-            if (ImGui::MenuItem("* Set HIDPI"))
-                scaleSizes(); // Toggle sizes
-        }
-
+    if (ImGui::BeginMenu("Edit")) {
         if (ImGui::BeginMenu("Camera controls")) {
             if (ImGui::MenuItem("Free")) { useOrbitalCamera = false; camera.open(); }
             if (ImGui::MenuItem("Orbital")) { useOrbitalCamera = true; orbital.open(); }

@@ -99,7 +99,7 @@ void DialogImpl::showDialog() {
 
 void DialogImpl::showOpenDirectory(void) {
     ImGui::Begin(mTitle.c_str(), &mActive);
-    ImGui::SetWindowSize({ DPI_FACTOR * mSize.x, DPI_FACTOR * mSize.y });
+    ImGui::SetWindowSize({ mSize.x, mSize.y });
 
     bool status = systemDisplay();
 
@@ -121,7 +121,7 @@ void DialogImpl::showOpenDirectory(void) {
 
 void DialogImpl::showOpenFile(void) {
     ImGui::Begin(mTitle.c_str(), &mActive);
-    ImGui::SetWindowSize({ DPI_FACTOR * mSize.x, DPI_FACTOR * mSize.y });
+    ImGui::SetWindowSize({ mSize.x, mSize.y });
 
     bool status = systemDisplay();
 
@@ -157,7 +157,7 @@ void DialogImpl::showOpenFile(void) {
 
 void DialogImpl::showSaveFile(void) {
     ImGui::Begin(mTitle.c_str(), &mActive);
-    ImGui::SetWindowSize({ DPI_FACTOR * mSize.x, DPI_FACTOR * mSize.y });
+    ImGui::SetWindowSize({ mSize.x, mSize.y });
 
     bool status = systemDisplay();
 
@@ -216,7 +216,7 @@ void DialogImpl::fileExistsPopup(void) {
     const std::string& name = mainpath.filename().string();
 
     ImGui::Begin("File exists");
-    ImGui::SetWindowSize({ 0.0f, DPI_FACTOR * 100.0f });
+    ImGui::SetWindowSize({ 0.0f, 100.0f });
 
     ImGui::Text("'%s' already exists. Replace?", name.c_str());
 

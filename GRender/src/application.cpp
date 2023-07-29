@@ -16,14 +16,10 @@ void Application::DisableVSync() { glfwSwapInterval(0); }
 Application::Application(const std::string& name, uint32_t width, uint32_t height,
                          const std::filesystem::path& layout) {
 
-    // Hack to corrent for HiDPI screens
-    width = static_cast<uint32_t>(DPI_FACTOR * width);
-    height = static_cast<uint32_t>(DPI_FACTOR * height);
-
     // Setup window
     glfwSetErrorCallback([](int error, const char* description) -> void {
         ASSERT(false, "(glfw) -> " + std::to_string(error) + " :: " + std::string(description));
-        });
+    });
 
     int success = glfwInit();
     ASSERT(success, "(glfw) -> Couldn't start glfw!!!");
@@ -114,25 +110,6 @@ Application::~Application(void) {
 
 void Application::closeApp(void) {
     glfwSetWindowShouldClose(window, 1);
-}
-
-void Application::scaleSizes() {
-    // Rescaling all sizes to account for HIDPI screens
-    ImGuiStyle& style = ImGui::GetStyle();
-
-    if (DPI_FACTOR == 2) {
-        style.ScaleAllSizes(0.5f);
-        DPI_FACTOR = 1.0f;
-    }
-    else {
-        style.ScaleAllSizes(2.0f);
-        DPI_FACTOR = 2.0f;
-    }
-
-    fonts::Swap("regular", "regularDPI");
-    fonts::Swap("bold",    "boldDPI");
-    fonts::Swap("italic",  "italicDPI");
-    fonts::SetDefault("regular");
 }
 
 void Application::setAppTitle(const std::string& title) {

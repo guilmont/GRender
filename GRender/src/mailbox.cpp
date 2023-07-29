@@ -186,7 +186,7 @@ void MailboxData::showMessages() {
 
     ImGui::Begin("Mailbox", &m_Active);
     const ImVec2 workpos = ImGui::GetMainViewport()->WorkPos;
-    ImGui::SetWindowSize({ DPI_FACTOR * 720.0f, DPI_FACTOR * 405.0f });
+    ImGui::SetWindowSize({ 720.0f, 405.0f });
 
     ImGui::PushStyleColor(ImGuiCol_ChildBg, { 0.02f, 0.02f, 0.02f, 1.0f });
 

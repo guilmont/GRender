@@ -34,8 +34,6 @@ namespace GRender {
 
 namespace fs = std::filesystem;
 
-inline float DPI_FACTOR = 1;  // Used to rescale sizes for HIDPI screens
-
 #if !defined(NDEBUG)
 	#define ASSERT(EXPR, MSG) if (!(EXPR)) { std::cerr << "\033[1;31mERROR (\033[0m\033[1m" << __FUNCTION__ << "\033[1;31m):\033[0m "<< (MSG) << std::endl; std::abort(); }
 	#define WARN(MSG) std::cout << "\033[1;33mWARN (\033[0m\033[1m" << __FUNCTION__ << "\033[1;33m):\033[0m "<< (MSG) << std::endl
