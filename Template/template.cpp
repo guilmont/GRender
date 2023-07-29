@@ -63,19 +63,22 @@ private:
 };
 
 GRender::Application* GRender::createApplication(int argc, char** argv) {
-    // Setup program to use executable path as reference
     namespace fs = std::filesystem;
+    // Processing inputs to use current path
+    const fs::path pwd = fs::current_path();
 
-    fs::path exe = fs::path{ argv[0] }.parent_path();
-    if (fs::exists(exe))
-        fs::current_path(exe);
+    // Setup program to use install path as reference
+    const fs::path projPath = fs::path{ argv[0] }.parent_path().parent_path();
+    fs::current_path(projPath);
 
-    INFO("Current path: " + fs::current_path().string());
+    INFO("Project path: " + fs::current_path().string());
 
-    if (argc == 1)
+    if (argc == 1) {
         return new Sandbox;
-    else
-        return new Sandbox(argv[1]);
+    }
+    else {
+        return new Sandbox((pwd / fs::path{argv[1]}).string());
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -109,10 +112,10 @@ static void testTimer(GRender::Timer* timer) {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../assets/layout.ini") {
-    shader.emplace("quad",     "../assets/quad.vtx.glsl",    "../assets/quad.frag.glsl"   );
-    shader.emplace("objects",  "../assets/objects.vtx.glsl", "../assets/objects.frag.glsl");
-    shader.emplace("compute",  "../assets/compute.cmp.glsl");
+Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "assets/layout.ini") {
+    shader.emplace("quad",     "assets/quad.vtx.glsl",    "assets/quad.frag.glsl"   );
+    shader.emplace("objects",  "assets/objects.vtx.glsl", "assets/objects.frag.glsl");
+    shader.emplace("compute",  "assets/compute.cmp.glsl");
 
     GRender::texture::Specification defSpec;
     view = GRender::Viewport({ 1200, 800 }, { defSpec }, true);
@@ -132,8 +135,8 @@ Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "../a
     Specification spec;
     spec.wrap.x = Wrap::MIRRORED;
     spec.wrap.y = Wrap::REPEAT;
-    texture.insert("space", GRender::utils::createTextureFromRGBAFile("../assets/space.jpg", spec));
-    texture.insert("earth", GRender::utils::createTextureFromRGBAFile("../assets/earth.jpg", spec));
+    texture.insert("space", GRender::utils::createTextureFromRGBAFile("assets/space.jpg", spec));
+    texture.insert("earth", GRender::utils::createTextureFromRGBAFile("assets/earth.jpg", spec));
     
     spec.fmt = Format::RGBA8;
     spec.wrap.x = Wrap::BORDER;
