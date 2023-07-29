@@ -6,6 +6,7 @@ extern GRender::Application* GRender::createApplication(int argc, char** argv);
 
 #if defined(WIN32) && !defined(_DEBUG)
 #define NOMINMAX  // Otherwise Windows.h win include definition to min/max, conflicting with std::min/max
+#define WIN32_LEAN_AND_MEAN  // Removing other definitions that we don't need and would increase size of executable
 #include <Windows.h>
 #include <stdlib.h>
 
