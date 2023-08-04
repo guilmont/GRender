@@ -1,43 +1,60 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.10.0)
+project(GRender)
 
-# This CMakeLists.txt will only setup the template in relation to GRender
-# For other purpoes, add directly the subdirectory GRender
+option(GRENDER_IMPLOT "Build plotting utilities" OFF)
+option(GRENDER_BUILD_EXAMPLE "Build example on how to use GRender" OFF)
+
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 
-# A trick so the program can always find its assets
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/bin")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${CMAKE_SOURCE_DIR}/bin")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}/bin")
+# Setup vendors
+add_subdirectory(vendor)
 
-add_subdirectory("GRender")
+# Create library
+add_library(GRender STATIC
+	"src/application.cpp"
+	"src/camera.cpp"
+	"src/camera2D.cpp"
+	"src/dialog.cpp"
+	"src/events.cpp"
+	"src/fonts.cpp"
+	"src/framebuffer.cpp"
+	"src/mailbox.cpp"
+	"src/orbitalCamera.cpp"
+	"src/quad.cpp"
+	"src/shader.cpp"
+	"src/storageBuffer.cpp"
+	"src/texture.cpp"
+	"src/utils.cpp"
+	"src/viewport.cpp"
+	"src/interactiveImage.cpp"
 
-##############################################################
+	"src/internal/dialogImpl.cpp"
+	"src/internal/fontsImpl.cpp"
+	"src/internal/OpenSans.cpp"
 
-project(Template)
+	"src/objects/cube.cpp"
+	"src/objects/cylinder.cpp"
+	"src/objects/object.cpp"
+	"src/objects/sphere.cpp"
+)
 
-add_executable(Template "Template/template.cpp"   "Template/polymer.cpp")
+target_include_directories(GRender PUBLIC "${PROJECT_SOURCE_DIR}/include")
+target_include_directories(GRender PRIVATE "${PROJECT_SOURCE_DIR}/include/GRender")
+target_compile_definitions(GRender PRIVATE _CRT_SECURE_NO_WARNINGS)  # so it doesn't bother about std::getenv
 
-target_link_libraries(Template PRIVATE GRender)
+set(DEPENDENCIES glm glad glfw imgui stb_image)
 
-if (WIN32)
-	set_target_properties(Template PROPERTIES LINK_FLAGS_RELEASE "/SUBSYSTEM:WINDOWS")
-	set_target_properties(Template PROPERTIES LINK_FLAGS_RELWITHDEBINFO "/SUBSYSTEM:WINDOWS")
+if (GRENDER_IMPLOT)
+	target_compile_definitions(GRender PUBLIC BUILD_IMPLOT)
+	set(DEPENDENCIES ${DEPENDENCIES} implot)
 endif()
 
-### INTSTALLATION ##########################################
+target_link_libraries(GRender PUBLIC ${DEPENDENCIES})
+target_precompile_headers(GRender PUBLIC "include/GRender/core.h")
 
-install(TARGETS "Template" 
-	CONFIGURATIONS Release
-		DESTINATION "${CMAKE_INSTALL_PREFIX}/bin"
-)
-
-install(DIRECTORY "assets" 
-	CONFIGURATIONS Release	
-		DESTINATION ${CMAKE_INSTALL_PREFIX}
-)
-
-
-
-
+if (GRENDER_BUILD_EXAMPLE)
+	add_subdirectory("example")    	
+endif()
