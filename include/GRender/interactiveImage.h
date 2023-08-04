@@ -24,7 +24,7 @@ public:
 	InteractiveImage& operator=(InteractiveImage&&) noexcept;
 
 	// Creates a ImGui Window and display attached Texture
-	void display(const std::string& windowName = "InteractiveImage");
+	void display(const std::string& windowName = "Interactive Image");
 
 	void open(void) { m_View = true; }
 	void close(void) { m_View = false; }

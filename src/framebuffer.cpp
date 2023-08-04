@@ -81,6 +81,7 @@ void Framebuffer::resize(const glm::uvec2& size) {
     std::vector<TexSpec> vec;
     std::transform(m_Textures.begin(), m_Textures.end(), std::back_inserter(vec), [](const Texture& tex) { return tex.specification(); });
 
+    this->~Framebuffer();
     new (this) Framebuffer(size, vec, depth);
 }
 

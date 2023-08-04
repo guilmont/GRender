@@ -8,6 +8,8 @@
 #include "GRender/camera.h"
 #include "GRender/orbitalCamera.h"
 
+#include "GRender/interactiveImage.h"
+
 #include "GRender/quad.h"
 #include "GRender/shader.h"
 #include "GRender/table.h"
@@ -57,6 +59,8 @@ private:
     GRender::Cube cube;
     GRender::Sphere sphere;
     GRender::Cylinder cylinder;
+
+    GRender::InteractiveImage interact;
 
     glm::vec3 bgColor = { 0.3f, 0.3f, 0.3f };
 
@@ -146,6 +150,8 @@ Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "asse
 
     glEnable(GL_DEPTH_TEST);
     poly = polymer::Polymer(128, 1.0f);
+
+    interact = GRender::InteractiveImage("assets/earth.jpg");
 }
 
 void Sandbox::onUserUpdate(float deltaTime) {
@@ -156,6 +162,12 @@ void Sandbox::onUserUpdate(float deltaTime) {
     if (ctrl && keyboard::IsPressed('H')) { view_specs = true; }
 
     if (ctrl && keyboard::IsPressed('I')) { view_imguidemo = true; }
+
+    if (keyboard::IsPressed('I')) { 
+        static bool toggle = false;
+        toggle = !toggle;
+        toggle ? interact.open() : interact.close();
+    }
 
     if (ctrl && keyboard::IsPressed('O')) {
         auto callback = [](const fs::path& path) -> void { mailbox::CreateInfo("Selected file: " + path.string()); };
@@ -371,7 +383,6 @@ void Sandbox::ImGuiLayer(void) {
     orbital.aspectRatio() = vsz.x / vsz.y;
     camera.aspectRatio() = vsz.x / vsz.y;
 
-
     ///////////////////////////////////////////////////////
     // Small display for the compute shader
     ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2{ 0.0f, 0.0f });
@@ -380,6 +391,10 @@ void Sandbox::ImGuiLayer(void) {
     ImGui::Image((void*)(uintptr_t)texture["image"].id(), port, {0.0f, 1.0f}, {1.0f, 0.0f});
     ImGui::End();
     ImGui::PopStyleVar();
+
+    ///////////////////////////////////////////////////////
+    // Interactive image
+    interact.display();
 }
 
 void Sandbox::ImGuiMenuLayer(void) {
@@ -412,6 +427,10 @@ void Sandbox::ImGuiMenuLayer(void) {
             ImGui::EndMenu();
         }
         
+        if (ImGui::MenuItem("Interactive image", "I")) {
+            interact.open();
+        }
+
         ImGui::EndMenu();
     }
 

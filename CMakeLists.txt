@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10.0)
 project(GRender)
 
 option(GRENDER_IMPLOT "Build plotting utilities" OFF)
-option(GRENDER_BUILD_EXAMPLE "Build example on how to use GRender" OFF)
+option(GRENDER_BUILD_EXAMPLE "Build example on how to use GRender" ON)
 
 
 set(CMAKE_CXX_STANDARD 17)

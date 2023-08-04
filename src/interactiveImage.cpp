@@ -13,14 +13,17 @@ InteractiveImage::InteractiveImage(const fs::path& filepath) : m_Texture(utils::
 
 
 InteractiveImage::InteractiveImage(InteractiveImage&& other) noexcept {
-	std::swap(m_View, other.m_View);
-	std::swap(m_IsFocused, other.m_IsFocused);
-	std::swap(m_IsHovered, other.m_IsHovered);
-	std::swap(m_Zoom, other.m_Zoom);
-	std::swap(m_PosMin, other.m_PosMin);
-	std::swap(m_PosMax, other.m_PosMax);
-	std::swap(m_Padding, other.m_Padding);
-	std::swap(m_AspectRatio, other.m_AspectRatio);
+	// Simply copying small variables
+	m_View = other.m_View;
+	m_IsFocused = other.m_IsFocused;
+	m_IsHovered = other.m_IsHovered;
+	m_Zoom = other.m_Zoom;
+	m_PosMin = other.m_PosMin;
+	m_PosMax = other.m_PosMax;
+	m_Padding = other.m_Padding;
+	m_AspectRatio = other.m_AspectRatio;
+
+	// We don't want texture to be copied
 	std::swap(m_Texture, other.m_Texture);
 }
 
@@ -33,7 +36,7 @@ InteractiveImage& InteractiveImage::operator=(InteractiveImage && other) noexcep
 }
 
 void InteractiveImage::display(const std::string& windowName) {
-	if(!m_View) { m_IsFocused = false; return;}
+	if(!m_View) { return; }
 
 	const glm::uvec2& texSize = m_Texture.size();
 	const float ratio = static_cast<float>(texSize.x) / static_cast<float>(texSize.y);
@@ -42,11 +45,12 @@ void InteractiveImage::display(const std::string& windowName) {
 	const ImVec2 winSize = (ratio > 1.0f) ? ImVec2{ 1024.0f, 1024.0f / ratio + titleHeight}
 										  : ImVec2{ ratio * 728.0f, 728.0f + titleHeight};
 
-	ImGui::SetNextWindowSize(winSize, ImGuiCond_Once);
 	ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, {m_Padding.x, m_Padding.y});
 
 	// Starting windows
     ImGui::Begin(windowName.c_str(), &m_View);
+	ImGui::SetWindowSize(winSize, ImGuiCond_Once);
+
 	m_IsHovered = ImGui::IsWindowHovered();
 	m_IsFocused = ImGui::IsWindowFocused();
 
