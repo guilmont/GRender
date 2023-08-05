@@ -39,15 +39,11 @@ private:
 	bool m_IsFocused = false;
 	bool m_IsHovered = false;
 
-	glm::vec2 m_Zoom = {1.0f, 1.0f};
+	float m_Zoom = 1.0f;
 
 	// Texture coordinates to use with ImGui::Image
 	glm::vec2 m_PosMin = {0.0f, 0.0f};
 	glm::vec2 m_PosMax = {1.0f, 1.0f};
-
-	// Used to centralize image
-	glm::vec2 m_Padding = {0.0f, 0.0f};
-	glm::vec2 m_AspectRatio = {1.0f, 1.0f};
 
 	Texture m_Texture;
 };
