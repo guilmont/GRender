@@ -92,19 +92,10 @@ void InteractiveImage::display(const std::string& windowName) {
     else if (m_PosMax.y > 1.0f) { m_PosMax.y = 1.0f; m_PosMin.y = 1.0f - 1.0f / m_Zoom; }
 
     // Finally displaying image
-    //const ImVec2 imgSize = { portSize.y * ratio, portSize.y };
-    
-    ImVec2 imgSize;
-    if (ratio > 1.0f) {
-        imgSize = { portSize.y * ratio, portSize.y };
-    } else {
-        imgSize = { portSize.x, portSize.x / ratio };
-    }
-
+    const ImVec2 imgSize = { portSize.y * ratio, portSize.y };
     ImGui::Image((void*)(uintptr_t)m_Texture.id(), imgSize, {m_PosMin.x, m_PosMax.y}, {m_PosMax.x, m_PosMin.y});
     ImGui::End();
 
-    ImGui::PopStyleVar();
 }
 
 } // namespace GRender
