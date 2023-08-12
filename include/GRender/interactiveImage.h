@@ -40,6 +40,7 @@ private:
 	bool m_IsHovered = false;
 
 	float m_Zoom = 1.0f;
+	glm::vec2 m_Port = { 1.0f, 1.0f };
 
 	// Texture coordinates to use with ImGui::Image
 	glm::vec2 m_PosMin = {0.0f, 0.0f};
