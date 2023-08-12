@@ -73,7 +73,7 @@ GRender::Application* GRender::createApplication(int argc, char** argv) {
     GRender::dialog::SetDefaultPath(pwd);
 
     // Setup program to use install path as reference
-    const fs::path projPath = fs::path{ argv[0] }.parent_path().parent_path();
+    const fs::path projPath = fs::canonical(argv[0]).parent_path().parent_path();
     fs::current_path(projPath);
 
     INFO("Project path: " + fs::current_path().string());
