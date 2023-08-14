@@ -118,7 +118,6 @@ static void testTimer(GRender::Timer* timer) {
 ///////////////////////////////////////////////////////////////////////////////
 
 Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "assets/layout.ini") {
-    shader.emplace("objects",  "assets/objects.vtx.glsl", "assets/objects.frag.glsl");
     shader.emplace("compute",  "assets/compute.cmp.glsl");
 
     GRender::texture::Specification defSpec;
@@ -200,6 +199,8 @@ void Sandbox::onUserUpdate(float deltaTime) {
     
     ///////////////////////////////////////////////////////////////////////////
 
+    const glm::mat4& viewMatrix = useOrbitalCamera ? orbital.getViewMatrix() : camera.getViewMatrix();
+
     view.bind();
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -217,28 +218,18 @@ void Sandbox::onUserUpdate(float deltaTime) {
     spec.texture = &texture["space"];
 
     quad.submit(spec);
-    quad.draw(useOrbitalCamera ? orbital.getViewMatrix() : camera.getViewMatrix() );
+    quad.draw(viewMatrix);
 
     ///////////////////////////////////////////////////////
-    // OBJECTS ////////////////////////////////////////////
-    const Shader& osh = shader["objects"].bind();
-    if (useOrbitalCamera) {
-        osh.setUniform("u_transform", orbital.getViewMatrix());
-    } else {
-        osh.setUniform("u_transform", camera.getViewMatrix());
-    }
-    osh.setTexture(texture["space"], 0);
-    osh.setTexture(texture["earth"], 1);
-
     // POLYMER ////////////////////////////////////////////
-    poly.draw();
+    poly.draw(viewMatrix);
 
     // CUBE ///////////////////////////////////////////////
     object::Specification obj;
     obj.position = {cos(tt), 7.0f + sin(tt), 0.0f };
     obj.rotation = { 0.0f, tt, 0.2f * tt };
     obj.scale.x = 1.0f + 0.7f * cos(tt);
-    obj.textureID = 1;
+    obj.texture = &texture["earth"];
     cube.submit(obj);
 
     // SPHERE OF CUBES ////////////////////////////////////
@@ -246,7 +237,7 @@ void Sandbox::onUserUpdate(float deltaTime) {
     glm::vec3 com = { -7.0f, 6.0f, 0.0f };
 
     obj.scale = glm::vec3{0.2f};
-    obj.textureID = -1;
+    obj.texture = nullptr;
 
     const size_t N = 7;
     const size_t NY = N + 2 * (N >> 1);
@@ -274,26 +265,25 @@ void Sandbox::onUserUpdate(float deltaTime) {
     obj.position = com + osc * glm::vec3{0.0f, -0.5f, 0.0f};
     obj.color = {0.0f, 0.0f, 0.0f, 1.0f};
     cube.submit(obj);
-
-    cube.draw();
+    cube.draw(viewMatrix);
 
     // SPHERE ////////////////////////////////////////////////
     object::Specification obj2;
     obj2.position = { 7.0f, -5.0f, 0.0f };
     obj2.rotation = { 0.0f, -0.5f*tt, 0.0f };
     obj2.scale = glm::vec3{ 4.0f };
-    obj2.textureID = 1;
+    obj2.texture = &texture["earth"];
     sphere.submit(obj2);
-    sphere.draw();
+    sphere.draw(viewMatrix);
 
     // CYLINDER ///////////////////////////////////////////
     object::Specification obj3;
     obj3.position = {-8.0f, -6.0f, 0.0f};
     obj3.scale = glm::vec3(2.0f);
     obj3.rotation = { tt, 0.5f*cos(tt), 0.5f * 3.1415f };
-    obj3.textureID = 0;
+    obj3.texture = &texture["space"];
     cylinder.submit(obj3);
-    cylinder.draw();
+    cylinder.draw(viewMatrix);
 
     view.unbind();
 

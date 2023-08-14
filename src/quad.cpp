@@ -40,7 +40,7 @@ constexpr std::string_view fragmentShader =
     "}                                                                              \n";
 
 
-std::unique_ptr<Shader> Quad::m_Shader;
+std::unique_ptr<Shader> Quad::m_Shader = nullptr;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 /// QUAD IMPLEMENTATION /////////////////////////////////////////////////////////////////
@@ -151,8 +151,9 @@ void Quad::submit(const Specification& spec) {
 
     int32_t texID = -1;
     if (spec.texture) {
-        auto it = m_TextureMap.emplace(spec.texture, m_TextureMap.size());
-        texID = it.second;
+        auto it = m_TextureMap.emplace(spec.texture, static_cast<int32_t>(m_TextureMap.size()));
+        texID = it.first->second;
+        ASSERT(texID < 32, "Cannot use more than 32 textures at the same draw call");
     }
 
     for (uint32_t k = 0; k < 4; k++) {

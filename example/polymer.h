@@ -27,7 +27,7 @@ public:
     glm::vec3& sphereColor(void) { return m_SphereColor; }
     glm::vec3& cylinderColor(void) { return m_CylinderColor; }
 
-    void draw(void);
+    void draw(const glm::mat4& viewMatrix);
 
 private:
     struct CData {

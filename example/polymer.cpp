@@ -64,7 +64,7 @@ Polymer& Polymer::operator=(Polymer&& poly) noexcept {
 }
 
 
-void Polymer::draw(void) {
+void Polymer::draw(const glm::mat4& viewMatrix) {
     GRender::object::Specification obj;
     obj.color = glm::vec4{m_SphereColor, 1.0f};
     obj.scale = glm::vec3(2.0f * m_Radius);
@@ -72,7 +72,7 @@ void Polymer::draw(void) {
         obj.position = pos;
         m_Sphere.submit(obj);
     }
-    m_Sphere.draw();
+    m_Sphere.draw(viewMatrix);
 
     obj.color = glm::vec4{m_CylinderColor, 1.0f};
     obj.scale = {  1.0f, m_Radius, m_Radius };
@@ -82,7 +82,7 @@ void Polymer::draw(void) {
         obj.scale.x = dt.height;
         m_Cylinder.submit(obj);
     }
-    m_Cylinder.draw();
+    m_Cylinder.draw(viewMatrix);
 }
 
 
