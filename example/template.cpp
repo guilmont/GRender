@@ -118,7 +118,6 @@ static void testTimer(GRender::Timer* timer) {
 ///////////////////////////////////////////////////////////////////////////////
 
 Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "assets/layout.ini") {
-    shader.emplace("quad",     "assets/quad.vtx.glsl",    "assets/quad.frag.glsl"   );
     shader.emplace("objects",  "assets/objects.vtx.glsl", "assets/objects.frag.glsl");
     shader.emplace("compute",  "assets/compute.cmp.glsl");
 
@@ -215,18 +214,10 @@ void Sandbox::onUserUpdate(float deltaTime) {
     spec.position = { 6.0f + sin(tt), 7.0f, 0.0f};
     spec.size = 1.5f * glm::vec2{ float(sz.x) / float(sz.y), 1.0f };
     spec.texCoord = glm::vec4{ 0.0f, 0.0f, 2.0f, 2.0f };
-    spec.texID = 0;
-
-    auto& qsh = shader["quad"].bind();
-    qsh.setTexture(texture["space"], spec.texID);
-    if (useOrbitalCamera) {
-        qsh.setUniform("u_transform", orbital.getViewMatrix());
-    } else {
-        qsh.setUniform("u_transform", camera.getViewMatrix());
-    }
+    spec.texture = &texture["space"];
 
     quad.submit(spec);
-    quad.draw();
+    quad.draw(useOrbitalCamera ? orbital.getViewMatrix() : camera.getViewMatrix() );
 
     ///////////////////////////////////////////////////////
     // OBJECTS ////////////////////////////////////////////
