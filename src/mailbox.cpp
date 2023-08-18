@@ -76,8 +76,8 @@ void Error::show(void) {
 
 /////////////////////////////
 
-Progress::Progress(const std::string& msg, void (*cancelFunction)(void*), void* ptr) 
-    : Message(msg), function(cancelFunction), ptr(ptr), zero(Clock::now()) {}
+Progress::Progress(const std::string& msg, const std::function<void(void)>& cancelFunction) 
+    : Message(msg), m_CancelFunction(cancelFunction), zero(Clock::now()) {}
 
 void Progress::show(void) {
     if (!is_read)
@@ -90,9 +90,9 @@ void Progress::show(void) {
 
     if (!is_read) {
         ImGui::SameLine();
-        if (ImGui::Button("Cancel")) {
+        if (m_CancelFunction && ImGui::Button("Cancel")) {
             is_read = true;
-            function(ptr);
+            m_CancelFunction();
         }
     }
 
@@ -105,8 +105,8 @@ void Progress::show(void) {
 
 /////////////////////////////
 
-Timer::Timer(const std::string& msg, void (*cancelFunction)(void*), void* ptr)
-    : Message(msg), function(cancelFunction), ptr(ptr), zero(Clock::now()) {}
+Timer::Timer(const std::string& msg, const std::function<void(void)>& cancelFunction)
+    : Message(msg), m_CancelFunction(cancelFunction), zero(Clock::now()) {}
 
 void Timer::show(void) {
     if (!is_read)
@@ -116,10 +116,9 @@ void Timer::show(void) {
 
     if (!is_read) {
         ImGui::SameLine();
-        if (ImGui::Button("Cancel"))
-        {
+        if (m_CancelFunction && ImGui::Button("Cancel")) {
             stop();
-            function(ptr);
+            m_CancelFunction();
         }
     }
 
@@ -252,12 +251,12 @@ Error* CreateError(const std::string& msg) {
     return internal::MailboxData::Instance()->createMessage<Error>(msg);
 }
 
-Progress* CreateProgress(const std::string& msg, void (*function)(void*), void* ptr) {
-    return internal::MailboxData::Instance()->createMessage<Progress>(msg, function, ptr);
+Progress* CreateProgress(const std::string& msg, const std::function<void(void)>& cancelFunction) {
+    return internal::MailboxData::Instance()->createMessage<Progress>(msg, cancelFunction);
 }
 
-Timer* CreateTimer(const std::string& msg, void(*function)(void*), void* ptr) {
-    return internal::MailboxData::Instance()->createMessage<Timer>(msg, function, ptr);
+Timer* CreateTimer(const std::string& msg, const std::function<void(void)>& cancelFunction) {
+    return internal::MailboxData::Instance()->createMessage<Timer>(msg, cancelFunction);
 }
 
 void ShowMessages(void) {

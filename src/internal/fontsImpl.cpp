@@ -3,6 +3,11 @@
 
 namespace GRender::fonts::internal {
 
+FontsImpl* FontsImpl::Instance() {
+	static FontsImpl impl;
+	return &impl;
+}
+
 FontsImpl::FontsImpl() {
     const float fontSize = 18.0f;
     mFonts["regular"] = ImGui::GetIO().Fonts->AddFontFromMemoryCompressedBase85TTF(OpenSansRegular_compressed_data_base85, fontSize);

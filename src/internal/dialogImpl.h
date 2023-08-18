@@ -7,10 +7,7 @@ namespace GRender::dialog::internal {
 
     class DialogImpl {
     public:
-        static DialogImpl* Instance() {
-            static DialogImpl dialog;
-            return &dialog;
-        }
+        static DialogImpl* Instance();
 
         DialogImpl(const DialogImpl&) = delete;
         DialogImpl& operator=(const DialogImpl&) = delete;

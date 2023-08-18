@@ -38,8 +38,10 @@ private:
     bool
         view_specs = false,
         view_imguidemo = false,
-        view_messages = false,
-        viewport_hover = false;
+        view_messages = true,
+        viewport_hover = false,
+        progressCancel = false,
+        timerCancel = false;
 
 #ifdef BUILD_IMPLOT
     bool view_implotdemo = false;
@@ -89,26 +91,19 @@ GRender::Application* GRender::createApplication(int argc, char** argv) {
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
 
-static bool cancel = false;
-
-static void cancelFunction(void*) {
-    // this will cause confusion is progress and timer are running in parallel, but it is just a quick demo
-    cancel = true;
-};
-
-static void testProgress(float* progress) {
-    cancel = false;
-    while (*progress < 1.0f && !cancel) {
+static void testProgress(bool* cancel, float* progress) {
+    *cancel = false;
+    while (*progress < 1.0f && (*cancel == false)) {
         std::this_thread::sleep_for(std::chrono::milliseconds(250));
         *progress += 0.05f;
     }
     // automatically detects when progress >= 1.0f
 };
 
-static void testTimer(GRender::Timer* timer) {
-    cancel = false;
+static void testTimer(bool* cancel, GRender::Timer* timer) {
+    *cancel = false;
     uint32_t ct = 0;
-    while (++ct < 10 && !cancel) {
+    while (++ct < 10 && (*cancel == false)) {
         std::this_thread::sleep_for(std::chrono::milliseconds(250));
     }
     timer->stop();
@@ -320,14 +315,14 @@ void Sandbox::ImGuiLayer(void) {
         if (ImGui::Button("Error")) { mailbox::CreateError("There was an error!"); }
         ImGui::SameLine();
         if (ImGui::Button("Progress")) {
-            GRender::Progress* prog = mailbox::CreateProgress("Running...", cancelFunction);
-            std::thread thr(testProgress, &prog->progress);
+            GRender::Progress* prog = mailbox::CreateProgress("Running...", [this]() { progressCancel = true; });
+            std::thread thr(testProgress, &progressCancel, &prog->progress);
             thr.detach();
         }
         ImGui::SameLine();
         if (ImGui::Button("Timer")) {
-            GRender::Timer* timer = mailbox::CreateTimer("Timing stuff...", cancelFunction);
-            std::thread thr(testTimer, timer);
+            GRender::Timer* timer = mailbox::CreateTimer("Timing stuff...", [this]() { timerCancel = true; });
+            std::thread thr(testTimer, &timerCancel, timer);
             thr.detach();
         }
         ImGui::End();

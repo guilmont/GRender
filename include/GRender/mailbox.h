@@ -39,27 +39,23 @@ struct Error : public Message {
 
 class Progress : public Message {
 public:
-    Progress(const std::string& msg, void (*cancelFunction)(void*), void* ptr = nullptr);
+    Progress(const std::string& msg, const std::function<void(void)>& cancelFunction = nullptr);
     void show(void) override;
     float progress = 0.0f;
 
 private:
-    void (*function)(void*);
-    void* ptr = nullptr;
-
+    std::function<void(void)> m_CancelFunction = nullptr;
     TimePoint zero, current;
 };
 
 class Timer : public Message {
 public:
-    Timer(const std::string& msg, void (*cancelFunction)(void*), void* ptr = nullptr);
+    Timer(const std::string& msg, const std::function<void(void)>& cancelFunction = nullptr);
     void show(void) override;
     void stop(void);
 
 private:
-    void (*function)(void*);
-    void* ptr = nullptr;
-
+    std::function<void(void)> m_CancelFunction = nullptr;
     TimePoint zero, current;
 };
 
@@ -75,9 +71,9 @@ Warn* CreateWarn(const std::string& msg);
 // Displays an error message in the mailbox
 Error* CreateError(const std::string& msg);
 // Creates and displays a progress bar with cancel options in the mailbox
-Progress* CreateProgress(const std::string& msg, void (*function)(void*), void* ptr = nullptr);
+Progress* CreateProgress(const std::string& msg, const std::function<void(void)>& cancelFunction = nullptr);
 // Creates and displays a timer with cancel options=
-Timer* CreateTimer(const std::string& msg, void (*function)(void*), void* ptr = nullptr);
+Timer* CreateTimer(const std::string& msg, const std::function<void(void)>& cancelFunction = nullptr);
 
 // Schedules mailbox to display next iterations
 void Open(void);

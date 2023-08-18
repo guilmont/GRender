@@ -6,11 +6,8 @@ namespace GRender::fonts::internal {
 
 class FontsImpl {
 public:
-	static FontsImpl* Instance() {
-		static FontsImpl impl;
-		return &impl;
-	}
-
+	static FontsImpl* Instance();
+	
 	FontsImpl(const FontsImpl&) = delete;
 	FontsImpl& operator=(const FontsImpl&) = delete;
 

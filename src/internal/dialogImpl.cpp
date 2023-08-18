@@ -42,6 +42,11 @@ static bool sortingFunction(const  fs::path& p1, const fs::path& p2) {
 
 namespace GRender::dialog::internal {
 
+DialogImpl* DialogImpl::Instance() {
+    static DialogImpl dialog;
+    return &dialog;
+}
+
 DialogImpl::DialogImpl() : mainpath(getHomeDirectory()) {}
 
 void DialogImpl::setMainPath(const fs::path& _path) {
