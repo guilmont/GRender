@@ -1,7 +1,11 @@
 #include "core.h"
 
 namespace GRender::dialog::internal {
+    static int inputCompletion(ImGuiInputTextCallbackData* data);
+
     class DialogImpl {
+        friend int inputCompletion(ImGuiInputTextCallbackData* data);
+
     public:
         static DialogImpl* Instance();
 
