@@ -4,6 +4,8 @@
 #include "events.h"
 #include "mailbox.h"
 
+namespace GRender::dialog::internal {
+
 namespace fs = std::filesystem;
 
 static fs::path getHomeDirectory(void) {
@@ -13,7 +15,7 @@ static fs::path getHomeDirectory(void) {
     return std::getenv("HOME");
 #endif
 }
-
+    
 static bool sortingFunction(const  fs::path& p1, const fs::path& p2) {
     // We want to sort paths so that directories are always on top, hence we have 3 options:
     // 1) Both paths are directories -> Sort alphabetically to lowercase
@@ -40,14 +42,99 @@ static bool sortingFunction(const  fs::path& p1, const fs::path& p2) {
     return str1 < str2;
 }
 
-namespace GRender::dialog::internal {
+
+static int inputCompletion(ImGuiInputTextCallbackData* data) {
+    // In this function, we determine all the available paths that contain inserted partial path
+    // and delete otherwise
+    DialogImpl* diag = reinterpret_cast<DialogImpl*>(data->UserData);
+    fs::path localPath(data->Buf);
+
+    if (localPath.empty()) {
+        localPath = getHomeDirectory();
+        diag->main_path = localPath;
+        diag->updateAvailablePaths();
+        data->InsertChars(0, localPath.string().c_str());
+    }
+
+    // First we work on auto completion
+    if (data->EventFlag == ImGuiInputTextFlags_CallbackCompletion) {
+        const std::string partial = localPath.filename().string();
+
+        // With this partial, we should go to parent path and filter for partial
+        localPath = localPath.parent_path();
+        diag->main_path = localPath;
+        diag->updateAvailablePaths();
+
+        // Removing full paths that don't contain out partial
+        auto removeFunction = std::remove_if(diag->availablePaths.begin(), diag->availablePaths.end(),
+            [diag, &partial](const fs::path& var) -> bool {
+                const std::string local = var.filename().string();
+                for (size_t i = 0; i < partial.length(); ++i) {
+                    if (partial[i] != local[i]) { return true; }
+                }
+                // If reached here, we might need to filter files with a different extension
+                if (fs::is_regular_file(var) && (var.extension().string().compare(diag->mCurrentExt) != 0)) {
+                    return true;
+                }
+                // It passed all tests, so it should not be removed
+                return false;
+            });
+
+        // Actual removal
+        diag->availablePaths.erase(removeFunction, diag->availablePaths.end());
+
+        // If there is only one path left, we set widget string
+        if (diag->availablePaths.size() == 1) {
+            fs::path var = diag->availablePaths.front();
+
+            if (fs::is_regular_file(var) && var.extension().string().compare(diag->mCurrentExt) == 0) {
+                diag->main_path = var;
+                diag->filename = var.stem().string();
+                std::string loc = var.string().substr(data->BufTextLen);
+                data->InsertChars(data->BufTextLen, loc.c_str());
+            }
+            else if (fs::is_directory(var)) {
+                diag->main_path = var;
+                diag->updateAvailablePaths();
+                std::string loc = var.string().substr(data->BufTextLen) + std::string{ fs::path::preferred_separator };
+                data->InsertChars(data->BufTextLen, loc.c_str());
+            }
+        }
+    }
+
+    // Now we handle the edit callbacks. For the moment we care only if we are deleting big chunks of data
+    else if (data->EventFlag == ImGuiInputTextFlags_CallbackEdit) {
+        
+        const bool ctrl = GRender::keyboard::IsDown(GRender::Key::RIGHT_CONTROL)
+                        || GRender::keyboard::IsDown(GRender::Key::LEFT_CONTROL);
+
+        const bool backspace = GRender::keyboard::IsDown(GRender::Key::BACKSPACE);
+
+        if (ctrl && backspace) {
+            std::string strPath = diag->main_path.string();
+            if (strPath.back() == fs::path::preferred_separator) {
+                strPath.resize(strPath.size() - 1);
+            }
+            size_t pos = strPath.find_last_of(fs::path::preferred_separator);
+            strPath.resize(pos + 1);
+            diag->main_path = strPath;
+            diag->updateAvailablePaths();
+
+            data->DeleteChars(0, data->BufTextLen);
+            data->InsertChars(0, strPath.c_str());
+        }
+        
+    }
+
+    return 0;
+}
 
 DialogImpl* DialogImpl::Instance() {
     static DialogImpl dialog;
     return &dialog;
 }
 
-DialogImpl::DialogImpl() : mainpath(getHomeDirectory()) {}
+DialogImpl::DialogImpl() : main_path(getHomeDirectory()) {}
 
 void DialogImpl::setMainPath(const fs::path& _path) {
     if (!fs::is_directory(_path)) {
@@ -55,7 +142,7 @@ void DialogImpl::setMainPath(const fs::path& _path) {
         return;
     }
 
-    mainpath = _path;
+    main_path = _path;
 }
 
 void DialogImpl::openDirectory(const std::string& title, const std::function<void(const fs::path&)>& callback) {
@@ -120,7 +207,7 @@ void DialogImpl::showOpenDirectory(void) {
 
     if (status) {
         mActive = false;
-        mCallback(mainpath);
+        mCallback(main_path);
     }
 }
 
@@ -154,9 +241,9 @@ void DialogImpl::showOpenFile(void) {
     ImGui::End();
 
     if (status) {
-        mCallback(mainpath);
+        mCallback(main_path);
         mActive = false;
-        mainpath = mainpath.parent_path(); // going back to parent directory
+        main_path = main_path.parent_path(); // going back to parent directory
     }
 }
 
@@ -195,7 +282,7 @@ void DialogImpl::showSaveFile(void) {
     bool check = ImGui::IsKeyDown(ImGuiKey_Enter);
     ImVec2 btnSize = { ImGui::GetFontSize() * 6.0f, 0.0f };
     if ((ImGui::Button("Save", btnSize) || check) && filename.size() > 0) {
-        mainpath /= (filename + mCurrentExt);
+        main_path /= (filename + mCurrentExt);
         status = true;
     }
     ImGui::SameLine();
@@ -207,18 +294,18 @@ void DialogImpl::showSaveFile(void) {
     // Let's check if file already exists
     if (status) {
         mActive = false;
-        mExistsPopup = fs::is_regular_file(mainpath);
+        mExistsPopup = fs::is_regular_file(main_path);
 
         if (!mExistsPopup) {
-            mCallback(mainpath);
-            mainpath = mainpath.parent_path();
+            mCallback(main_path);
+            main_path = main_path.parent_path();
         }
     }
 }
 
 void DialogImpl::fileExistsPopup(void) {
     bool status = false;
-    const std::string& name = mainpath.filename().string();
+    const std::string& name = main_path.filename().string();
 
     ImGui::Begin("File exists");
     ImGui::SetWindowSize({ 0.0f, 100.0f });
@@ -239,21 +326,21 @@ void DialogImpl::fileExistsPopup(void) {
     ImGui::End();
 
     if (status) {
-        mCallback(mainpath);
+        mCallback(main_path);
     }
 
     if (!mExistsPopup) {
-        mainpath = mainpath.parent_path();
+        main_path = main_path.parent_path();
     }
 }
 
 void DialogImpl::updateAvailablePaths(void) {
     availablePaths.clear();
 
-    if (!fs::exists(mainpath))
+    if (!fs::exists(main_path))
         return;
 
-    for (auto entry : fs::directory_iterator(mainpath, fs::directory_options::skip_permission_denied)) {
+    for (auto entry : fs::directory_iterator(main_path, fs::directory_options::skip_permission_denied)) {
         const fs::path& path = entry.path();
 
         try {
@@ -275,58 +362,6 @@ void DialogImpl::updateAvailablePaths(void) {
     std::sort(availablePaths.begin(), availablePaths.end(), sortingFunction);
 }
 
-int inputCompletion(ImGuiInputTextCallbackData* data) {
-    // In this function, we determine all the available paths that contain inserted partial path
-    // and delete otherwise
-    DialogImpl* diag = reinterpret_cast<DialogImpl*>(data->UserData);
-    fs::path localPath(data->Buf);
-    std::string partial = localPath.filename().string();
-
-    // With this partial, we should go to parent path and filter for partial
-    localPath = localPath.parent_path();
-    diag->mainpath = localPath;
-    diag->updateAvailablePaths();
-
-    ///////////////////////////////////////////////////////
-    // Removing different paths
-    //
-    // Setup a lambda function which determines simular partial paths
-    auto removeFunction = std::remove_if(diag->availablePaths.begin(), diag->availablePaths.end(),
-        [&partial](const fs::path& var) -> bool {
-            std::string loc = var.filename().string();
-
-    for (size_t k = 0; k < partial.size(); k++) {
-        if (loc[k] != partial[k]) { return true; }
-    }
-    return false;
-        });
-
-    // Actual removal
-    diag->availablePaths.erase(removeFunction, diag->availablePaths.end());
-
-    ///////////////////////////////////////////////////////
-
-    // If there is only one path left, we set widget string
-    if (diag->availablePaths.size() == 1) {
-        fs::path var = diag->availablePaths.front();
-
-        if (fs::is_regular_file(var) && var.extension().string().compare(diag->mCurrentExt) == 0) {
-            diag->mainpath = var;
-            diag->filename = var.stem().string();
-            std::string loc = var.string().substr(data->BufTextLen);
-            data->InsertChars(data->BufTextLen, loc.c_str());
-        }
-        else if (fs::is_directory(var)) {
-            diag->mainpath = var;
-            diag->updateAvailablePaths();
-            std::string loc = var.string().substr(data->BufTextLen);
-            data->InsertChars(data->BufTextLen, loc.c_str());
-        }
-    }
-
-    return 0;
-}
-
 bool DialogImpl::systemDisplay(void) {
     // As this function runs to all dialogs, we can provide a shortcut to close dialogs on escape event
     if (keyboard::IsPressed(Key::ESCAPE)) {
@@ -337,39 +372,40 @@ bool DialogImpl::systemDisplay(void) {
     ImGui::SameLine();
 
     if (ImGui::Button("Home")) {
-        mainpath = getHomeDirectory();
+        main_path = getHomeDirectory();
         updateAvailablePaths();
     }
     ImGui::SameLine();
-    if (ImGui::Button("Back") && fs::is_directory(mainpath.parent_path())) {
-        mainpath = mainpath.parent_path();
+    if (ImGui::Button("Back") && fs::is_directory(main_path.parent_path())) {
+        main_path = main_path.parent_path();
         updateAvailablePaths();
     }
 
     bool status = false;
     char loc[512] = { 0 };
-    const std::string& locMain = mainpath.string();
+    const std::string& locMain = main_path.string();
     std::copy(locMain.begin(), locMain.end(), loc);
     ImGui::PushItemWidth(0.97f * ImGui::GetWindowWidth());
-    ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue
-        | ImGuiInputTextFlags_CallbackCompletion;
+    const ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue
+                                    | ImGuiInputTextFlags_CallbackCompletion 
+                                    | ImGuiInputTextFlags_CallbackEdit;
 
     if (ImGui::InputText("##MainAdress", loc, 512, flags, inputCompletion, this)) {
         fs::path var(loc);
         if (fs::is_regular_file(var)) {
             if (var.extension().string().compare(mCurrentExt) == 0) {
-                mainpath = var;
+                main_path = var;
                 filename = var.stem().string();
                 status = true;
             }
             else {
-                mainpath = var.parent_path();
+                main_path = var.parent_path();
                 filename = var.stem().string();
                 updateAvailablePaths();
             }
         }
         else if (fs::is_directory(var)) {
-            mainpath = std::move(var);
+            main_path = std::move(var);
             updateAvailablePaths();
         }
     }
@@ -383,7 +419,7 @@ bool DialogImpl::systemDisplay(void) {
 
         if (fs::is_directory(apath)) {
             if (ImGui::Selectable(name.c_str(), true)) {
-                mainpath = apath;
+                main_path = apath / "";
                 updateAvailablePaths();
                 break; // availablePaths will be different, so we stop the loop here
             }
@@ -393,7 +429,7 @@ bool DialogImpl::systemDisplay(void) {
             ImGui::PushStyleColor(ImGuiCol_HeaderHovered, { 0.2f, 0.7f, 0.2f, 1.0f });
 
             if (ImGui::Selectable(name.c_str(), false)) {
-                mainpath = apath;
+                main_path = apath;
                 filename = name;
                 status = true;
             }

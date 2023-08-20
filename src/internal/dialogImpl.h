@@ -1,10 +1,6 @@
 #include "core.h"
 
 namespace GRender::dialog::internal {
-    namespace fs = std::filesystem;
-    // Used
-    int inputCompletion(ImGuiInputTextCallbackData* data);
-
     class DialogImpl {
     public:
         static DialogImpl* Instance();
@@ -55,7 +51,7 @@ namespace GRender::dialog::internal {
 
         // File path variables
         std::string filename = "";
-        std::filesystem::path mainpath;
+        std::filesystem::path main_path;
         std::vector<std::filesystem::path> availablePaths;
         friend int inputCompletion(ImGuiInputTextCallbackData* data);
     };
