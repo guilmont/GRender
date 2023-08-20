@@ -49,13 +49,6 @@ static int inputCompletion(ImGuiInputTextCallbackData* data) {
     DialogImpl* diag = reinterpret_cast<DialogImpl*>(data->UserData);
     fs::path localPath(data->Buf);
 
-    if (localPath.empty()) {
-        localPath = getHomeDirectory();
-        diag->main_path = localPath;
-        diag->updateAvailablePaths();
-        data->InsertChars(0, localPath.string().c_str());
-    }
-
     // First we work on auto completion
     if (data->EventFlag == ImGuiInputTextFlags_CallbackCompletion) {
         const std::string partial = localPath.filename().string();
