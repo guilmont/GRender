@@ -2,13 +2,15 @@
 
 #include "core.h"
 
+#include "shaderUtils.h"
+
 namespace GRender {
 class Texture;
+class StorageBuffer;
 
 class Shader {
 public:
-    Shader(const std::filesystem::path& vtxPath, const std::filesystem::path& frgPath);
-    Shader(const std::filesystem::path& computePath);
+    Shader(const std::filesystem::path& vertexPath, const std::filesystem::path& fragmentPath);
     Shader(void) = default;
     ~Shader(void);
 
@@ -23,24 +25,17 @@ public:
     // Return a reference to current object for easier handling
     const Shader& bind(void);
 
-    // Used to dispatch compute shader programs
-    void dispatch(uint32_t numGroupsX, uint32_t numGroupsY = 1, uint32_t numGroupsZ = 1) const;
+    // A set of uniforms predefined by OpenGL.
+    template<typename TP>
+    void setUniform(const std::string& name, const TP& value) const {
+        shader::internal::setUniform<TP>(m_ProgramID, name, value);
+    }
 
+    // Sends texture to GPU at set slot
     void setTexture(const Texture& tex, uint32_t slot = 0) const;
 
-
-    template<typename TP>
-    void setUniform(const std::string&, const TP&) const;
-
-
 private:
-    enum class Type : uint8_t {
-        RENDER = 0,
-        COMPUTE = 1,
-    };
-
-    uint32_t programID = 0;
-    Type type = Type::RENDER;
+    uint32_t m_ProgramID = 0;
 };
 
 } // namespace GRender

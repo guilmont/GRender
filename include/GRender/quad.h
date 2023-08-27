@@ -42,7 +42,7 @@ public:
 
     // Insert a quad into the buffer for drawing
     void submit(const quad::Specification& spec = quad::Specification());
-    // Draws all quads in buffer at once. Depending on camera used, a view matrix shall be providaded
+    // Draws all quads in buffer at once. Depending on camera used, a view matrix shall be provided
     void draw(const glm::mat4& viewMatrix);
 
 private:

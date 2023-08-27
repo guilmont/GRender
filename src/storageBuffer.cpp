@@ -5,7 +5,7 @@ namespace GRender {
 StorageBuffer::StorageBuffer(size_t numBytes, const void* data) : m_NumBytes(numBytes) {
     glGenBuffers(1, &m_BufferID);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BufferID);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, m_NumBytes, data, GL_DYNAMIC_COPY);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, m_NumBytes, data, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0);
 }
 

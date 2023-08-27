@@ -6,12 +6,10 @@
 #include "GRender/entryPoint.h"
 
 #include "GRender/camera.h"
-#include "GRender/orbitalCamera.h"
-
+#include "GRender/computeShader.h"
 #include "GRender/interactiveImage.h"
-
+#include "GRender/orbitalCamera.h"
 #include "GRender/quad.h"
-#include "GRender/shader.h"
 #include "GRender/table.h"
 #include "GRender/utils.h"
 #include "GRender/viewport.h"
@@ -47,8 +45,7 @@ private:
     bool view_implotdemo = false;
 #endif
 
-    GRender::Viewport view;
-    GRender::Table<GRender::Shader> shader;
+    GRender::ComputeShader compShader;
     GRender::Table<GRender::Texture> texture;
 
     bool useOrbitalCamera = true;
@@ -62,6 +59,7 @@ private:
     GRender::Sphere sphere;
     GRender::Cylinder cylinder;
 
+    GRender::Viewport view;
     GRender::InteractiveImage interact;
 
     glm::vec3 bgColor = { 0.3f, 0.3f, 0.3f };
@@ -113,7 +111,7 @@ static void testTimer(bool* cancel, GRender::Timer* timer) {
 ///////////////////////////////////////////////////////////////////////////////
 
 Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "assets/layout.ini") {
-    shader.emplace("compute",  "assets/compute.cmp.glsl");
+    compShader = GRender::ComputeShader(fs::path{ "assets/compute.cmp.glsl" });
 
     GRender::texture::Specification defSpec;
     view = GRender::Viewport({ 1200, 800 }, { defSpec }, true);
@@ -285,10 +283,14 @@ void Sandbox::onUserUpdate(float deltaTime) {
     ///////////////////////////////////////////////////////
     // COMPUTE SHADER /////////////////////////////////////
 
-    const Shader& cpshd = shader["compute"].bind();
-    cpshd.setUniform("time", tt);
-    cpshd.setTexture(texture["image"]);
-    cpshd.dispatch(25, 20);
+    const glm::uvec2  dimensions = texture["image"].size();
+    const uint32_t numGroupsX = dimensions.x / 32; 
+    const uint32_t numGroupsY = dimensions.y / 32;
+
+    compShader.bind();
+    compShader.setUniform("time", tt);
+    compShader.setTexture(texture["image"]);
+    compShader.dispatch(numGroupsX, numGroupsY);
 }
 
 void Sandbox::ImGuiLayer(void) {

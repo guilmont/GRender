@@ -23,6 +23,19 @@ public:
     void bind(uint32_t location = 0) const;
     void update(const void* data, size_t offset = 0, size_t numBytes = 0);
 
+    template <typename TP>
+    std::vector<TP> getBuffer(size_t offset = 0ul, size_t numElements = 0ul) const {
+        // Default size return all the available data 
+        if (numElements == 0ul) {
+            numElements = m_NumBytes / sizeof(TP);
+        }
+
+        std::vector<TP> vec(numElements);
+        glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_BufferID);
+        glGetBufferSubData(GL_SHADER_STORAGE_BUFFER, offset, numElements * sizeof(TP), vec.data());
+        return vec;
+    }
+
     operator bool() const { return m_BufferID > 0; }
 private:
     uint32_t m_BufferID = 0;
