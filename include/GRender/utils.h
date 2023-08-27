@@ -23,9 +23,8 @@ template<>
 inline std::pair<ImGuiDataType, const char*> getParameters<double>() { return {ImGuiDataType_Double, "%.3f"}; }
 
 
-static void TextSpaceAndWidth(std::string& txt, float split, float width) {
+static void TextSpaceAndWidth(const std::string& txt, float split, float width) {
     ImGui::Text(txt.c_str());
-	txt = "##" + txt;
 
     if (split < 0.0f) { ImGui::SameLine(); }
     else              { ImGui::SameLine(split * ImGui::GetContentRegionAvail().x); }
@@ -46,54 +45,96 @@ void PerformanceDisplay(bool& view);
 // Show ImGui Demo with all widgets and more
 void ViewWidgetsDemo(bool& view);
 
-// Drag width for normal primitive variables
+/// DRAG //////////////////////////////////////////////////////////////////////
+
 template <typename TP>
 static bool Drag(std::string label, TP& value,
-          const float split = -1.0f,  // 0 < val < 1 -> ratio of available space to start box
-          const float boxWidth = -1.0f, // 0 < val < 1 -> ratio of space for box width
-          const float speed = 1.0f,
-          const TP minValue = std::numeric_limits<TP>::min(),
-          const TP maxValue = std::numeric_limits<TP>::max(),
-          const char* format = nullptr) {
+    const float split = -1.0f,  // 0 < val < 1 -> ratio of available space to start box
+    const float boxWidth = -1.0f, // 0 < val < 1 -> ratio of space for box width
+    const float speed = 1.0f,
+    const TP minValue = std::numeric_limits<TP>::min(),
+    const TP maxValue = std::numeric_limits<TP>::max(),
+    const char* format = nullptr,
+    const float power = 1.0f) {
 
     internal::TextSpaceAndWidth(label, split, boxWidth);
-    auto [dtype, fmt] = internal::getParameters<TP>();
+    auto [imType, fmt] = internal::getParameters<TP>();
 
-    return ImGui::DragScalar(label.c_str(), dtype, &value, speed, &minValue, &maxValue,
-                             format ? format : fmt);
+    return ImGui::DragScalar(label.c_str(), imType, &value, speed, &minValue, &maxValue, format ? format : fmt, power);
 }
 
-// Drag widget for glm vectors of any size
 template <typename TP, size_t N>
-static bool Drag(std::string label, glm::vec<N, TP>& value,
-          const float split = -1.0f,
-          const float boxWidth = -1.0f,
-          const float speed = 1.0f,
-          const TP minValue = std::numeric_limits<TP>::min(),
-          const TP maxValue = std::numeric_limits<TP>::max(),
-          const char* format = nullptr) {
-
+static bool Drag(const std::string& label, glm::vec<N, TP>& value,
+    const float split = -1.0f,
+    const float boxWidth = -1.0f,
+    const float speed = 1.0f,
+    const TP minValue = std::numeric_limits<TP>::min(),
+    const TP maxValue = std::numeric_limits<TP>::max(),
+    const char* format = nullptr,
+    const float power = 1.0f) {
+        
     internal::TextSpaceAndWidth(label, split, boxWidth);
-    auto [dtype, fmt] = internal::getParameters<TP>();
-
-    return ImGui::DragScalarN(label.c_str(), dtype, glm::value_ptr(value), N, speed,
-                              &minValue, &maxValue, format ? format : fmt);
+    auto [imType, fmt] = internal::getParameters<TP>();
+    return ImGui::DragScalarN(("##"+label).c_str(), imType, glm::value_ptr(value), N, speed, &minValue, &maxValue, format ? format : fmt, power);
 }
 
-static bool RGB_Edit(std::string label, glm::vec3& color, float split = -1.0f, float boxWidth = -1.0f) {
+/// SLIDERS /////////////////////////////////////////////////////////////////// 
+
+template <typename TP>
+static bool Slider(std::string label, TP& value,
+    const float split = -1.0f,  // 0 < val < 1 -> ratio of available space to start box
+    const float boxWidth = -1.0f, // 0 < val < 1 -> ratio of space for box width
+    const float speed = 1.0f,
+    const TP minValue = std::numeric_limits<TP>::min(),
+    const TP maxValue = std::numeric_limits<TP>::max(),
+    const char* format = nullptr,
+    const float power = 1.0f) {
+
     internal::TextSpaceAndWidth(label, split, boxWidth);
-    return ImGui::ColorEdit3(label.c_str(), glm::value_ptr(color));
+    auto [imType, fmt] = internal::getParameters<TP>();
+    return ImGui::SLiderScalar(label.c_str(), imType, &value, speed, &minValue, &maxValue, format ? format : fmt, power);
 }
 
-static bool RGBA_Edit(std::string label, glm::vec4& color, float split = -1.0f, float boxWidth = -1.0f) {
+template <typename TP, size_t N>
+static bool Slider(const std::string& label, glm::vec<N, TP>& value,
+    const float split = -1.0f,
+    const float boxWidth = -1.0f,
+    const float speed = 1.0f,
+    const TP minValue = std::numeric_limits<TP>::min(),
+    const TP maxValue = std::numeric_limits<TP>::max(),
+    const char* format = nullptr,
+    const float power = 1.0f) {
+
     internal::TextSpaceAndWidth(label, split, boxWidth);
-    return ImGui::ColorEdit4(label.c_str(), glm::value_ptr(color));
+    auto [imType, fmt] = internal::getParameters<TP>();
+    return ImGui::DragScalarN(("##"+label).c_str(), imType, glm::value_ptr(value), N, speed, &minValue, &maxValue, format ? format : fmt, power);
 }
 
-static bool Checkbox(std::string label, bool& check, float split = -1.0f) {
+/// COLORS ////////////////////////////////////////////////////////////////////
+
+static bool RGB_Edit(const std::string& label, glm::vec3& color, float split = -1.0f, float boxWidth = -1.0f) {
+    internal::TextSpaceAndWidth(label, split, boxWidth);
+    return ImGui::ColorEdit3(("##"+label).c_str(), glm::value_ptr(color));
+}
+
+static bool RGBA_Edit(const std::string& label, glm::vec4& color, float split = -1.0f, float boxWidth = -1.0f) {
+    internal::TextSpaceAndWidth(label, split, boxWidth);
+    return ImGui::ColorEdit4(("##"+label).c_str(), glm::value_ptr(color));
+}
+
+/// OTHER /////////////////////////////////////////////////////////////////////
+static bool Checkbox(const std::string& label, bool& check, float split = -1.0f) {
     internal::TextSpaceAndWidth(label, split, -1.0f);
-    return ImGui::Checkbox(label.c_str(), &check);
+    return ImGui::Checkbox(("##"+label).c_str(), &check);
 } 
+
+static bool InputText(const std::string& label, std::string& buffer, 
+                      float split = -1.0f, float boxWidth = -1.0f,
+                       ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, 
+                       ImGuiInputTextCallback callback = nullptr, void* userData = nullptr) {
+    internal::TextSpaceAndWidth(label, split, boxWidth);
+    return ImGui::InputText(("##" + label).c_str(), buffer.data(), buffer.size(), flags, callback, userData);
+}
 
 } // namespace utils
 

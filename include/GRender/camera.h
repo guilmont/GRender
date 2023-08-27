@@ -30,11 +30,20 @@ public:
     float& speed(void) { return m_Speed; }
     float& sensitivity(void) { return m_Sensitivity; }
     float& aspectRatio(void) { return m_Ratio; }
-
     // Default values for reset
     glm::vec3& defaultPosition(void) { return m_DefPosition; }
     glm::vec2& defaultAngles(void) { return m_DefAngles; }
     
+    // To use with "const Camera"
+    glm::vec3 position(void) const { return m_Position; }
+    glm::vec2 angles(void) const { return m_Angles; }
+    glm::vec3 defaultPosition(void) const { return m_DefPosition; }
+    glm::vec2 defaultAngles(void) const { return m_DefAngles; }
+    float fOV(void) const { return m_FOV; }
+    float speed(void) const { return m_Speed; }
+    float sensitivity(void) const { return m_Sensitivity; }
+    float aspectRatio(void) const { return m_Ratio; }
+
 protected:
     void calculateFront();
 
