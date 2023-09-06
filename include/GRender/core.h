@@ -50,7 +50,7 @@ inline void glErrorCallback(GLenum, GLenum type, GLuint, GLenum severity,
 							GLsizei, const GLchar* message, const void*) {
 	switch (severity) {
 	case GL_DEBUG_SEVERITY_LOW:
-		std::cerr << "GL_DEBUG_SEVERITY_LOW :: " << type << " => " << message << std::endl;
+		std::cout << "GL_DEBUG_SEVERITY_LOW :: " << type << " => " << message << std::endl;
 		break;
 	case GL_DEBUG_SEVERITY_MEDIUM:
 		std::cout << "GL_DEBUG_SEVERITY_MEDIUM :: " << type << " => " << message << std::endl;

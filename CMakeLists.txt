@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10.0)
+cmake_minimum_required(VERSION 3.16.0)
 project(GRender)
 
 option(GRENDER_IMPLOT "Build plotting utilities" OFF)
@@ -14,8 +14,10 @@ set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -D_DEBUG")
 if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} /EHsc /W4 /w14263 /Za")
-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} /D_CRT_SECURE_NO_WARNINGS")  # so it doesn't bother about std::getenv
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
+	string(REGEX REPLACE "/W3" "/W4" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}") # Apparently there is a bug with MSVC and CMake and a default /W3. We change it by hand
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /w14263 /Za")
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} /D_CRT_SECURE_NO_WARNINGS")  # so it doesn't bother about std::getenv
 endif()
 
 # Setup vendors

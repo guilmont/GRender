@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.16.0)
 project(Template)
 
 # We will generate all the executable in the same location for simplicity
