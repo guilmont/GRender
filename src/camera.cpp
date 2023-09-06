@@ -9,7 +9,7 @@
 namespace GRender {
 
 Camera::Camera(const glm::vec3& defPos, float defPitch, float defYaw)
-: m_DefPosition(defPos), m_Position(defPos), m_Angles({defYaw, defPitch}), m_DefAngles(m_Angles) {
+: m_Angles({defYaw, defPitch}), m_DefAngles(m_Angles), m_Position(defPos), m_DefPosition(defPos) {
     calculateFront();
 }
 
@@ -21,7 +21,7 @@ void Camera::display(void) {
 
     ImGui::Begin("Camera info", &m_Active);
     ImGui::SetWindowSize({ 500.0f, 225.0f }, ImGuiCond_FirstUseEver);
-    
+
     float space = 0.25f;
     float drag = 0.333f;
 
@@ -52,7 +52,7 @@ void Camera::display(void) {
     space += 0.1f; // To account for indentation
 
     ImGui::Dummy({ 0.0f, 10.0f });
- 
+
     ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_None;
     nodeFlags |= ImGuiTreeNodeFlags_Framed;
     //nodeFlags |= ImGuiTreeNodeFlags_AllowItemOverlap;
@@ -65,9 +65,9 @@ void Camera::display(void) {
         value = glm::degrees(m_FOV);
         if (utils::Drag("FOV:", value, space, drag, 0.5f, 15.0f, 60.0f, "%.f"))
             m_FOV = glm::radians(value);
-        
+
         ImGui::Dummy({ 0.0f, 5.0f });
-    
+
         ImGui::Unindent();
         if (ImGui::TreeNode("Defaults")) {
             ImGui::Dummy({0.0f, 5.0f});
@@ -84,7 +84,7 @@ void Camera::display(void) {
             if (utils::Drag("Yaw:", value,  space, drag, 0.25f, -180.0f, 180.0f, "%.f")) {
                 m_DefAngles.x = glm::radians(value);
             }
-            
+
             ImGui::PopID();
             ImGui::Dummy({ 0.0f, 10.0f });
             ImGui::TreePop();
@@ -109,7 +109,7 @@ void Camera::reset() {
 }
 
 void Camera::controls(float deltaTime) {
-    if (keyboard::IsDown('W') || (mouse::Wheel() > 0.0f)) { m_Position += m_Front * m_Speed * deltaTime; } 
+    if (keyboard::IsDown('W') || (mouse::Wheel() > 0.0f)) { m_Position += m_Front * m_Speed * deltaTime; }
     if (keyboard::IsDown('S') || (mouse::Wheel() < 0.0f)) { m_Position -= m_Front * m_Speed * deltaTime; }
 
     if (keyboard::IsDown('E')) { m_Position.y += m_Speed * deltaTime; }

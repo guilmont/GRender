@@ -15,7 +15,7 @@ static fs::path getHomeDirectory(void) {
     return std::getenv("HOME");
 #endif
 }
-    
+
 static bool sortingFunction(const  fs::path& p1, const fs::path& p2) {
     // We want to sort paths so that directories are always on top, hence we have 3 options:
     // 1) Both paths are directories -> Sort alphabetically to lowercase
@@ -41,7 +41,7 @@ static bool sortingFunction(const  fs::path& p1, const fs::path& p2) {
 }
 
 
-static int inputCompletion(ImGuiInputTextCallbackData* data) {
+int inputCompletion(ImGuiInputTextCallbackData* data) {
     // In this function, we determine all the available paths that contain inserted partial path
     // and delete otherwise
     DialogImpl* diag = reinterpret_cast<DialogImpl*>(data->UserData);
@@ -95,7 +95,7 @@ static int inputCompletion(ImGuiInputTextCallbackData* data) {
 
     // Now we handle the edit callbacks. For the moment we care only if we are deleting big chunks of data
     else if (data->EventFlag == ImGuiInputTextFlags_CallbackEdit) {
-        
+
         const bool ctrl = GRender::keyboard::IsDown(GRender::Key::RIGHT_CONTROL)
                         || GRender::keyboard::IsDown(GRender::Key::LEFT_CONTROL);
 
@@ -114,7 +114,7 @@ static int inputCompletion(ImGuiInputTextCallbackData* data) {
             data->DeleteChars(0, data->BufTextLen);
             data->InsertChars(0, strPath.c_str());
         }
-        
+
     }
 
     return 0;
@@ -378,7 +378,7 @@ bool DialogImpl::systemDisplay(void) {
     std::copy(locMain.begin(), locMain.end(), loc);
     ImGui::PushItemWidth(0.97f * ImGui::GetWindowWidth());
     const ImGuiInputTextFlags flags = ImGuiInputTextFlags_EnterReturnsTrue
-                                    | ImGuiInputTextFlags_CallbackCompletion 
+                                    | ImGuiInputTextFlags_CallbackCompletion
                                     | ImGuiInputTextFlags_CallbackEdit;
 
     if (ImGui::InputText("##MainAdress", loc, 512, flags, inputCompletion, this)) {

@@ -15,6 +15,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
    set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS} -Wall -Wextra -pedantic")
 elseif (CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} /EHsc /W4 /w14263 /Za")
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS_DEBUG} /D_CRT_SECURE_NO_WARNINGS")  # so it doesn't bother about std::getenv
 endif()
 
 # Setup vendors
@@ -52,7 +53,6 @@ add_library(GRender STATIC
 
 target_include_directories(GRender PUBLIC "${PROJECT_SOURCE_DIR}/include")
 target_include_directories(GRender PRIVATE "${PROJECT_SOURCE_DIR}/include/GRender")
-target_compile_definitions(GRender PRIVATE _CRT_SECURE_NO_WARNINGS)  # so it doesn't bother about std::getenv
 
 set(DEPENDENCIES glm glad glfw imgui stb_image)
 
@@ -65,5 +65,5 @@ target_link_libraries(GRender PUBLIC ${DEPENDENCIES})
 target_precompile_headers(GRender PUBLIC "include/GRender/core.h")
 
 if (GRENDER_BUILD_EXAMPLE)
-	add_subdirectory("example")    	
+	add_subdirectory("example")
 endif()

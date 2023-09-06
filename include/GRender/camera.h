@@ -16,7 +16,7 @@ public:
     virtual void display(void);
     void open(void);
     void close(void);
-    
+
     // Transformations
     virtual glm::mat4 getViewMatrix(void);
     virtual void reset(void);
@@ -33,7 +33,7 @@ public:
     // Default values for reset
     glm::vec3& defaultPosition(void) { return m_DefPosition; }
     glm::vec2& defaultAngles(void) { return m_DefAngles; }
-    
+
     // To use with "const Camera"
     glm::vec3 position(void) const { return m_Position; }
     glm::vec2 angles(void) const { return m_Angles; }
@@ -54,13 +54,17 @@ protected:
           m_Near = 0.1f,
           m_Far = 1000.0f,
           m_Ratio = 1.0f;
-        
+
     float m_Speed = 10.0f,
           m_Sensitivity = 0.1f;
 
-    glm::vec3 m_Front, m_Side;
-    glm::vec2 m_Angles, m_DefAngles;
-    glm::vec3 m_DefPosition, m_Position;
+    glm::vec2 m_Angles = {-glm::half_pi<float>(), 0.0f},
+              m_DefAngles = {-glm::half_pi<float>(), 0.0f};
+
+    glm::vec3 m_Position = {0.0f, 0.0f, 0.0f},
+              m_DefPosition = {0.0f, 0.0f, 0.0f},
+              m_Front = {-1.0f, 0.0f, 0.0f},
+              m_Side = { 0.0f, 0.0f, 1.0f};
 
 private:
     void lookAround(const glm::vec2& offset);

@@ -24,7 +24,7 @@ inline std::pair<ImGuiDataType, const char*> getParameters<double>() { return {I
 
 
 static void TextSpaceAndWidth(const std::string& txt, float split, float width) {
-    ImGui::Text(txt.c_str());
+    ImGui::Text("%s", txt.c_str());
 
     if (split < 0.0f) { ImGui::SameLine(); }
     else              { ImGui::SameLine(split * ImGui::GetContentRegionAvail().x); }
@@ -72,13 +72,13 @@ static bool Drag(const std::string& label, glm::vec<N, TP>& value,
     const TP maxValue = std::numeric_limits<TP>::max(),
     const char* format = nullptr,
     const float power = 1.0f) {
-        
+
     internal::TextSpaceAndWidth(label, split, boxWidth);
     auto [imType, fmt] = internal::getParameters<TP>();
     return ImGui::DragScalarN(("##"+label).c_str(), imType, glm::value_ptr(value), N, speed, &minValue, &maxValue, format ? format : fmt, power);
 }
 
-/// SLIDERS /////////////////////////////////////////////////////////////////// 
+/// SLIDERS ///////////////////////////////////////////////////////////////////
 
 template <typename TP>
 static bool Slider(std::string label, TP& value,
@@ -92,7 +92,7 @@ static bool Slider(std::string label, TP& value,
 
     internal::TextSpaceAndWidth(label, split, boxWidth);
     auto [imType, fmt] = internal::getParameters<TP>();
-    return ImGui::SLiderScalar(label.c_str(), imType, &value, speed, &minValue, &maxValue, format ? format : fmt, power);
+    return ImGui::SliderScalar(label.c_str(), imType, &value, speed, &minValue, &maxValue, format ? format : fmt, power);
 }
 
 template <typename TP, size_t N>
@@ -126,11 +126,11 @@ static inline bool RGBA_Edit(const std::string& label, glm::vec4& color, float s
 static inline bool Checkbox(const std::string& label, bool& check, float split = -1.0f) {
     internal::TextSpaceAndWidth(label, split, -1.0f);
     return ImGui::Checkbox(("##"+label).c_str(), &check);
-} 
+}
 
-static inline bool InputText(const std::string& label, std::string& buffer, 
+static inline bool InputText(const std::string& label, std::string& buffer,
                       float split = -1.0f, float boxWidth = -1.0f,
-                       ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, 
+                       ImGuiInputTextFlags flags = ImGuiInputTextFlags_None,
                        ImGuiInputTextCallback callback = nullptr, void* userData = nullptr) {
     internal::TextSpaceAndWidth(label, split, boxWidth);
     return ImGui::InputText(("##" + label).c_str(), buffer.data(), buffer.size(), flags, callback, userData);

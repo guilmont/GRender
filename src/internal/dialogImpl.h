@@ -1,7 +1,7 @@
 #include "core.h"
 
 namespace GRender::dialog::internal {
-    static int inputCompletion(ImGuiInputTextCallbackData* data);
+    extern int inputCompletion(ImGuiInputTextCallbackData* data);
 
     class DialogImpl {
         friend int inputCompletion(ImGuiInputTextCallbackData* data);
@@ -57,6 +57,5 @@ namespace GRender::dialog::internal {
         std::string m_Filename = "";
         std::filesystem::path m_MainPath;
         std::vector<std::filesystem::path> m_AvailablePaths;
-        friend int inputCompletion(ImGuiInputTextCallbackData* data);
     };
 } // namespace GRender

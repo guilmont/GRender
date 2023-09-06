@@ -76,7 +76,7 @@ void Error::show(void) {
 
 /////////////////////////////
 
-Progress::Progress(const std::string& msg, const std::function<void(void)>& cancelFunction) 
+Progress::Progress(const std::string& msg, const std::function<void(void)>& cancelFunction)
     : Message(msg), m_CancelFunction(cancelFunction), zero(Clock::now()) {}
 
 void Progress::show(void) {
@@ -184,7 +184,6 @@ void MailboxData::showMessages() {
         return;
 
     ImGui::Begin("Mailbox", &m_Active);
-    const ImVec2 workpos = ImGui::GetMainViewport()->WorkPos;
     ImGui::SetWindowSize({ 720.0f, 405.0f });
 
     ImGui::PushStyleColor(ImGuiCol_ChildBg, { 0.02f, 0.02f, 0.02f, 1.0f });

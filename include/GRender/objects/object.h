@@ -20,7 +20,7 @@ struct Specification {
     Texture* texture = nullptr;
 };
 
-}; // namespace object
+} // namespace object
 
 
 class Object {

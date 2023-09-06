@@ -96,7 +96,7 @@ static void testProgress(bool* cancel, float* progress) {
         *progress += 0.05f;
     }
     // automatically detects when progress >= 1.0f
-};
+}
 
 static void testTimer(bool* cancel, GRender::Timer* timer) {
     *cancel = false;
@@ -105,7 +105,7 @@ static void testTimer(bool* cancel, GRender::Timer* timer) {
         std::this_thread::sleep_for(std::chrono::milliseconds(250));
     }
     timer->stop();
-};
+}
 
 ///////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////
@@ -133,7 +133,7 @@ Sandbox::Sandbox(const std::string& title) : Application(title, 1200, 800, "asse
     spec.wrap.y = Wrap::REPEAT;
     texture.insert("space", GRender::utils::createTextureFromRGBAFile("assets/space.jpg", spec));
     texture.insert("earth", GRender::utils::createTextureFromRGBAFile("assets/earth.jpg", spec));
-    
+
     spec.fmt = Format::RGBA8;
     spec.wrap.x = Wrap::BORDER;
     spec.wrap.y = Wrap::BORDER;
@@ -154,7 +154,7 @@ void Sandbox::onUserUpdate(float deltaTime) {
 
     if (ctrl && keyboard::IsPressed('I')) { view_imguidemo = true; }
 
-    if (keyboard::IsPressed('I')) { 
+    if (keyboard::IsPressed('I')) {
         static bool toggle = false;
         toggle = !toggle;
         toggle ? interact.open() : interact.close();
@@ -189,13 +189,13 @@ void Sandbox::onUserUpdate(float deltaTime) {
         if (useOrbitalCamera) { orbital.controls(deltaTime); }
         else                  { camera.controls(deltaTime);  }
     }
-    
+
     ///////////////////////////////////////////////////////////////////////////
 
     const glm::mat4& viewMatrix = useOrbitalCamera ? orbital.getViewMatrix() : camera.getViewMatrix();
 
     view.bind();
-    
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(bgColor.r, bgColor.g, bgColor.b, 1.0f);
 
@@ -284,7 +284,7 @@ void Sandbox::onUserUpdate(float deltaTime) {
     // COMPUTE SHADER /////////////////////////////////////
 
     const glm::uvec2  dimensions = texture["image"].size();
-    const uint32_t numGroupsX = dimensions.x / 32; 
+    const uint32_t numGroupsX = dimensions.x / 32;
     const uint32_t numGroupsY = dimensions.y / 32;
 
     compShader.bind();
@@ -404,7 +404,7 @@ void Sandbox::ImGuiMenuLayer(void) {
             if (ImGui::MenuItem("Orbital")) { useOrbitalCamera = true; orbital.open(); }
             ImGui::EndMenu();
         }
-        
+
         if (ImGui::MenuItem("Interactive image", "I")) {
             interact.open();
         }
@@ -430,7 +430,7 @@ void Sandbox::ImGuiMenuLayer(void) {
 
         if (ImGui::MenuItem("View mailbox"))
             GRender::mailbox::Open();
-        
+
         ImGui::EndMenu();
     }
 }
