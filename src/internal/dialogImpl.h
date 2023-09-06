@@ -38,25 +38,25 @@ namespace GRender::dialog::internal {
 
     private:
         // window size
-        const glm::vec2 mSize = { 720.0f, 480.0f };
+        const glm::vec2 m_Size = { 720.0f, 480.0f };
 
         // internal control
-        bool mActive = false;
-        bool mExistsPopup = false;
+        bool m_Active = false;
+        bool m_ExistsPopup = false;
         void (DialogImpl::* internalShow)(void) = nullptr;
 
         // titles and extensions
-        std::string mTitle;
-        std::vector<std::string> mExtensions;
-        std::string mCurrentExt = "";
+        std::string m_Title;
+        std::vector<std::string> m_Extensions;
+        std::string m_CurrentExt = "";
 
         // callback info
-        std::function<void(const std::filesystem::path&)> mCallback = nullptr;
+        std::function<void(const std::filesystem::path&)> m_Callback = nullptr;
 
         // File path variables
-        std::string filename = "";
-        std::filesystem::path main_path;
-        std::vector<std::filesystem::path> availablePaths;
+        std::string m_Filename = "";
+        std::filesystem::path m_MainPath;
+        std::vector<std::filesystem::path> m_AvailablePaths;
         friend int inputCompletion(ImGuiInputTextCallbackData* data);
     };
 } // namespace GRender

@@ -2,7 +2,7 @@
 
 namespace GRender {
 
-void winResize_callback(GLFWwindow* window, int width, int height) {
+void winResize_callback(GLFWwindow*, int width, int height) {
     glad_glViewport(0, 0, width, height);
 }
 
@@ -37,10 +37,10 @@ Application::Application(const std::string& name, uint32_t width, uint32_t heigh
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     // Generating resizable window
-    window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), name.c_str(), NULL, NULL);
-    ASSERT(window, "(glfw) -> Failed to create GLFW window!!");
+    m_Window = glfwCreateWindow(static_cast<int>(width), static_cast<int>(height), name.c_str(), NULL, NULL);
+    ASSERT(m_Window, "(glfw) -> Failed to create GLFW window!!");
 
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(m_Window);
     glfwSwapInterval(1); // synchronize with screen updates
 
     // Initialize OPENGL loader
@@ -58,9 +58,9 @@ Application::Application(const std::string& name, uint32_t width, uint32_t heigh
 
     ///////////////////////////////////////////////////////////////////////////
     // HANDLING WINDOW PROPERTIES
-    glfwSetWindowPos(window, static_cast<int>(0.1f * width), static_cast<int>(0.1f*height));
+    glfwSetWindowPos(m_Window, static_cast<int>(0.1f * width), static_cast<int>(0.1f*height));
 
-    glfwSetWindowUserPointer(window, this);
+    glfwSetWindowUserPointer(m_Window, this);
 
     ///////////////////////////////////////////////////////////////////////////
     // SETUP DEAR IMGApplication/IMPLOT CONTEXT
@@ -86,10 +86,10 @@ Application::Application(const std::string& name, uint32_t width, uint32_t heigh
     io.ConfigWindowsMoveFromTitleBarOnly = true;
 
     // Setup path to layout
-    layoutINI = layout.string();
-    io.IniFilename = layoutINI.c_str();
+    m_LayoutINI = layout.string();
+    io.IniFilename = m_LayoutINI.c_str();
 
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(m_Window, true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     // Initializing fonts to regular
@@ -109,11 +109,11 @@ Application::~Application(void) {
 }
 
 void Application::closeApp(void) {
-    glfwSetWindowShouldClose(window, 1);
+    glfwSetWindowShouldClose(m_Window, 1);
 }
 
 void Application::setAppTitle(const std::string& title) {
-    glfwSetWindowTitle(window, title.c_str());
+    glfwSetWindowTitle(m_Window, title.c_str());
 }
 
 void Application::run(void) {
@@ -122,7 +122,7 @@ void Application::run(void) {
     double t0 = glfwGetTime();
 
     // Starting run time loop
-    while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(m_Window)) {
         // Get new events
         glfwPollEvents();
 
@@ -132,7 +132,7 @@ void Application::run(void) {
         ImGui::NewFrame();
 
         // Updating application
-        onUserUpdate(deltaTime);
+        onUserUpdate(m_DeltaTime);
 
         ImGuiWindowFlags window_flags = ImGuiWindowFlags_None;
         window_flags |= ImGuiWindowFlags_MenuBar;
@@ -191,11 +191,11 @@ void Application::run(void) {
         ///////////////////////////////////////////////////
 
         // Swap secondary buffer to screen
-        glfwSwapBuffers(window);
+        glfwSwapBuffers(m_Window);
 
         // Calculating elapsed time for smooth controls
         double tf = glfwGetTime();
-        deltaTime = float(tf - t0);
+        m_DeltaTime = float(tf - t0);
         t0 = tf;
     }
 }

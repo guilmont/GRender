@@ -4,7 +4,7 @@
 
 namespace GRender::shader::internal {
 
-static void CheckShaderError(uint32_t shader, uint32_t flag, bool isProgram, const std::string& msg) {
+static inline void CheckShaderError(uint32_t shader, uint32_t flag, bool isProgram, const std::string& msg) {
     int success = 0;
     if (isProgram) { glGetProgramiv(shader, flag, &success); }
     else           { glGetShaderiv(shader, flag, &success); }
@@ -18,7 +18,7 @@ static void CheckShaderError(uint32_t shader, uint32_t flag, bool isProgram, con
     }
 }
 
-static uint32_t CreateShader(const fs::path& shaderPath, GLenum shaderType) {
+static inline uint32_t CreateShader(const fs::path& shaderPath, GLenum shaderType) {
     // Importing file into stream
     std::ifstream arq(shaderPath);
     std::stringstream strData;
@@ -53,26 +53,26 @@ static uint32_t CreateShader(const fs::path& shaderPath, GLenum shaderType) {
 /////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename TP>
-static void setUniform(uint32_t programID, const std::string& name, const TP& value) {
+inline void setUniform(uint32_t programID, const std::string& name, const TP& value) {
     ASSERT(false, "setUniform -> Unsupported type!");
 }
 
 
 // SINGLE VALUES //////////////////////////////////////////
 template<>
-static void setUniform(uint32_t programID, const std::string& name, const int32_t& val) {
+inline void setUniform(uint32_t programID, const std::string& name, const int32_t& val) {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
     glUniform1i(loc, val);
 }
 
 template<>
-static void setUniform(uint32_t programID, const std::string& name, const uint32_t& val) {
+inline void setUniform(uint32_t programID, const std::string& name, const uint32_t& val) {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
     glUniform1ui(loc, val);
 }
 
 template<>
-static void setUniform(uint32_t programID, const std::string& name, const float& val) {
+inline void setUniform(uint32_t programID, const std::string& name, const float& val) {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
     glUniform1f(loc, val);
 }
@@ -80,19 +80,19 @@ static void setUniform(uint32_t programID, const std::string& name, const float&
 
 // VECTORS TWO ////////////////////////////////////////////
 template<>
-static void setUniform(uint32_t programID, const std::string& name, const glm::ivec2& val) {
+inline void setUniform(uint32_t programID, const std::string& name, const glm::ivec2& val) {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
     glUniform2i(loc, val.x, val.y);
 }
 
 template<>
-static void setUniform(uint32_t programID, const std::string& name, const glm::uvec2& val) {
+inline void setUniform(uint32_t programID, const std::string& name, const glm::uvec2& val) {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
     glUniform2ui(loc, val.x, val.y);
 }
 
 template<>
-static void setUniform(uint32_t programID, const std::string& name, const glm::vec2& val) {
+inline void setUniform(uint32_t programID, const std::string& name, const glm::vec2& val) {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
     glUniform2f(loc, val.x, val.y);
 }
@@ -100,57 +100,57 @@ static void setUniform(uint32_t programID, const std::string& name, const glm::v
 
 // VECTORS THREE //////////////////////////////////////////
 template<>
-static void setUniform(uint32_t programID, const std::string& name, const glm::ivec3& val) {
+inline void setUniform(uint32_t programID, const std::string& name, const glm::ivec3& val) {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
     glUniform3i(loc, val.x, val.y, val.z);
 }
 
 template<>
-static void setUniform(uint32_t programID, const std::string& name, const glm::uvec3& val) {
+inline void setUniform(uint32_t programID, const std::string& name, const glm::uvec3& val) {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
     glUniform3ui(loc, val.x, val.y, val.z);
 }
 
 template<>
-static void setUniform(uint32_t programID, const std::string& name, const glm::vec3& val) {
+inline void setUniform(uint32_t programID, const std::string& name, const glm::vec3& val) {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
     glUniform3f(loc, val.x, val.y, val.z);
 }
 
 // VECTORS FOUR ///////////////////////////////////////////
 template<>
-static void setUniform(uint32_t programID, const std::string& name, const glm::ivec4& val) {
+inline void setUniform(uint32_t programID, const std::string& name, const glm::ivec4& val) {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
     glUniform4i(loc, val.x, val.y, val.z, val.w);
 }
 
 template<>
-static void setUniform(uint32_t programID, const std::string& name, const glm::uvec4& val) {
+inline void setUniform(uint32_t programID, const std::string& name, const glm::uvec4& val) {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
     glUniform4ui(loc, val.x, val.y, val.z, val.w);
 }
 
 template<>
-static void setUniform(uint32_t programID, const std::string& name, const glm::vec4& val) {
+inline void setUniform(uint32_t programID, const std::string& name, const glm::vec4& val) {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
     glUniform4f(loc, val.x, val.y, val.z, val.w);
 }
 
 // MATRICES ///////////////////////////////////////////////
 template<>
-static void setUniform(uint32_t programID, const std::string& name, const glm::mat2& val) {
+inline void setUniform(uint32_t programID, const std::string& name, const glm::mat2& val) {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
     glUniformMatrix2fv(loc, 1, false, glm::value_ptr(val));
 }
 
 template<>
-static void setUniform(uint32_t programID, const std::string& name, const glm::mat3& val) {
+inline void setUniform(uint32_t programID, const std::string& name, const glm::mat3& val) {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
     glUniformMatrix3fv(loc, 1, false, glm::value_ptr(val));
 }
 
 template<>
-static void setUniform(uint32_t programID, const std::string& name, const glm::mat4& val) {
+inline void setUniform(uint32_t programID, const std::string& name, const glm::mat4& val) {
     int32_t loc = glGetUniformLocation(programID, name.c_str());
     glUniformMatrix4fv(loc, 1, false, glm::value_ptr(val));
 }

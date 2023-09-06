@@ -70,25 +70,27 @@ Sphere::Sphere(const uint32_t maxNumSpheres) : Object(maxNumSpheres) {
 
     // Top bulk
     for (size_t k = 1; k < (N >> 1); k++) {
-       // tracks the corners
-       size_t r = k;
+        // tracks the corners
+        size_t r = k;
            
-       // Getting global index to vertices
-       size_t s10 = startIndex(k),
-              s20 = startIndex(k+1),
-              s1 = s10, s2 = s20;
+        // Getting global index to vertices
+        size_t s10 = startIndex(k),
+               s20 = startIndex(k + 1);
+              
+        s1 = s10;
+        s2 = s20;
 
-       for (size_t l = 0; l < (8 * k + 1); l++) {
-           // corner
-           if (l == r) {
-               r += 2 * k;
-               idxBuffer.emplace_back(s1, s2++, s2);
-               idxBuffer.emplace_back(s1, s2++, s2);
-           }
-           // normal
-           idxBuffer.emplace_back(s1, s2++, s2);
-           idxBuffer.emplace_back(s1++, s2, s1);
-       }
+        for (size_t l = 0; l < (8 * k + 1); l++) {
+            // corner
+            if (l == r) {
+                r += 2 * k;
+                idxBuffer.emplace_back(s1, s2++, s2);
+                idxBuffer.emplace_back(s1, s2++, s2);
+            }
+            // normal
+            idxBuffer.emplace_back(s1, s2++, s2);
+            idxBuffer.emplace_back(s1++, s2, s1);
+}
     }
 
     // Total number of triangles produces until here.
@@ -99,7 +101,9 @@ Sphere::Sphere(const uint32_t maxNumSpheres) : Object(maxNumSpheres) {
     for (size_t k = N >> 1; k < N + (N >> 1) - 1; k++) {
        size_t s10 = startIndex(N>>1) + (k - (N >> 1)) * (4 * (N - 1) + 1);
        size_t s20 = s10 + 4 * (N - 1) + 1;
-       size_t s1 = s10, s2 = s20;
+       
+       s1 = s10;
+       s2 = s20;
 
        for (size_t l = 0; l <= 4 * (N - 1) - 1; l++) {
            idxBuffer.emplace_back(s1, s2++, s2);

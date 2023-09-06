@@ -29,10 +29,10 @@ namespace GRender {
         static void DisableVSync(void);
 
     private:
-        GLFWwindow* window = nullptr;
-        float deltaTime = 0.1f;   // This value is going to be uploaded by main loop
+        GLFWwindow* m_Window = nullptr;
+        float m_DeltaTime = 0.1f;   // This value is going to be uploaded by main loop
 
-        std::string layoutINI;
+        std::string m_LayoutINI;
 
         // Callback functions to control flow
         friend void winResize_callback(GLFWwindow*, int, int);

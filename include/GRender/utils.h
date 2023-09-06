@@ -112,23 +112,23 @@ static bool Slider(const std::string& label, glm::vec<N, TP>& value,
 
 /// COLORS ////////////////////////////////////////////////////////////////////
 
-static bool RGB_Edit(const std::string& label, glm::vec3& color, float split = -1.0f, float boxWidth = -1.0f) {
+static inline bool RGB_Edit(const std::string& label, glm::vec3& color, float split = -1.0f, float boxWidth = -1.0f) {
     internal::TextSpaceAndWidth(label, split, boxWidth);
     return ImGui::ColorEdit3(("##"+label).c_str(), glm::value_ptr(color));
 }
 
-static bool RGBA_Edit(const std::string& label, glm::vec4& color, float split = -1.0f, float boxWidth = -1.0f) {
+static inline bool RGBA_Edit(const std::string& label, glm::vec4& color, float split = -1.0f, float boxWidth = -1.0f) {
     internal::TextSpaceAndWidth(label, split, boxWidth);
     return ImGui::ColorEdit4(("##"+label).c_str(), glm::value_ptr(color));
 }
 
 /// OTHER /////////////////////////////////////////////////////////////////////
-static bool Checkbox(const std::string& label, bool& check, float split = -1.0f) {
+static inline bool Checkbox(const std::string& label, bool& check, float split = -1.0f) {
     internal::TextSpaceAndWidth(label, split, -1.0f);
     return ImGui::Checkbox(("##"+label).c_str(), &check);
 } 
 
-static bool InputText(const std::string& label, std::string& buffer, 
+static inline bool InputText(const std::string& label, std::string& buffer, 
                       float split = -1.0f, float boxWidth = -1.0f,
                        ImGuiInputTextFlags flags = ImGuiInputTextFlags_None, 
                        ImGuiInputTextCallback callback = nullptr, void* userData = nullptr) {
